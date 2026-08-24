@@ -67,7 +67,7 @@ import {
   saveAccount,
 } from "./utils/storage";
 import { cn } from "./utils/cn";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/react";
 type MainTab =
   | "overview"
   | "vault"
