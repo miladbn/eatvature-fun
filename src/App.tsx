@@ -266,6 +266,15 @@ export default function App() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <a
+            href="https://github.com/miladbn/eatvature-fun"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Star Eatventure Handbook on GitHub"
+            className="rounded-full border border-[#e8c36a]/20 bg-[#16110b]/80 px-3 py-1.5 text-xs text-[#d9cbb3] transition hover:border-[#e8c36a]/50 hover:text-[#e8c36a]"
+          >
+            <span aria-hidden="true">★</span> Star on GitHub
+          </a>
           <GemChip value={account.gems} label="gems" />
           <GemChip value={account.scrolls} label="scrolls" gem={false} />
           <button type="button" onClick={() => setTab("vault")} className="rounded-full border border-[#e8c36a]/20 bg-[#16110b]/80 px-3 py-1.5 text-xs text-[#e8c36a]">
