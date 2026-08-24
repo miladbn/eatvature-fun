@@ -1,0 +1,115 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,750&family=Outfit:wght@360;420;520;620;720&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #f6efe2;
+  --color-muted: #b8ab96;
+  --color-gold: #e8c36a;
+  --color-gem: #2ee6c7;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #090704;
+  color: #f6efe2;
+  font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a3124;
+  border-radius: 999px;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+.gold-text {
+  background: linear-gradient(180deg, #fff4c8 0%, #e8c36a 46%, #b8892d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gem-text {
+  background: linear-gradient(180deg, #d9fff6 0%, #2ee6c7 50%, #0f9d88 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.panel {
+  background:
+    linear-gradient(180deg, rgba(40, 32, 20, 0.72), rgba(18, 14, 10, 0.86)),
+    rgba(16, 12, 8, 0.8);
+  border: 1px solid rgba(232, 195, 106, 0.16);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 236, 190, 0.06);
+  backdrop-filter: blur(16px);
+}
+
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(255, 236, 190, 0.09) 48%,
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: rise 0.45s ease both;
+}
+
+.field {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(232, 195, 106, 0.18);
+  background: rgba(0, 0, 0, 0.28);
+  padding: 10px 12px;
+  color: #f6efe2;
+  outline: none;
+}
+
+.field:focus {
+  border-color: #e8c36a;
+}
