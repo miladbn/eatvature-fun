@@ -67,7 +67,7 @@ import {
   saveAccount,
 } from "./utils/storage";
 import { cn } from "./utils/cn";
-
+import { Analytics } from "@vercel/analytics/next";
 type MainTab =
   | "overview"
   | "vault"
@@ -451,6 +451,7 @@ function Onboarding({
 }) {
   return (
     <div className="relative min-h-screen bg-[#090704] text-[#f6efe2]">
+      <Analytics />
       <div
         className="absolute inset-0"
         style={{
