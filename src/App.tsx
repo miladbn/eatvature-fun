@@ -1322,9 +1322,9 @@ function AccountEditor({
   setLevel: (id: ItemId, raw: number) => void;
   spendGems: boolean;
   setSpendGems: (v: boolean) => void;
-  confirmReset: boolean;
+  confirmReset?: boolean;
   setConfirmReset: (v: boolean) => void;
-  onReset: () => void;
+  onReset?: () => void;
   emptyHint?: ReactNode;
 }) {
   return (

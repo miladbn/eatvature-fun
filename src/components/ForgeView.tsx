@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { BLUEPRINT_RECIPES } from "../data/gear";
 import type { Account } from "../types";
 import { cn } from "../utils/cn";
+import { EmptyHint } from "./OverviewExtras";
+import { useI18n } from "../utils/i18n";
 
 function parseIngredient(raw: string): { count: number; name: string } {
   const m = raw.match(/^(\d+)\s*[×xX]\s*(.+)$/);
@@ -16,6 +18,7 @@ export function ForgeView({
   account: Account;
   setInventory: (inv: Record<string, number>) => void;
 }) {
+  const { t } = useI18n();
   const [filter, setFilter] = useState("");
   const recipes = useMemo(() => {
     const q = filter.trim().toLowerCase();
@@ -35,6 +38,8 @@ export function ForgeView({
     setInventory(next);
   }
 
+  const invEmpty = Object.keys(account.inventory).length === 0;
+
   return (
     <div className="space-y-5">
       <section className="ticket rounded-2xl p-5">
@@ -45,6 +50,8 @@ export function ForgeView({
           Track pieces you own. Green means you can forge that recipe.
         </p>
       </section>
+
+      {invEmpty && <EmptyHint>{t("emptyForge")}</EmptyHint>}
 
       <div className="panel rounded-2xl p-4">
         <input
