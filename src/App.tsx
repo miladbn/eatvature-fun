@@ -21,6 +21,21 @@ import { MatrixView } from "./components/MatrixView";
 import { ForgeView } from "./components/ForgeView";
 import { ToolsView } from "./components/ToolsView";
 import { EventsView, MoreView } from "./components/EventsView";
+import {
+  CommandPalette,
+  GroupedNav,
+  useCommandPaletteHotkey,
+} from "./components/CommandPalette";
+import {
+  DailyChecklistCard,
+  EmptyHint,
+  EventCountdownCard,
+  GearMatchCard,
+  GemBudgetCard,
+  HistoryChartCard,
+  ProgressGradeCard,
+} from "./components/OverviewExtras";
+import { ResetModal } from "./components/ResetModal";
 import { HANDBOOK_META } from "./data/meta";
 import {
   decodeShareParam,
@@ -29,6 +44,9 @@ import {
   setTheme,
   getActiveProfileId,
 } from "./utils/profiles";
+import { recordHistory, clearHistory } from "./utils/history";
+import { evaluateCityProgress } from "./utils/features";
+import { useI18n, type StringKey } from "./utils/i18n";
 import {
   ARCANE_MAP,
   ARCANE_VAULT_ITEMS,
@@ -133,6 +151,7 @@ const MAIN_TABS: { id: MainTab; label: string; group: string }[] = [
 ];
 
 export default function App() {
+  const { t } = useI18n();
   const [account, setAccount] = useState<Account>(DEFAULT_ACCOUNT);
   const [ready, setReady] = useState(false);
   const [onboarding, setOnboarding] = useState(false);
@@ -140,6 +159,23 @@ export default function App() {
   const [tab, setTab] = useState<MainTab>("overview");
   const [spendGems, setSpendGems] = useState(true);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [historyKey, setHistoryKey] = useState(0);
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    () => new Set(["Reference", "System"]),
+  );
+
+  useCommandPaletteHotkey(setPaletteOpen);
+
+  const localizedTabs = useMemo(
+    () =>
+      MAIN_TABS.map((tabItem) => ({
+        ...tabItem,
+        label: t(tabItem.id as StringKey),
+        group: tabItem.group,
+      })),
+    [t],
+  );
 
   useEffect(() => {
     setTheme(getTheme());
@@ -174,6 +210,8 @@ export default function App() {
     if (ready && !onboarding) {
       saveAccount(account);
       saveProfile(getActiveProfileId(), account);
+      recordHistory(account);
+      setHistoryKey((n) => n + 1);
     }
   }, [account, ready, onboarding]);
 
@@ -312,10 +350,20 @@ export default function App() {
 
   function resetAll() {
     clearAccount();
+    clearHistory();
     setAccount(freshAccount());
     setConfirmReset(false);
     setOnboarding(true);
     setStep(0);
+  }
+
+  function toggleGroup(group: string) {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(group)) next.delete(group);
+      else next.add(group);
+      return next;
+    });
   }
 
   if (!ready) {
@@ -344,9 +392,24 @@ export default function App() {
   }
 
   const cityMeta = cityForNumber(account.city || 1);
+  const unlockedCount = VAULT_ITEMS.filter(
+    (i) => (account.levels[i.id] ?? 0) > 0,
+  ).length;
 
   return (
     <div className="relative min-h-screen overflow-x-hidden text-[#f2f5f3]">
+      <Analytics />
+      <CommandPalette
+        tabs={localizedTabs}
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onSelect={(id) => setTab(id as MainTab)}
+      />
+      <ResetModal
+        open={confirmReset}
+        onCancel={() => setConfirmReset(false)}
+        onConfirm={resetAll}
+      />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] kitchen-grid opacity-40" />
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[380px] opacity-30"
@@ -373,6 +436,14 @@ export default function App() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className="btn-ghost text-xs"
+            onClick={() => setPaletteOpen(true)}
+            title="Ctrl+K"
+          >
+            {t("search")}
+          </button>
           <a
             href="https://github.com/miladbn/eatvature-fun"
             target="_blank"
@@ -398,33 +469,15 @@ export default function App() {
       <main className="relative z-10 mx-auto grid max-w-7xl gap-6 px-4 pb-24 lg:grid-cols-[210px_1fr] sm:px-6">
         <nav className="nav-rail lg:sticky lg:top-4 lg:self-start">
           <div className="mb-1 hidden px-2 text-xs text-[#9bb5af] lg:block">
-            Sections
+            {t("sections")}
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
-            {MAIN_TABS.map(({ id, label, group }, index) => {
-              const prev = MAIN_TABS[index - 1];
-              const showGroup = !prev || prev.group !== group;
-              return (
-                <div key={id} className="contents lg:block">
-                  {showGroup && (
-                    <div className="mb-1 mt-3 hidden px-2 text-[10px] text-[#9bb5af] first:mt-0 lg:block">
-                      {group}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setTab(id)}
-                    className={cn(
-                      "nav-item shrink-0 whitespace-nowrap",
-                      tab === id && "active",
-                    )}
-                  >
-                    {label}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+          <GroupedNav
+            tabs={localizedTabs}
+            active={tab}
+            onSelect={(id) => setTab(id as MainTab)}
+            collapsedGroups={collapsedGroups}
+            toggleGroup={toggleGroup}
+          />
         </nav>
 
         <div className="min-w-0">
@@ -442,6 +495,8 @@ export default function App() {
             spendGems={spendGems}
             onComplete={completeStep}
             onBurst={completeAffordable}
+            historyKey={historyKey}
+            onOpenTab={setTab}
           />
         )}
         {tab === "vault" && (
@@ -454,6 +509,9 @@ export default function App() {
             confirmReset={confirmReset}
             setConfirmReset={setConfirmReset}
             onReset={resetAll}
+            emptyHint={
+              unlockedCount === 0 ? <EmptyHint>{t("emptyVault")}</EmptyHint> : null
+            }
           />
         )}
         {tab === "plan" && (
@@ -486,13 +544,28 @@ export default function App() {
             gemsToPriority={priorityLeft}
           />
         )}
-        {tab === "gear" && <GearView account={account} setGear={setGear} />}
+        {tab === "gear" && (
+          <GearView
+            account={account}
+            setGear={setGear}
+            emptyHint={
+              !(account.gear.head || account.gear.body || account.gear.hand1) ? (
+                <EmptyHint>{t("emptyGear")}</EmptyHint>
+              ) : null
+            }
+          />
+        )}
         {tab === "pets" && (
           <PetsView
             account={account}
             addPet={addPet}
             removePet={removePet}
             updatePetLevel={updatePetLevel}
+            emptyHint={
+              account.pets.length === 0 ? (
+                <EmptyHint>{t("emptyPets")}</EmptyHint>
+              ) : null
+            }
           />
         )}
         {tab === "club" && <ClubView account={account} update={update} />}
@@ -523,6 +596,12 @@ export default function App() {
               setAccount(next);
               setOnboarding(false);
             }}
+            onApplyLevels={(levels) => {
+              setAccount((prev) => ({
+                ...prev,
+                levels: { ...prev.levels, ...levels },
+              }));
+            }}
           />
         )}
         {tab === "events" && <EventsView />}
@@ -534,6 +613,10 @@ export default function App() {
               setAccount(next);
               setOnboarding(false);
             }}
+            onImportCloud={(next) => {
+              setAccount(next);
+              setOnboarding(false);
+            }}
           />
         )}
         </div>
@@ -542,11 +625,11 @@ export default function App() {
       <nav className="mobile-dock lg:hidden">
         {(
           [
-            ["overview", "Home"],
-            ["plan", "Plan"],
-            ["cities", "Cities"],
-            ["tools", "Tools"],
-            ["more", "More"],
+            ["overview", t("overview")],
+            ["plan", t("plan")],
+            ["cities", t("cities")],
+            ["tools", t("tools")],
+            ["more", t("more")],
           ] as const
         ).map(([id, label]) => (
           <button
