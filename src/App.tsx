@@ -16,6 +16,19 @@ import {
 } from "./data/cities";
 import { CitiesView } from "./components/CitiesView";
 import { GuideView } from "./components/GuideView";
+import { CatalogView } from "./components/CatalogView";
+import { MatrixView } from "./components/MatrixView";
+import { ForgeView } from "./components/ForgeView";
+import { ToolsView } from "./components/ToolsView";
+import { EventsView, MoreView } from "./components/EventsView";
+import { HANDBOOK_META } from "./data/meta";
+import {
+  decodeShareParam,
+  getTheme,
+  saveProfile,
+  setTheme,
+  getActiveProfileId,
+} from "./utils/profiles";
 import {
   ARCANE_MAP,
   ARCANE_VAULT_ITEMS,
@@ -33,7 +46,7 @@ import {
   RARITY_ORDER,
   SLOT_LABELS,
 } from "./data/gear";
-import { BEST_PET_COMBOS, PET_FOOD_TO_MAX, PET_MAP, PETS } from "./data/pets";
+import { BEST_PET_COMBOS, PET_FOOD_PER_LEVEL, PET_FOOD_TO_MAX, PET_MAP, PETS } from "./data/pets";
 import type {
   Account,
   ArcaneVaultId,
@@ -83,28 +96,40 @@ type MainTab =
   | "vault"
   | "plan"
   | "totals"
+  | "cities"
   | "gear"
   | "pets"
-  | "club"
-  | "arcane"
   | "builds"
   | "blueprints"
-  | "cities"
-  | "guide";
+  | "club"
+  | "arcane"
+  | "guide"
+  | "catalog"
+  | "matrix"
+  | "forge"
+  | "tools"
+  | "events"
+  | "more";
 
-const MAIN_TABS: { id: MainTab; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "vault", label: "Vault" },
-  { id: "plan", label: "Plan" },
-  { id: "totals", label: "Totals" },
-  { id: "cities", label: "Cities" },
-  { id: "gear", label: "Gear" },
-  { id: "pets", label: "Pets" },
-  { id: "builds", label: "Builds" },
-  { id: "blueprints", label: "Blueprints" },
-  { id: "club", label: "Club" },
-  { id: "arcane", label: "Arcane" },
-  { id: "guide", label: "Guide" },
+const MAIN_TABS: { id: MainTab; label: string; group: string }[] = [
+  { id: "overview", label: "Overview", group: "Play" },
+  { id: "vault", label: "Vault", group: "Play" },
+  { id: "plan", label: "Plan", group: "Play" },
+  { id: "totals", label: "Totals", group: "Play" },
+  { id: "cities", label: "Cities", group: "Play" },
+  { id: "gear", label: "Gear", group: "Loadout" },
+  { id: "pets", label: "Pets", group: "Loadout" },
+  { id: "builds", label: "Builds", group: "Loadout" },
+  { id: "forge", label: "Forge", group: "Loadout" },
+  { id: "blueprints", label: "Blueprints", group: "Loadout" },
+  { id: "catalog", label: "Catalog", group: "Reference" },
+  { id: "matrix", label: "Matrix", group: "Reference" },
+  { id: "club", label: "Club", group: "Reference" },
+  { id: "arcane", label: "Arcane", group: "Reference" },
+  { id: "events", label: "Events", group: "Reference" },
+  { id: "guide", label: "Guide", group: "Reference" },
+  { id: "tools", label: "Tools", group: "System" },
+  { id: "more", label: "More", group: "System" },
 ];
 
 export default function App() {
@@ -117,6 +142,24 @@ export default function App() {
   const [confirmReset, setConfirmReset] = useState(false);
 
   useEffect(() => {
+    setTheme(getTheme());
+    const params = new URLSearchParams(window.location.search);
+    const share = params.get("share");
+    if (share) {
+      const partial = decodeShareParam(share);
+      if (partial) {
+        setAccount((prev) => ({
+          ...freshAccount(),
+          ...prev,
+          ...partial,
+          levels: partial.levels ?? prev.levels,
+        }));
+        setOnboarding(false);
+        setReady(true);
+        setTab("overview");
+        return;
+      }
+    }
     const saved = loadAccount();
     if (saved) {
       setAccount(saved);
@@ -128,7 +171,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (ready && !onboarding) saveAccount(account);
+    if (ready && !onboarding) {
+      saveAccount(account);
+      saveProfile(getActiveProfileId(), account);
+    }
   }, [account, ready, onboarding]);
 
   const plan = useMemo(() => buildPlan(account), [account]);
@@ -322,7 +368,7 @@ export default function App() {
               Eatventure Handbook
             </p>
             <p className="text-xs text-[#9bb5af]">
-              Account tracker · cities, vault, gear, pets
+              v{HANDBOOK_META.handbookVersion} · patch {HANDBOOK_META.gamePatch}
             </p>
           </div>
         </div>
@@ -355,19 +401,29 @@ export default function App() {
             Sections
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
-            {MAIN_TABS.map(({ id, label }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setTab(id)}
-                className={cn(
-                  "nav-item shrink-0 whitespace-nowrap",
-                  tab === id && "active",
-                )}
-              >
-                {label}
-              </button>
-            ))}
+            {MAIN_TABS.map(({ id, label, group }, index) => {
+              const prev = MAIN_TABS[index - 1];
+              const showGroup = !prev || prev.group !== group;
+              return (
+                <div key={id} className="contents lg:block">
+                  {showGroup && (
+                    <div className="mb-1 mt-3 hidden px-2 text-[10px] text-[#9bb5af] first:mt-0 lg:block">
+                      {group}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setTab(id)}
+                    className={cn(
+                      "nav-item shrink-0 whitespace-nowrap",
+                      tab === id && "active",
+                    )}
+                  >
+                    {label}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </nav>
 
@@ -450,8 +506,59 @@ export default function App() {
         {tab === "builds" && <BuildsView account={account} />}
         {tab === "blueprints" && <BlueprintsView />}
         {tab === "guide" && <GuideView />}
+        {tab === "catalog" && <CatalogView />}
+        {tab === "matrix" && <MatrixView />}
+        {tab === "forge" && (
+          <ForgeView
+            account={account}
+            setInventory={(inventory) =>
+              setAccount((prev) => ({ ...prev, inventory }))
+            }
+          />
+        )}
+        {tab === "tools" && (
+          <ToolsView
+            account={account}
+            onImport={(next) => {
+              setAccount(next);
+              setOnboarding(false);
+            }}
+          />
+        )}
+        {tab === "events" && <EventsView />}
+        {tab === "more" && (
+          <MoreView
+            account={account}
+            setNotes={(notes) => setAccount((prev) => ({ ...prev, notes }))}
+            onSwitchProfile={(next) => {
+              setAccount(next);
+              setOnboarding(false);
+            }}
+          />
+        )}
         </div>
       </main>
+
+      <nav className="mobile-dock lg:hidden">
+        {(
+          [
+            ["overview", "Home"],
+            ["plan", "Plan"],
+            ["cities", "Cities"],
+            ["tools", "Tools"],
+            ["more", "More"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={cn("mobile-dock-item", tab === id && "active")}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
@@ -1580,6 +1687,42 @@ function GearView({
           hint="chance for perfect food"
         />
       </div>
+      <div className="panel rounded-2xl p-5">
+        <h3 className="font-display text-xl font-bold">Build checker</h3>
+        <p className="mt-1 text-sm text-[#9bb5af]">
+          Your totals vs handbook targets. Aim: 100% instant, then perfect, then
+          walk.
+        </p>
+        <ul className="mt-3 space-y-1 text-sm">
+          <li>
+            Instant:{" "}
+            <span
+              className={
+                totalInstant >= 100 ? "text-[#3ecfb3]" : "text-[#f0b429]"
+              }
+            >
+              {totalInstant}%
+            </span>{" "}
+            {totalInstant >= 100 ? "— capped" : `— need ${100 - totalInstant}% more`}
+          </li>
+          <li>
+            Perfect:{" "}
+            <span
+              className={
+                totalPerfect >= 100 ? "text-[#3ecfb3]" : "text-[#9bb5af]"
+              }
+            >
+              {totalPerfect}%
+            </span>
+          </li>
+          <li>Walk: +{totalWalk}%</li>
+          <li>Profit: +{totalProfit}%</li>
+        </ul>
+        <p className="mt-3 text-xs text-[#9bb5af]">
+          City {account.city}: see Builds tab for the recommended set in your
+          range.
+        </p>
+      </div>
       <div className="panel rounded-3xl p-5">
         <h3 className="font-display text-xl">All Gear Items</h3>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -1798,6 +1941,33 @@ function PetsView({
         <p className="mt-1 text-sm text-[#9bb5af]">
           Total pet food to max one pet from level 1 to 50:{" "}
           <span className="text-[#f0b429]">{formatGems(PET_FOOD_TO_MAX)}</span>
+        </p>
+        {account.pets.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {account.pets.map((op) => {
+              const pet = PET_MAP[op.petId];
+              const need = PET_FOOD_PER_LEVEL.slice(op.level + 1).reduce(
+                (a, b) => a + b,
+                0,
+              );
+              return (
+                <div
+                  key={op.petId}
+                  className="flex justify-between rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm"
+                >
+                  <span>{pet?.name ?? op.petId} lv {op.level}</span>
+                  <span className="text-[#3ecfb3]">
+                    {formatGems(need)} to 50
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <p className="mt-3 text-xs text-[#9bb5af]">
+          Advisor: before city 60 use a delivery pet; with Panda keep a perfect
+          pet (Dark Horse / Tortoise). Endgame: Red Panda + Baby Kraken for
+          divine stacking.
         </p>
       </div>
     </div>

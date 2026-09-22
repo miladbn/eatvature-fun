@@ -83,9 +83,10 @@ export type ArcaneVaultId =
   | "potionBandolier"
   | "distiller"
   | "crystalCatalyst"
+  | "arcaneLadle"
   | "alchemyScales"
-  | "bottlingStation"
-  | "elixirEngine";
+  | "oakSapling"
+  | "funnel";
 
 export interface ArcaneVaultItem {
   id: ArcaneVaultId;
@@ -128,6 +129,10 @@ export interface Account {
   clubXp: number;
   citiesCompleted: number;
   totalGemsEarned: number;
+  /** Free-form player notes */
+  notes: string;
+  /** Blueprint piece counts keyed by ingredient/item name */
+  inventory: Record<string, number>;
 }
 
 export interface UpgradeStep {

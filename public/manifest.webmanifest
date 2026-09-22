@@ -1,0 +1,17 @@
+{
+  "name": "Eatventure Handbook",
+  "short_name": "Eatventure",
+  "description": "Vault planner, city gems, gear, pets, and handbook tools for Eatventure.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b2422",
+  "theme_color": "#0b2422",
+  "icons": [
+    {
+      "src": "/images/gem-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
