@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { VaultIcon } from "./components/VaultIcons";
 import {
   DEFAULT_ACCOUNT,
@@ -10,6 +10,9 @@ import {
   TOTAL_VAULT_GEMS,
   VAULT_ITEMS,
 } from "./data/vault";
+import { AVG_GEMS_PER_CITY, cityForNumber, LOOP_GEMS } from "./data/cities";
+import { CitiesView } from "./components/CitiesView";
+import { GuideView } from "./components/GuideView";
 import {
   ARCANE_MAP,
   ARCANE_VAULT_ITEMS,
@@ -78,19 +81,23 @@ type MainTab =
   | "club"
   | "arcane"
   | "builds"
-  | "blueprints";
+  | "blueprints"
+  | "cities"
+  | "guide";
 
-const MAIN_TABS: { id: MainTab; label: string; icon: string }[] = [
-  { id: "overview", label: "Overview", icon: "📊" },
-  { id: "vault", label: "Vault", icon: "🏦" },
-  { id: "plan", label: "Plan", icon: "🗺️" },
-  { id: "totals", label: "Totals", icon: "💎" },
-  { id: "gear", label: "Gear", icon: "⚔️" },
-  { id: "pets", label: "Pets", icon: "🐾" },
-  { id: "club", label: "Club", icon: "🏆" },
-  { id: "arcane", label: "Arcane", icon: "🧪" },
-  { id: "builds", label: "Builds", icon: "📋" },
-  { id: "blueprints", label: "Blueprints", icon: "📜" },
+const MAIN_TABS: { id: MainTab; label: string }[] = [
+  { id: "overview", label: "Overview" },
+  { id: "vault", label: "Vault" },
+  { id: "plan", label: "Plan" },
+  { id: "totals", label: "Totals" },
+  { id: "cities", label: "Cities" },
+  { id: "gear", label: "Gear" },
+  { id: "pets", label: "Pets" },
+  { id: "builds", label: "Builds" },
+  { id: "blueprints", label: "Blueprints" },
+  { id: "club", label: "Club" },
+  { id: "arcane", label: "Arcane" },
+  { id: "guide", label: "Guide" },
 ];
 
 export default function App() {
@@ -260,7 +267,7 @@ export default function App() {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#090704] text-[#e8c36a]">
+      <div className="flex min-h-screen items-center justify-center bg-[#0b2422] text-[#f0b429]">
         Opening the vault…
       </div>
     );
@@ -283,34 +290,32 @@ export default function App() {
     );
   }
 
+  const cityMeta = cityForNumber(account.city || 1);
+
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#090704] text-[#f6efe2]">
+    <div className="relative min-h-screen overflow-x-hidden text-[#f2f5f3]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] kitchen-grid opacity-40" />
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[520px] opacity-40"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[380px] opacity-30"
         style={{
           backgroundImage:
-            "linear-gradient(180deg, rgba(9,7,4,0.15), #090704), url('/images/hero-vault.jpg')",
+            "linear-gradient(180deg, rgba(11,36,34,0.2), #0b2422), url('/images/hero-vault.jpg')",
           backgroundSize: "cover",
-          backgroundPosition: "center 30%",
+          backgroundPosition: "center 28%",
         }}
       />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(232,195,106,0.12),_transparent_42%)]" />
 
       <header className="relative z-10 mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#e8c36a]/30 bg-[#1a140c] shadow-[0_0_24px_rgba(232,195,106,0.2)]">
-            <img
-              src="/images/gem-icon.png"
-              alt=""
-              className="h-7 w-7 object-contain"
-            />
+          <div className="brand-mark" aria-hidden="true">
+            EV
           </div>
           <div>
-            <p className="font-display text-lg font-semibold tracking-tight gold-text">
+            <p className="font-display text-xl font-extrabold tracking-tight text-[#f0b429]">
               Eatventure Handbook
             </p>
-            <p className="text-xs text-[#b8ab96]">
-              Full account tracker · saved on this device
+            <p className="text-xs text-[#9bb5af]">
+              Account tracker · cities, vault, gear, pets
             </p>
           </div>
         </div>
@@ -320,43 +325,46 @@ export default function App() {
             target="_blank"
             rel="noreferrer"
             aria-label="Star Eatventure Handbook on GitHub"
-            className="rounded-full border border-[#e8c36a]/20 bg-[#16110b]/80 px-3 py-1.5 text-xs text-[#d9cbb3] transition hover:border-[#e8c36a]/50 hover:text-[#e8c36a]"
+            className="btn-ghost text-xs"
           >
-            <span aria-hidden="true">★</span> Star on GitHub
+            Star on GitHub
           </a>
           <GemChip value={account.gems} label="gems" />
           <GemChip value={account.scrolls} label="scrolls" gem={false} />
           <button
             type="button"
-            onClick={() => setTab("vault")}
-            className="rounded-full border border-[#e8c36a]/20 bg-[#16110b]/80 px-3 py-1.5 text-xs text-[#e8c36a]"
+            onClick={() => setTab("cities")}
+            className="btn-ghost text-xs text-[#f0b429]"
           >
-            City {account.city || 1}
+            City {account.city || 1} · {cityMeta.name}
             {account.name ? ` · ${account.name}` : ""}
           </button>
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-24 sm:px-6">
-        <nav className="mb-6 flex flex-wrap gap-2">
-          {MAIN_TABS.map(({ id, label, icon }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className={cn(
-                "rounded-full px-3 py-2 text-xs transition sm:px-4 sm:text-sm",
-                tab === id
-                  ? "bg-[#e8c36a] text-[#1a1208] shadow-[0_8px_24px_rgba(232,195,106,0.28)]"
-                  : "border border-[#e8c36a]/15 bg-[#16110b]/70 text-[#d9cbb3] hover:border-[#e8c36a]/40",
-              )}
-            >
-              <span className="mr-1">{icon}</span>
-              {label}
-            </button>
-          ))}
+      <main className="relative z-10 mx-auto grid max-w-7xl gap-6 px-4 pb-24 lg:grid-cols-[210px_1fr] sm:px-6">
+        <nav className="nav-rail lg:sticky lg:top-4 lg:self-start">
+          <div className="mb-1 hidden px-2 text-xs text-[#9bb5af] lg:block">
+            Sections
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
+            {MAIN_TABS.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setTab(id)}
+                className={cn(
+                  "nav-item shrink-0 whitespace-nowrap",
+                  tab === id && "active",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </nav>
 
+        <div className="min-w-0">
         {tab === "overview" && (
           <Overview
             account={account}
@@ -407,6 +415,7 @@ export default function App() {
             priorityLeft={priorityLeft}
           />
         )}
+        {tab === "cities" && <CitiesView currentCity={account.city} />}
         {tab === "gear" && <GearView account={account} setGear={setGear} />}
         {tab === "pets" && (
           <PetsView
@@ -426,6 +435,8 @@ export default function App() {
         )}
         {tab === "builds" && <BuildsView account={account} />}
         {tab === "blueprints" && <BlueprintsView />}
+        {tab === "guide" && <GuideView />}
+        </div>
       </main>
     </div>
   );
@@ -450,43 +461,43 @@ function Onboarding({
   onSkip: () => void;
 }) {
   return (
-    <div className="relative min-h-screen bg-[#090704] text-[#f6efe2]">
+    <div className="relative min-h-screen bg-[#0b2422] text-[#f2f5f3]">
       <Analytics />
       <div
         className="absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(180deg, rgba(9,7,4,0.25), rgba(9,7,4,0.78) 55%, #090704), url('/images/hero-vault.jpg')",
+            "linear-gradient(180deg, rgba(9,7,4,0.25), rgba(9,7,4,0.78) 55%, #0b2422), url('/images/hero-vault.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       />
       <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-4 py-10">
         <div className="panel shine rounded-[32px] p-6 sm:p-10">
-          <p className="text-xs uppercase tracking-[0.3em] text-[#e8c36a]/80">
+          <p className="text-xs tracking-wide text-[#f0b429]/80">
             Step {step + 1} of 3
           </p>
           {step === 0 && (
             <div className="rise">
-              <h1 className="mt-3 font-display text-4xl font-semibold sm:text-5xl">
-                Crack the<span className="gold-text"> vault.</span>
+              <h1 className="mt-3 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
+                Crack the vault.
               </h1>
-              <p className="mt-4 max-w-lg text-[#cbbda6]">
-                Track your entire Eatventure account — vault, gear, pets, club,
-                arcane vault, and more. Everything saved on this device.
+              <p className="mt-4 max-w-lg text-[#9bb5af]">
+                Track your Eatventure account from the Spectre handbook — vault,
+                cities, gear, pets, club, and arcane. Saved on this device.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="rounded-full bg-[#e8c36a] px-6 py-3 text-sm font-semibold text-[#1a1208]"
+                  className="btn-primary"
                 >
                   Enter my account
                 </button>
                 <button
                   type="button"
                   onClick={onSkip}
-                  className="rounded-full border border-[#e8c36a]/25 px-6 py-3 text-sm text-[#e8c36a]"
+                  className="btn-secondary"
                 >
                   Start empty
                 </button>
@@ -546,12 +557,12 @@ function Onboarding({
                   />
                 </Field>
               </div>
-              <label className="flex items-center gap-3 rounded-2xl border border-[#e8c36a]/15 bg-black/20 px-4 py-3 text-sm">
+              <label className="flex items-center gap-3 rounded-2xl border border-[#f0b429]/15 bg-black/20 px-4 py-3 text-sm">
                 <input
                   type="checkbox"
                   checked={account.hasPanda}
                   onChange={(e) => update("hasPanda", e.target.checked)}
-                  className="accent-[#e8c36a]"
+                  className="accent-[#f0b429]"
                 />
                 I own the Legendary Panda (skip Register upgrades)
               </label>
@@ -565,14 +576,14 @@ function Onboarding({
                       className={cn(
                         "rounded-2xl border px-3 py-3 text-left",
                         account.playstyle === id
-                          ? "border-[#e8c36a] bg-[#e8c36a]/10"
-                          : "border-[#e8c36a]/15 bg-black/20",
+                          ? "border-[#f0b429] bg-[#f0b429]/10"
+                          : "border-[#f0b429]/15 bg-black/20",
                       )}
                     >
                       <div className="text-sm font-medium">
                         {PLAYSTYLE_META[id].name}
                       </div>
-                      <div className="mt-1 text-xs text-[#b8ab96]">
+                      <div className="mt-1 text-xs text-[#9bb5af]">
                         {PLAYSTYLE_META[id].tagline}
                       </div>
                     </button>
@@ -583,14 +594,14 @@ function Onboarding({
                 <button
                   type="button"
                   onClick={() => setStep(0)}
-                  className="text-sm text-[#b8ab96]"
+                  className="text-sm text-[#9bb5af]"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="rounded-full bg-[#e8c36a] px-5 py-2.5 text-sm font-semibold text-[#1a1208]"
+                  className="rounded-lg bg-[#f0b429] px-5 py-2.5 text-sm font-semibold text-[#0b2422]"
                 >
                   Set vault levels
                 </button>
@@ -600,7 +611,7 @@ function Onboarding({
           {step === 2 && (
             <div className="rise">
               <h2 className="mt-3 font-display text-3xl">Current vault</h2>
-              <p className="mt-2 text-sm text-[#b8ab96]">
+              <p className="mt-2 text-sm text-[#9bb5af]">
                 0 means locked. Unlocking a later card will auto-unlock the ones
                 before it.
               </p>
@@ -608,7 +619,7 @@ function Onboarding({
                 <button
                   type="button"
                   onClick={() => update("levels", { ...EMPTY_LEVELS })}
-                  className="rounded-full border border-[#e8c36a]/20 px-3 py-1.5 text-xs"
+                  className="rounded-lg border border-[#f0b429]/20 px-3 py-1.5 text-xs"
                 >
                   All locked
                 </button>
@@ -619,7 +630,7 @@ function Onboarding({
                     VAULT_ITEMS.forEach((i) => (l[i.id] = 1));
                     update("levels", l);
                   }}
-                  className="rounded-full border border-[#e8c36a]/20 px-3 py-1.5 text-xs"
+                  className="rounded-lg border border-[#f0b429]/20 px-3 py-1.5 text-xs"
                 >
                   All unlocked at 1
                 </button>
@@ -639,14 +650,14 @@ function Onboarding({
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-sm text-[#b8ab96]"
+                  className="text-sm text-[#9bb5af]"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={onDone}
-                  className="rounded-full bg-[#e8c36a] px-5 py-2.5 text-sm font-semibold text-[#1a1208]"
+                  className="rounded-lg bg-[#f0b429] px-5 py-2.5 text-sm font-semibold text-[#0b2422]"
                 >
                   Build my plan
                 </button>
@@ -693,33 +704,34 @@ function Overview({
   ).length;
   const petCount = account.pets.length;
   const hasGear = account.gear.head || account.gear.body || account.gear.hand1;
+  const cityMeta = cityForNumber(account.city || 1);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
       <div className="space-y-6">
-        <div className="panel rounded-3xl p-5 sm:p-6">
+        <div className="ticket rise rounded-2xl p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-[#e8c36a]/80">
-                Next recommended step
+              <p className="text-sm font-medium text-[#5c6f69]">
+                Next kitchen ticket
               </p>
               {next ? (
-                <h2 className="mt-2 font-display text-3xl">
+                <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-[#14201c]">
                   {next.kind === "unlock" ? "Unlock" : "Upgrade"}{" "}
                   {ITEM_MAP[next.itemId].name}
                 </h2>
               ) : (
-                <h2 className="mt-2 font-display text-3xl">
+                <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-[#14201c]">
                   Vault is finished.
                 </h2>
               )}
             </div>
             {next && (
               <div className="text-right">
-                <div className="gem-text text-3xl font-semibold">
+                <div className="text-3xl font-bold text-[#e8452d]">
                   {formatGems(next.cost)}
                 </div>
-                <div className="text-xs text-[#b8ab96]">gems</div>
+                <div className="text-xs text-[#5c6f69]">gems</div>
               </div>
             )}
           </div>
@@ -727,19 +739,19 @@ function Overview({
             <>
               <div className="mt-5 flex items-center gap-4">
                 <div
-                  className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/10"
-                  style={{ background: `${ITEM_MAP[next.itemId].accent}22` }}
+                  className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white/70"
+                  style={{ background: `${ITEM_MAP[next.itemId].accent}33` }}
                 >
                   <VaultIcon id={next.itemId} className="h-12 w-12" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#d9cbb3]">
+                  <p className="text-sm text-[#2a3d38]">
                     {next.kind === "unlock"
                       ? `Open ${ITEM_MAP[next.itemId].name} at level 1.`
                       : `Level ${next.from} → ${next.to} · ${formatEffect(next.itemId, next.to)}`}
                   </p>
-                  <p className="mt-1 text-sm text-[#b8ab96]">{next.reason}</p>
-                  <p className="mt-1 text-xs text-[#e8c36a]/80">
+                  <p className="mt-1 text-sm text-[#5c6f69]">{next.reason}</p>
+                  <p className="mt-1 text-xs font-medium text-[#e8452d]">
                     {next.phaseName} · {ITEM_MAP[next.itemId].effectLabel}
                   </p>
                 </div>
@@ -748,14 +760,14 @@ function Overview({
                 <button
                   type="button"
                   onClick={() => onComplete(next)}
-                  className="rounded-full bg-[#2ee6c7] px-5 py-2.5 text-sm font-semibold text-[#04261f]"
+                  className="btn-primary"
                 >
                   {spendGems ? "I bought this" : "Mark complete"}
                 </button>
                 <button
                   type="button"
                   onClick={onBurst}
-                  className="rounded-full border border-[#2ee6c7]/30 px-5 py-2.5 text-sm text-[#2ee6c7]"
+                  className="rounded-lg border border-[#14201c]/20 bg-white/60 px-5 py-2.5 text-sm font-semibold text-[#14201c]"
                 >
                   {spendGems
                     ? `Spend ${formatGems(budget.spent)} on next ${budget.count || 0}`
@@ -765,16 +777,16 @@ function Overview({
             </>
           )}
         </div>
-        <div className="panel rounded-3xl p-5">
+        <div className="panel rounded-2xl p-5">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-display text-xl">Coming up</h3>
-            <span className="text-xs text-[#b8ab96]">
+            <h3 className="font-display text-xl font-bold">Coming up</h3>
+            <span className="text-xs text-[#9bb5af]">
               {plan.length} steps left
             </span>
           </div>
           <div className="space-y-2">
             {nextFive.length === 0 && (
-              <p className="text-sm text-[#b8ab96]">
+              <p className="text-sm text-[#9bb5af]">
                 Nothing left on this path.
               </p>
             )}
@@ -792,18 +804,19 @@ function Overview({
         </div>
       </div>
       <aside className="space-y-6">
-        <div className="panel rounded-3xl p-5">
-          <h3 className="font-display text-xl">Account snapshot</h3>
-          <p className="mt-1 text-sm text-[#b8ab96]">
-            {PLAYSTYLE_META[account.playstyle].name} · City {account.city || 1}
+        <div className="panel rounded-2xl p-5">
+          <h3 className="font-display text-xl font-bold">Account snapshot</h3>
+          <p className="mt-1 text-sm text-[#9bb5af]">
+            {PLAYSTYLE_META[account.playstyle].name} · {cityMeta.name} (city{" "}
+            {account.city || 1}) · {cityMeta.gems} gems here
           </p>
-          <div className="mt-4 rounded-2xl border border-[#e8c36a]/15 bg-black/20 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#e8c36a]/80">
+          <div className="mt-4 rounded-xl border border-[#f0b429]/20 bg-black/20 p-4">
+            <p className="text-xs tracking-wide text-[#f0b429]">
               Handbook phase
             </p>
-            <p className="mt-1 font-display text-2xl">{phase?.name}</p>
-            <p className="mt-1 text-sm text-[#b8ab96]">{phase?.blurb}</p>
-            <p className="mt-2 text-xs text-[#e8c36a]/70">{phase?.cityRange}</p>
+            <p className="mt-1 font-display text-2xl font-bold">{phase?.name}</p>
+            <p className="mt-1 text-sm text-[#9bb5af]">{phase?.blurb}</p>
+            <p className="mt-2 text-xs text-[#f0b429]/80">{phase?.cityRange}</p>
           </div>
           <dl className="mt-4 space-y-2 text-sm">
             <Row k="Gems invested" v={formatGems(invested)} />
@@ -828,20 +841,21 @@ function Overview({
             />
           </dl>
         </div>
-        <div className="overflow-hidden rounded-3xl border border-[#e8c36a]/15">
+        <div className="overflow-hidden rounded-2xl border border-[#f0b429]/15">
           <img
             src="/images/gold-coins.png"
             alt=""
             className="h-40 w-full object-cover opacity-90"
           />
-          <div className="bg-[#120e09] p-4 text-xs text-[#b8ab96]">
+          <div className="bg-[#102a27] p-4 text-xs text-[#9bb5af]">
             Handbook total to unlock + max every card from zero is{" "}
-            <span className="text-[#e8c36a]">
+            <span className="text-[#f0b429]">
               {formatGems(TOTAL_VAULT_GEMS)}
             </span>{" "}
             gems — about{" "}
-            {Math.ceil(TOTAL_VAULT_GEMS / GEMS_PER_CITY).toLocaleString()}{" "}
-            cities at 184 gems each.
+            {Math.ceil(TOTAL_VAULT_GEMS / AVG_GEMS_PER_CITY).toLocaleString()}{" "}
+            cities at ~{AVG_GEMS_PER_CITY} gems each ({formatGems(LOOP_GEMS)} per
+            60-city loop).
           </div>
         </div>
       </aside>
@@ -877,7 +891,7 @@ function AccountEditor({
           <input
             value={account.name}
             onChange={(e) => update("name", e.target.value)}
-            className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#e8c36a]"
+            className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#f0b429]"
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
@@ -887,7 +901,7 @@ function AccountEditor({
               min={1}
               value={account.city}
               onChange={(e) => update("city", Number(e.target.value))}
-              className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#e8c36a]"
+              className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#f0b429]"
             />
           </Field>
           <Field label="Gems">
@@ -896,7 +910,7 @@ function AccountEditor({
               min={0}
               value={account.gems}
               onChange={(e) => update("gems", Number(e.target.value))}
-              className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#e8c36a]"
+              className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#f0b429]"
             />
           </Field>
         </div>
@@ -907,7 +921,7 @@ function AccountEditor({
               min={0}
               value={account.scrolls}
               onChange={(e) => update("scrolls", Number(e.target.value))}
-              className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#e8c36a]"
+              className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#f0b429]"
             />
           </Field>
           <Field label="Cities done">
@@ -918,7 +932,7 @@ function AccountEditor({
               onChange={(e) =>
                 update("citiesCompleted", Number(e.target.value))
               }
-              className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#e8c36a]"
+              className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#f0b429]"
             />
           </Field>
         </div>
@@ -927,7 +941,7 @@ function AccountEditor({
             type="checkbox"
             checked={account.hasPanda}
             onChange={(e) => update("hasPanda", e.target.checked)}
-            className="accent-[#e8c36a]"
+            className="accent-[#f0b429]"
           />{" "}
           Legendary Panda owned
         </label>
@@ -936,7 +950,7 @@ function AccountEditor({
             type="checkbox"
             checked={spendGems}
             onChange={(e) => setSpendGems(e.target.checked)}
-            className="accent-[#2ee6c7]"
+            className="accent-[#3ecfb3]"
           />{" "}
           Subtract gems when I complete a step
         </label>
@@ -944,7 +958,7 @@ function AccountEditor({
           <select
             value={account.playstyle}
             onChange={(e) => update("playstyle", e.target.value as Playstyle)}
-            className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 outline-none"
+            className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 outline-none"
           >
             {(Object.keys(PLAYSTYLE_META) as Playstyle[]).map((id) => (
               <option key={id} value={id}>
@@ -953,14 +967,14 @@ function AccountEditor({
             ))}
           </select>
         </Field>
-        <p className="text-xs text-[#b8ab96]">
+        <p className="text-xs text-[#9bb5af]">
           {PLAYSTYLE_META[account.playstyle].tagline}
         </p>
         <div className="flex flex-wrap gap-2 pt-2">
           <button
             type="button"
             onClick={() => update("levels", { ...EMPTY_LEVELS })}
-            className="rounded-full border border-[#e8c36a]/20 px-3 py-1.5 text-xs"
+            className="rounded-lg border border-[#f0b429]/20 px-3 py-1.5 text-xs"
           >
             Lock all
           </button>
@@ -971,7 +985,7 @@ function AccountEditor({
               VAULT_ITEMS.forEach((i) => (l[i.id] = 1));
               update("levels", l);
             }}
-            className="rounded-full border border-[#e8c36a]/20 px-3 py-1.5 text-xs"
+            className="rounded-lg border border-[#f0b429]/20 px-3 py-1.5 text-xs"
           >
             Unlock all
           </button>
@@ -979,7 +993,7 @@ function AccountEditor({
             <button
               type="button"
               onClick={() => setConfirmReset(true)}
-              className="rounded-full border border-rose-400/30 px-3 py-1.5 text-xs text-rose-300"
+              className="rounded-lg border border-rose-400/30 px-3 py-1.5 text-xs text-rose-300"
             >
               Reset saved data
             </button>
@@ -987,7 +1001,7 @@ function AccountEditor({
             <button
               type="button"
               onClick={onReset}
-              className="rounded-full bg-rose-500 px-3 py-1.5 text-xs text-white"
+              className="rounded-lg bg-rose-500 px-3 py-1.5 text-xs text-white"
             >
               Confirm wipe
             </button>
@@ -1009,7 +1023,7 @@ function AccountEditor({
                   <h3 className="truncate font-medium">{item.name}</h3>
                   <PriorityBadge priority={item.priority} />
                 </div>
-                <p className="text-xs text-[#b8ab96]">{item.effectLabel}</p>
+                <p className="text-xs text-[#9bb5af]">{item.effectLabel}</p>
               </div>
             </div>
             <LevelRow
@@ -1018,7 +1032,7 @@ function AccountEditor({
               levels={account.levels}
               onChange={(n) => setLevel(item.id, n)}
             />
-            <div className="mt-2 flex justify-between text-[11px] text-[#b8ab96]">
+            <div className="mt-2 flex justify-between text-[11px] text-[#9bb5af]">
               <span>Now {formatEffect(item.id, account.levels[item.id])}</span>
               <span>
                 {account.levels[item.id] >= item.maxLevel
@@ -1026,9 +1040,9 @@ function AccountEditor({
                   : `${formatGems(upgradeCost(item.id, account.levels[item.id] + 1))} next · ${formatGems(costToMax(item.id, account.levels[item.id]))} to max`}
               </span>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/40">
+            <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-black/40">
               <div
-                className="h-full rounded-full"
+                className="h-full rounded-lg"
                 style={{
                   width: `${(account.levels[item.id] / item.maxLevel) * 100}%`,
                   background: item.accent,
@@ -1074,7 +1088,7 @@ function PlanView({
           <h2 className="font-display text-2xl">
             {totals.count} steps · {formatGems(totals.cost)} gems
           </h2>
-          <p className="text-sm text-[#b8ab96]">
+          <p className="text-sm text-[#9bb5af]">
             With {formatGems(account.gems)} gems you can finish the next{" "}
             {budget.count} steps ({formatGems(budget.spent)} spent,{" "}
             {formatGems(Math.max(0, budget.leftover))} left).
@@ -1086,7 +1100,7 @@ function PlanView({
               type="checkbox"
               checked={spendGems}
               onChange={(e) => setSpendGems(e.target.checked)}
-              className="accent-[#2ee6c7]"
+              className="accent-[#3ecfb3]"
             />{" "}
             Spend gems on complete
           </label>
@@ -1094,7 +1108,7 @@ function PlanView({
             type="button"
             onClick={onBurst}
             disabled={plan.length === 0}
-            className="rounded-full bg-[#2ee6c7] px-4 py-2 text-sm font-semibold text-[#04261f] disabled:opacity-40"
+            className="rounded-lg bg-[#3ecfb3] px-4 py-2 text-sm font-semibold text-[#0a2a27] disabled:opacity-40"
           >
             Complete next affordable
           </button>
@@ -1110,14 +1124,14 @@ function PlanView({
                 <div className="flex items-center gap-2">
                   <h3 className="font-display text-2xl">{group.phaseName}</h3>
                   {active && (
-                    <span className="rounded-full bg-[#e8c36a] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#1a1208] uppercase">
+                    <span className="rounded-lg bg-[#f0b429] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#0b2422] uppercase">
                       your city
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-[#b8ab96]">{meta?.blurb}</p>
+                <p className="text-sm text-[#9bb5af]">{meta?.blurb}</p>
               </div>
-              <p className="text-sm text-[#e8c36a]">
+              <p className="text-sm text-[#f0b429]">
                 {group.steps.length} steps ·{" "}
                 {formatGems(group.steps.reduce((s, x) => s + x.cost, 0))} gems
               </p>
@@ -1144,7 +1158,7 @@ function PlanView({
       {plan.length === 0 && (
         <div className="panel rounded-3xl p-10 text-center">
           <p className="font-display text-3xl">The vault is complete.</p>
-          <p className="mt-2 text-[#b8ab96]">
+          <p className="mt-2 text-[#9bb5af]">
             Every card on this structure is already maxed.
           </p>
         </div>
@@ -1195,7 +1209,7 @@ function TotalsView({
       <div className="panel overflow-hidden rounded-3xl">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="bg-black/30 text-xs tracking-wide text-[#e8c36a] uppercase">
+            <thead className="bg-black/30 text-xs tracking-wide text-[#f0b429]">
               <tr>
                 <th className="px-4 py-3">Item</th>
                 <th className="px-4 py-3">Priority</th>
@@ -1209,13 +1223,13 @@ function TotalsView({
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.item.id} className="border-t border-[#e8c36a]/10">
+                <tr key={row.item.id} className="border-t border-[#f0b429]/10">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <VaultIcon id={row.item.id} className="h-8 w-8" />
                       <div>
                         <div>{row.item.name}</div>
-                        <div className="text-[11px] text-[#b8ab96]">
+                        <div className="text-[11px] text-[#9bb5af]">
                           Unlock{" "}
                           {row.item.unlockCost === 0
                             ? "Free"
@@ -1249,7 +1263,7 @@ function TotalsView({
           </table>
         </div>
       </div>
-      <p className="text-xs text-[#b8ab96]">
+      <p className="text-xs text-[#9bb5af]">
         Source: Spectre Eatventure Handbook. Level costs match the public vault
         sheet. City estimates use 184 gems per city and ignore event / investor
         extras.
@@ -1300,20 +1314,20 @@ function GearView({
     <div className="space-y-6">
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Equipped Gear</h2>
-        <p className="mt-1 text-sm text-[#b8ab96]">
+        <p className="mt-1 text-sm text-[#9bb5af]">
           Select what you currently wear. Stats are calculated from equipped
           items.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {slots.map(({ key, label, slot }) => (
             <div key={key}>
-              <label className="mb-1 block text-xs uppercase tracking-wide text-[#b8ab96]">
+              <label className="mb-1 block text-xs uppercase tracking-wide text-[#9bb5af]">
                 {label}
               </label>
               <select
                 value={account.gear[key]}
                 onChange={(e) => setGear(key, e.target.value)}
-                className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 text-sm outline-none"
+                className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 text-sm outline-none"
               >
                 <option value="">None</option>
                 {GEAR_ITEMS.filter((g) => g.slot === slot)
@@ -1329,7 +1343,7 @@ function GearView({
                   ))}
               </select>
               {account.gear[key] && GEAR_MAP[account.gear[key]] && (
-                <div className="mt-2 rounded-xl border border-[#e8c36a]/10 bg-black/20 p-2 text-xs">
+                <div className="mt-2 rounded-xl border border-[#f0b429]/10 bg-black/20 p-2 text-xs">
                   <div
                     className="font-medium"
                     style={{
@@ -1338,7 +1352,7 @@ function GearView({
                   >
                     {GEAR_MAP[account.gear[key]].name}
                   </div>
-                  <div className="mt-1 text-[#b8ab96]">
+                  <div className="mt-1 text-[#9bb5af]">
                     {GEAR_MAP[account.gear[key]].description}
                   </div>
                   <div className="mt-1 flex flex-wrap gap-1">
@@ -1405,7 +1419,7 @@ function GearView({
           ).map((g) => (
             <div
               key={g.id}
-              className="rounded-2xl border border-[#e8c36a]/10 bg-black/20 p-3"
+              className="rounded-2xl border border-[#f0b429]/10 bg-black/20 p-3"
             >
               <div className="flex items-center justify-between">
                 <span
@@ -1421,7 +1435,7 @@ function GearView({
                   {g.rarity}
                 </span>
               </div>
-              <div className="text-[11px] text-[#b8ab96]">
+              <div className="text-[11px] text-[#9bb5af]">
                 {SLOT_LABELS[g.slot]} · {g.description}
               </div>
               <div className="mt-1 flex flex-wrap gap-1 text-[10px]">
@@ -1476,12 +1490,12 @@ function PetsView({
     <div className="space-y-6">
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Your Pets</h2>
-        <p className="mt-1 text-sm text-[#b8ab96]">
+        <p className="mt-1 text-sm text-[#9bb5af]">
           Add pets you own and set their level. Save all pet food for Legendary
           Panda first.
         </p>
         {account.pets.length === 0 ? (
-          <p className="mt-4 text-sm text-[#b8ab96]">
+          <p className="mt-4 text-sm text-[#9bb5af]">
             No pets added yet. Add one below.
           </p>
         ) : (
@@ -1492,7 +1506,7 @@ function PetsView({
               return (
                 <div
                   key={op.petId}
-                  className="rounded-2xl border border-[#e8c36a]/15 bg-black/20 p-4"
+                  className="rounded-2xl border border-[#f0b429]/15 bg-black/20 p-4"
                 >
                   <div className="flex items-start justify-between">
                     <div>
@@ -1504,7 +1518,7 @@ function PetsView({
                       >
                         {pet.name}
                       </div>
-                      <div className="text-xs text-[#b8ab96]">
+                      <div className="text-xs text-[#9bb5af]">
                         {pet.rarity} · {pet.ability}
                       </div>
                     </div>
@@ -1517,11 +1531,11 @@ function PetsView({
                     </button>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="text-xs text-[#b8ab96]">Level</span>
+                    <span className="text-xs text-[#9bb5af]">Level</span>
                     <button
                       type="button"
                       onClick={() => updatePetLevel(op.petId, op.level - 1)}
-                      className="h-7 w-7 rounded border border-[#e8c36a]/20 text-sm"
+                      className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
                     >
                       −
                     </button>
@@ -1533,20 +1547,20 @@ function PetsView({
                       onChange={(e) =>
                         updatePetLevel(op.petId, Number(e.target.value))
                       }
-                      className="h-7 w-14 rounded border border-[#e8c36a]/20 bg-black/30 text-center text-sm outline-none"
+                      className="h-7 w-14 rounded border border-[#f0b429]/20 bg-black/30 text-center text-sm outline-none"
                     />
                     <button
                       type="button"
                       onClick={() => updatePetLevel(op.petId, op.level + 1)}
-                      className="h-7 w-7 rounded border border-[#e8c36a]/20 text-sm"
+                      className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
                     >
                       +
                     </button>
-                    <span className="text-xs text-[#b8ab96]">/ 50</span>
+                    <span className="text-xs text-[#9bb5af]">/ 50</span>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/40">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-black/40">
                     <div
-                      className="h-full rounded-full bg-[#e8c36a]"
+                      className="h-full rounded-lg bg-[#f0b429]"
                       style={{ width: `${(op.level / 50) * 100}%` }}
                     />
                   </div>
@@ -1572,8 +1586,8 @@ function PetsView({
               className={cn(
                 "rounded-2xl border p-3 text-left transition",
                 ownedIds.has(pet.id)
-                  ? "border-[#e8c36a]/10 opacity-40"
-                  : "border-[#e8c36a]/15 bg-black/20 hover:border-[#e8c36a]/40",
+                  ? "border-[#f0b429]/10 opacity-40"
+                  : "border-[#f0b429]/15 bg-black/20 hover:border-[#f0b429]/40",
               )}
             >
               <div
@@ -1582,11 +1596,11 @@ function PetsView({
               >
                 {pet.name}
               </div>
-              <div className="text-[11px] text-[#b8ab96]">
+              <div className="text-[11px] text-[#9bb5af]">
                 {pet.rarity} · {pet.ability}
               </div>
               {ownedIds.has(pet.id) && (
-                <div className="mt-1 text-[10px] text-[#e8c36a]">Owned</div>
+                <div className="mt-1 text-[10px] text-[#f0b429]">Owned</div>
               )}
             </button>
           ))}
@@ -1598,22 +1612,22 @@ function PetsView({
           {BEST_PET_COMBOS.map((c, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-[#e8c36a]/10 bg-black/20 p-3"
+              className="rounded-2xl border border-[#f0b429]/10 bg-black/20 p-3"
             >
               <div className="flex items-center justify-between">
                 <span className="font-medium">{c.combo}</span>
-                <span className="text-xs text-[#e8c36a]">{c.city}</span>
+                <span className="text-xs text-[#f0b429]">{c.city}</span>
               </div>
-              <div className="text-xs text-[#b8ab96]">{c.notes}</div>
+              <div className="text-xs text-[#9bb5af]">{c.notes}</div>
             </div>
           ))}
         </div>
       </div>
       <div className="panel rounded-3xl p-5">
         <h3 className="font-display text-xl">Pet Food</h3>
-        <p className="mt-1 text-sm text-[#b8ab96]">
+        <p className="mt-1 text-sm text-[#9bb5af]">
           Total pet food to max one pet from level 1 to 50:{" "}
-          <span className="text-[#e8c36a]">{formatGems(PET_FOOD_TO_MAX)}</span>
+          <span className="text-[#f0b429]">{formatGems(PET_FOOD_TO_MAX)}</span>
         </p>
       </div>
     </div>
@@ -1651,7 +1665,7 @@ function ClubView({
     <div className="space-y-6">
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Club Tracker</h2>
-        <p className="mt-1 text-sm text-[#b8ab96]">
+        <p className="mt-1 text-sm text-[#9bb5af]">
           Track your club level and XP contribution. Clubs unlock at City 7.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -1662,7 +1676,7 @@ function ClubView({
               max={50}
               value={account.clubLevel}
               onChange={(e) => update("clubLevel", Number(e.target.value))}
-              className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#e8c36a]"
+              className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#f0b429]"
             />
           </Field>
           <Field label="Your XP this season">
@@ -1671,24 +1685,24 @@ function ClubView({
               min={0}
               value={account.clubXp}
               onChange={(e) => update("clubXp", Number(e.target.value))}
-              className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#e8c36a]"
+              className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#f0b429]"
             />
           </Field>
           <Field label="Target per member">
-            <div className="rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 text-[#e8c36a]">
+            <div className="rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 text-[#f0b429]">
               {formatGems(24195)} XP
             </div>
           </Field>
         </div>
-        <div className="mt-4 h-3 overflow-hidden rounded-full bg-black/40">
+        <div className="mt-4 h-3 overflow-hidden rounded-lg bg-black/40">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#e8c36a] to-[#2ee6c7]"
+            className="h-full rounded-lg bg-gradient-to-r from-[#f0b429] to-[#3ecfb3]"
             style={{
               width: `${Math.min(100, (account.clubXp / 24195) * 100)}%`,
             }}
           />
         </div>
-        <p className="mt-2 text-xs text-[#b8ab96]">
+        <p className="mt-2 text-xs text-[#9bb5af]">
           Your contribution: {formatGems(account.clubXp)} / 24,195 XP (
           {((account.clubXp / 24195) * 100).toFixed(1)}%)
         </p>
@@ -1712,12 +1726,12 @@ function ClubView({
           {xpItems.map((item) => (
             <div
               key={item.name}
-              className="flex items-center justify-between rounded-xl border border-[#e8c36a]/10 bg-black/20 px-3 py-2"
+              className="flex items-center justify-between rounded-xl border border-[#f0b429]/10 bg-black/20 px-3 py-2"
             >
               <span className="text-sm" style={{ color: item.color }}>
                 {item.name}
               </span>
-              <span className="text-sm font-medium text-[#e8c36a]">
+              <span className="text-sm font-medium text-[#f0b429]">
                 {item.xp} XP
               </span>
             </div>
@@ -1733,17 +1747,17 @@ function ClubView({
               className={cn(
                 "flex items-center justify-between rounded-xl border px-3 py-2",
                 account.clubLevel >= cl.level
-                  ? "border-[#2ee6c7]/30 bg-[#2ee6c7]/5"
-                  : "border-[#e8c36a]/10 bg-black/20",
+                  ? "border-[#3ecfb3]/30 bg-[#3ecfb3]/5"
+                  : "border-[#f0b429]/10 bg-black/20",
               )}
             >
               <div>
                 <span className="font-medium">Level {cl.level}</span>
-                <span className="ml-2 text-xs text-[#b8ab96]">
+                <span className="ml-2 text-xs text-[#9bb5af]">
                   {cl.rewards}
                 </span>
               </div>
-              <span className="text-sm text-[#e8c36a]">
+              <span className="text-sm text-[#f0b429]">
                 {formatGems(cl.xp)} XP
               </span>
             </div>
@@ -1775,7 +1789,7 @@ function ArcaneView({
     <div className="space-y-6">
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Arcane Vault</h2>
-        <p className="mt-1 text-sm text-[#b8ab96]">
+        <p className="mt-1 text-sm text-[#9bb5af]">
           Potion Shop event vault. Scrolls carry over between events. Earn up to
           150 per event (with pass).
         </p>
@@ -1786,11 +1800,11 @@ function ArcaneView({
               min={0}
               value={account.scrolls}
               onChange={(e) => update("scrolls", Number(e.target.value))}
-              className="w-full rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#e8c36a]"
+              className="w-full rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 outline-none focus:border-[#f0b429]"
             />
           </Field>
           <Field label="Scrolls used">
-            <div className="rounded-xl border border-[#e8c36a]/20 bg-black/30 px-3 py-2 text-[#e8c36a]">
+            <div className="rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 text-[#f0b429]">
               {formatGems(totalScrollsUsed)} /{" "}
               {formatGems(TOTAL_SCROLLS_TO_MAX)}
             </div>
@@ -1822,12 +1836,12 @@ function ArcaneView({
           return (
             <article key={item.id} className="panel rounded-3xl p-4">
               <h3 className="font-medium">{item.name}</h3>
-              <p className="text-xs text-[#b8ab96]">{item.description}</p>
+              <p className="text-xs text-[#9bb5af]">{item.description}</p>
               <div className="mt-2 flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setArcaneLevel(item.id, level - 1)}
-                  className="h-7 w-7 rounded border border-[#e8c36a]/20 text-sm"
+                  className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
                 >
                   −
                 </button>
@@ -1839,20 +1853,20 @@ function ArcaneView({
                   onChange={(e) =>
                     setArcaneLevel(item.id, Number(e.target.value))
                   }
-                  className="h-7 w-14 rounded border border-[#e8c36a]/20 bg-black/30 text-center text-sm outline-none"
+                  className="h-7 w-14 rounded border border-[#f0b429]/20 bg-black/30 text-center text-sm outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setArcaneLevel(item.id, level + 1)}
-                  className="h-7 w-7 rounded border border-[#e8c36a]/20 text-sm"
+                  className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
                 >
                   +
                 </button>
-                <span className="text-xs text-[#b8ab96]">
+                <span className="text-xs text-[#9bb5af]">
                   / {item.maxLevel}
                 </span>
               </div>
-              <div className="mt-2 flex justify-between text-[11px] text-[#b8ab96]">
+              <div className="mt-2 flex justify-between text-[11px] text-[#9bb5af]">
                 <span>
                   {item.effectLabel}: {item.effects[level] ?? "—"}
                 </span>
@@ -1862,9 +1876,9 @@ function ArcaneView({
                     : `${formatGems(nextCost)} scrolls next`}
                 </span>
               </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/40">
+              <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-black/40">
                 <div
-                  className="h-full rounded-full bg-[#a78bfa]"
+                  className="h-full rounded-lg bg-[#a78bfa]"
                   style={{ width: `${(level / item.maxLevel) * 100}%` }}
                 />
               </div>
@@ -1878,13 +1892,18 @@ function ArcaneView({
           {POTIONS.map((p) => (
             <div
               key={p.name}
-              className="rounded-2xl border border-[#e8c36a]/10 bg-black/20 p-3"
+              className="rounded-2xl border border-[#f0b429]/10 bg-black/20 p-3"
             >
-              <div className="font-medium text-[#a78bfa]">{p.name}</div>
-              <div className="text-xs text-[#b8ab96]">{p.effect}</div>
-              <div className="mt-1 text-[10px] text-[#b8ab96]">
-                {p.ingredients.join(", ")}
+              <div className="font-medium text-[#3ecfb3]">{p.name}</div>
+              <div className="text-xs text-[#9bb5af]">{p.effect}</div>
+              <div className="mt-1 text-[10px] text-[#9bb5af]">
+                {p.ingredients.join(" · ")}
               </div>
+              {p.totalToMax && (
+                <div className="mt-1 text-[10px] text-[#f0b429]">
+                  {p.totalToMax}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -1899,7 +1918,7 @@ function BuildsView({ account }: { account: Account }) {
     <div className="space-y-6">
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Best Builds</h2>
-        <p className="mt-1 text-sm text-[#b8ab96]">
+        <p className="mt-1 text-sm text-[#9bb5af]">
           Recommended gear progression from the Eatventure Handbook. Your city:{" "}
           {account.city}
         </p>
@@ -1917,7 +1936,7 @@ function BuildsView({ account }: { account: Account }) {
             key={i}
             className={cn(
               "panel rounded-3xl p-5",
-              active && "ring-2 ring-[#e8c36a]",
+              active && "ring-2 ring-[#f0b429]",
             )}
           >
             <div className="flex items-center justify-between">
@@ -1925,41 +1944,41 @@ function BuildsView({ account }: { account: Account }) {
                 <div className="flex items-center gap-2">
                   <h3 className="font-display text-xl">{b.label}</h3>
                   {active && (
-                    <span className="rounded-full bg-[#e8c36a] px-2 py-0.5 text-[10px] font-semibold text-[#1a1208] uppercase">
+                    <span className="rounded-lg bg-[#f0b429] px-2 py-0.5 text-[10px] font-semibold text-[#0b2422] uppercase">
                       your range
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-[#e8c36a]">{b.cityRange}</p>
+                <p className="text-sm text-[#f0b429]">{b.cityRange}</p>
               </div>
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <div className="rounded-xl bg-black/20 p-2">
-                <span className="text-[10px] uppercase text-[#b8ab96]">
+                <span className="text-[10px] uppercase text-[#9bb5af]">
                   Head
                 </span>
                 <div className="text-sm">{b.head}</div>
               </div>
               <div className="rounded-xl bg-black/20 p-2">
-                <span className="text-[10px] uppercase text-[#b8ab96]">
+                <span className="text-[10px] uppercase text-[#9bb5af]">
                   Body
                 </span>
                 <div className="text-sm">{b.body}</div>
               </div>
               <div className="rounded-xl bg-black/20 p-2">
-                <span className="text-[10px] uppercase text-[#b8ab96]">
+                <span className="text-[10px] uppercase text-[#9bb5af]">
                   Hand
                 </span>
                 <div className="text-sm">{b.hand}</div>
               </div>
             </div>
-            <p className="mt-2 text-xs text-[#b8ab96]">{b.notes}</p>
+            <p className="mt-2 text-xs text-[#9bb5af]">{b.notes}</p>
           </div>
         );
       })}
       <div className="panel rounded-3xl p-5">
         <h3 className="font-display text-xl">Upgrade Priority</h3>
-        <p className="mt-1 text-sm text-[#b8ab96]">
+        <p className="mt-1 text-sm text-[#9bb5af]">
           Stat priority order for gear:
         </p>
         <ol className="mt-3 space-y-1 text-sm">
@@ -1984,7 +2003,7 @@ function BuildsView({ account }: { account: Account }) {
             clears
           </li>
           <li>
-            6. <span className="text-[#e8c36a]">All Profit %</span> — general
+            6. <span className="text-[#f0b429]">All Profit %</span> — general
             boost
           </li>
         </ol>
@@ -1999,7 +2018,7 @@ function BlueprintsView() {
     <div className="space-y-6">
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Blueprint Recipes</h2>
-        <p className="mt-1 text-sm text-[#b8ab96]">
+        <p className="mt-1 text-sm text-[#9bb5af]">
           What you need to forge each item. Keep 6 rare and 4 epic of the same
           items to always have enough for forging.
         </p>
@@ -2013,7 +2032,7 @@ function BlueprintsView() {
               style={{
                 color:
                   RARITY_COLORS[bp.rarity.toLowerCase() as GearRarity] ||
-                  "#e8c36a",
+                  "#f0b429",
               }}
             >
               {bp.rarity}
@@ -2023,7 +2042,7 @@ function BlueprintsView() {
             {bp.ingredients.map((ing, j) => (
               <span
                 key={j}
-                className="rounded-lg border border-[#e8c36a]/15 bg-black/20 px-2 py-1 text-xs text-[#d9cbb3]"
+                className="rounded-lg border border-[#f0b429]/15 bg-black/20 px-2 py-1 text-xs text-[#c5d5d0]"
               >
                 {ing}
               </span>
@@ -2033,7 +2052,7 @@ function BlueprintsView() {
       ))}
       <div className="panel rounded-3xl p-5">
         <h3 className="font-display text-xl">Salvage Tips</h3>
-        <ul className="mt-2 space-y-1 text-sm text-[#b8ab96]">
+        <ul className="mt-2 space-y-1 text-sm text-[#9bb5af]">
           <li>• No XP loss when salvaging leveled items</li>
           <li>• Forging leveled items does transfer XP</li>
           <li>• Use commons to salvage and upgrade your gear</li>
@@ -2065,11 +2084,11 @@ function StepRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-2xl border border-[#e8c36a]/10 bg-black/20 px-3 py-2.5",
+        "flex items-center gap-3 rounded-2xl border border-[#f0b429]/10 bg-black/20 px-3 py-2.5",
         dim && "opacity-45",
       )}
     >
-      <div className="w-6 text-center text-xs text-[#b8ab96]">{index}</div>
+      <div className="w-6 text-center text-xs text-[#9bb5af]">{index}</div>
       <div
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
         style={{ background: `${item.accent}22` }}
@@ -2081,7 +2100,7 @@ function StepRow({
           {step.kind === "unlock" ? "Unlock" : `Lv ${step.from} → ${step.to}`}{" "}
           {item.name}
         </div>
-        <div className="truncate text-[11px] text-[#b8ab96]">
+        <div className="truncate text-[11px] text-[#9bb5af]">
           {item.effectKind === "cash"
             ? formatCash(effectAt(item.id, step.to) ?? 0)
             : formatEffect(item.id, step.to)}
@@ -2089,11 +2108,11 @@ function StepRow({
         </div>
       </div>
       <div className="text-right">
-        <div className="text-sm font-medium text-[#2ee6c7]">
+        <div className="text-sm font-medium text-[#3ecfb3]">
           {formatGems(step.cost)}
         </div>
         {running != null && (
-          <div className="text-[10px] text-[#b8ab96]">
+          <div className="text-[10px] text-[#9bb5af]">
             {formatGems(running)} total
           </div>
         )}
@@ -2101,7 +2120,7 @@ function StepRow({
       <button
         type="button"
         onClick={onComplete}
-        className="rounded-full border border-[#2ee6c7]/30 px-2.5 py-1 text-[11px] text-[#2ee6c7] hover:bg-[#2ee6c7]/10"
+        className="rounded-lg border border-[#3ecfb3]/30 px-2.5 py-1 text-[11px] text-[#3ecfb3] hover:bg-[#3ecfb3]/10"
       >
         Done
       </button>
@@ -2126,7 +2145,7 @@ function LevelRow({
       <button
         type="button"
         onClick={() => onChange(level - 1)}
-        className="h-8 w-8 rounded-lg border border-[#e8c36a]/20 text-lg leading-none"
+        className="h-8 w-8 rounded-lg border border-[#f0b429]/20 text-lg leading-none"
       >
         −
       </button>
@@ -2136,18 +2155,18 @@ function LevelRow({
         max={item.maxLevel}
         value={level}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-8 w-16 rounded-lg border border-[#e8c36a]/20 bg-black/30 text-center outline-none"
+        className="h-8 w-16 rounded-lg border border-[#f0b429]/20 bg-black/30 text-center outline-none"
       />
       <button
         type="button"
         onClick={() => onChange(level + 1)}
-        className="h-8 w-8 rounded-lg border border-[#e8c36a]/20 text-lg leading-none"
+        className="h-8 w-8 rounded-lg border border-[#f0b429]/20 text-lg leading-none"
       >
         +
       </button>
-      <span className="text-xs text-[#b8ab96]">/ {item.maxLevel}</span>
+      <span className="text-xs text-[#9bb5af]">/ {item.maxLevel}</span>
       {level === 0 && !canUnlock(id, levels) && (
-        <span className="text-[10px] text-[#b8ab96]">needs previous card</span>
+        <span className="text-[10px] text-[#9bb5af]">needs previous card</span>
       )}
     </div>
   );
@@ -2156,7 +2175,7 @@ function LevelRow({
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs tracking-wide text-[#b8ab96] uppercase">
+      <span className="mb-1.5 block text-xs tracking-wide text-[#9bb5af]">
         {label}
       </span>
       {children}
@@ -2176,10 +2195,8 @@ function Stat({
   gem?: boolean;
 }) {
   return (
-    <div className="rounded-2xl bg-black/25 p-3">
-      <div className="text-[11px] tracking-wide text-[#b8ab96] uppercase">
-        {label}
-      </div>
+    <div className="stat-tile">
+      <div className="text-[11px] text-[#9bb5af]">{label}</div>
       <div
         className={cn(
           "mt-1 text-2xl font-semibold",
@@ -2188,7 +2205,7 @@ function Stat({
       >
         {value}
       </div>
-      <div className="mt-1 text-[11px] text-[#b8ab96]">{hint}</div>
+      <div className="mt-1 text-[11px] text-[#9bb5af]">{hint}</div>
     </div>
   );
 }
@@ -2196,7 +2213,7 @@ function Stat({
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <dt className="text-[#b8ab96]">{k}</dt>
+      <dt className="text-[#9bb5af]">{k}</dt>
       <dd>{v}</dd>
     </div>
   );
@@ -2215,7 +2232,7 @@ function PriorityBadge({
   const m = map[priority];
   return (
     <span
-      className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", m.cls)}
+      className={cn("rounded-lg px-2 py-0.5 text-[10px] font-medium", m.cls)}
     >
       {m.label}
     </span>
@@ -2234,16 +2251,16 @@ function GemChip({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-full border px-3 py-1.5",
+        "flex items-center gap-2 rounded-lg border px-3 py-1.5",
         gem
-          ? "border-[#2ee6c7]/25 bg-[#04261f]/70"
+          ? "border-[#3ecfb3]/25 bg-[#0a2a27]/70"
           : "border-[#a78bfa]/25 bg-[#1a0f2e]/70",
       )}
     >
       <span
         className={cn(
           "text-sm font-medium",
-          gem ? "text-[#2ee6c7]" : "text-[#a78bfa]",
+          gem ? "text-[#3ecfb3]" : "text-[#a78bfa]",
         )}
       >
         {formatGems(value)}
