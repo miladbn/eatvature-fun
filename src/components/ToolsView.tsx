@@ -32,13 +32,17 @@ import {
 } from "../utils/profiles";
 import { buildPlan } from "../utils/planner";
 import { cn } from "../utils/cn";
+import { VaultOcrHelper } from "./VaultOcrHelper";
+import { CloudSyncPanel } from "./CloudSyncPanel";
 
 export function ToolsView({
   account,
   onImport,
+  onApplyLevels,
 }: {
   account: Account;
   onImport: (next: Account) => void;
+  onApplyLevels?: (levels: Partial<Record<ItemId, number>>) => void;
 }) {
   const [citiesAhead, setCitiesAhead] = useState(10);
   const [clothRarity, setClothRarity] = useState<ClothingRarity>("common");
@@ -159,6 +163,12 @@ export function ToolsView({
           Calculators, comparisons, export/import, and share links.
         </p>
       </section>
+
+      {onApplyLevels && (
+        <VaultOcrHelper account={account} onApply={onApplyLevels} />
+      )}
+
+      <CloudSyncPanel account={account} onImport={onImport} />
 
       {/* Gem projector */}
       <section className="panel rounded-2xl p-5">

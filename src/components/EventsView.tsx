@@ -12,10 +12,23 @@ import {
   setTheme,
   type ThemeMode,
 } from "../utils/profiles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "../utils/cn";
+import {
+  formatCountdown,
+  getEventRotation,
+} from "../utils/eventSchedule";
+import { CloudSyncPanel } from "./CloudSyncPanel";
+import { useI18n } from "../utils/i18n";
 
 export function EventsView() {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+  const rot = getEventRotation(now);
+
   return (
     <div className="space-y-5">
       <section className="ticket rounded-2xl p-5">
@@ -26,9 +39,31 @@ export function EventsView() {
           What to farm and which boxes drop key gear.
         </p>
       </section>
+
+      <section className="panel rounded-2xl p-5">
+        <p className="text-xs text-[#9bb5af]">Estimated focus this week</p>
+        <h3 className="mt-1 font-display text-2xl font-bold text-[#f0b429]">
+          {rot.current.name}
+        </h3>
+        <p className="text-sm text-[#c5d5d0]">{rot.current.box}</p>
+        <p className="mt-2 text-sm">{rot.farmTip}</p>
+        <p className="mt-2 text-xs text-[#9bb5af]">
+          ~{formatCountdown(rot.msLeft)} left · next: {rot.next.name}
+        </p>
+        <p className="mt-1 text-[10px] text-[#9bb5af]">
+          Rotation is an estimate — live schedules vary.
+        </p>
+      </section>
+
       <div className="grid gap-3 sm:grid-cols-2">
         {EVENTS.map((ev) => (
-          <article key={ev.id} className="panel rounded-2xl p-4">
+          <article
+            key={ev.id}
+            className={cn(
+              "panel rounded-2xl p-4",
+              ev.id === rot.current.id && "ring-1 ring-[#f0b429]",
+            )}
+          >
             <h3 className="font-display text-xl font-bold">{ev.name}</h3>
             <p className="text-xs text-[#f0b429]">{ev.box}</p>
             <ul className="mt-2 space-y-1 text-sm text-[#c5d5d0]">
@@ -48,11 +83,14 @@ export function MoreView({
   account,
   setNotes,
   onSwitchProfile,
+  onImportCloud,
 }: {
   account: Account;
   setNotes: (notes: string) => void;
   onSwitchProfile: (account: Account) => void;
+  onImportCloud?: (account: Account) => void;
 }) {
+  const { t, lang, setLang } = useI18n();
   const [theme, setThemeState] = useState<ThemeMode>(getTheme());
   const [profiles, setProfiles] = useState(() => listProfiles());
   const [newName, setNewName] = useState("");
@@ -86,10 +124,30 @@ export function MoreView({
   return (
     <div className="space-y-6">
       <section className="ticket rounded-2xl p-5">
-        <h2 className="font-display text-3xl font-bold text-[#14201c]">More</h2>
+        <h2 className="font-display text-3xl font-bold text-[#14201c]">{t("more")}</h2>
         <p className="mt-1 text-sm text-[#5c6f69]">
-          Theme, profiles, milestones, notes, and handbook links.
+          Theme, language, profiles, milestones, notes, and handbook links.
         </p>
+      </section>
+
+      <section className="panel rounded-2xl p-5">
+        <h3 className="font-display text-xl font-bold">{t("language")}</h3>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={cn("btn-secondary", lang === "en" && "ring-1 ring-[#f0b429]")}
+            onClick={() => setLang("en")}
+          >
+            English
+          </button>
+          <button
+            type="button"
+            className={cn("btn-secondary", lang === "fa" && "ring-1 ring-[#f0b429]")}
+            onClick={() => setLang("fa")}
+          >
+            فارسی
+          </button>
+        </div>
       </section>
 
       <section className="panel rounded-2xl p-5">
@@ -102,6 +160,10 @@ export function MoreView({
           shortcut. This build is a single-file app.
         </p>
       </section>
+
+      {onImportCloud && (
+        <CloudSyncPanel account={account} onImport={onImportCloud} />
+      )}
 
       <section className="panel rounded-2xl p-5">
         <h3 className="font-display text-xl font-bold">Profiles</h3>

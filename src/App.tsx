@@ -679,7 +679,7 @@ function Onboarding({
       <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-4 py-10">
         <div className="panel shine rounded-[32px] p-6 sm:p-10">
           <p className="text-xs tracking-wide text-[#f0b429]/80">
-            Step {step + 1} of 3
+            Step {step + 1} of 4
           </p>
           {step === 0 && (
             <div className="rise">
@@ -860,6 +860,34 @@ function Onboarding({
                 </button>
                 <button
                   type="button"
+                  onClick={() => setStep(3)}
+                  className="rounded-lg bg-[#f0b429] px-5 py-2.5 text-sm font-semibold text-[#0b2422]"
+                >
+                  Quick check
+                </button>
+              </div>
+            </div>
+          )}
+          {step === 3 && (
+            <div className="rise">
+              <h2 className="mt-3 font-display text-3xl">Quick check</h2>
+              <p className="mt-2 text-sm text-[#9bb5af]">
+                For city {account.city || 1}, here is how your vault compares to
+                Spectre handbook targets.
+              </p>
+              <div className="mt-4">
+                <OnboardingProgressCheck account={account} />
+              </div>
+              <div className="mt-6 flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="text-sm text-[#9bb5af]"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
                   onClick={onDone}
                   className="rounded-lg bg-[#f0b429] px-5 py-2.5 text-sm font-semibold text-[#0b2422]"
                 >
@@ -874,6 +902,31 @@ function Onboarding({
   );
 }
 
+function OnboardingProgressCheck({ account }: { account: Account }) {
+  const report = evaluateCityProgress(account);
+  return (
+    <div className="rounded-2xl border border-[#f0b429]/25 bg-black/30 p-4">
+      <p className="font-display text-2xl font-bold text-[#f0b429]">
+        {report.label}
+      </p>
+      <p className="mt-2 text-sm text-[#c5d5d0]">{report.summary}</p>
+      <p className="mt-2 text-xs text-[#9bb5af]">
+        Score {report.scorePct}% · {report.met}/{report.total} targets met
+      </p>
+      {report.behind.length > 0 && (
+        <ul className="mt-3 space-y-1 text-sm text-rose-300">
+          {report.behind.slice(0, 4).map((b) => (
+            <li key={b.id}>
+              {b.name}: {b.have}/{b.need}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ─── Overview ─── */
 /* ─── Overview ─── */
 function Overview({
   account,
@@ -888,6 +941,8 @@ function Overview({
   spendGems,
   onComplete,
   onBurst,
+  historyKey,
+  onOpenTab,
 }: {
   account: Account;
   plan: UpgradeStep[];
@@ -901,7 +956,10 @@ function Overview({
   spendGems: boolean;
   onComplete: (s: UpgradeStep) => void;
   onBurst: () => void;
+  historyKey: number;
+  onOpenTab: (tab: MainTab) => void;
 }) {
+  const { t } = useI18n();
   const next = plan[0];
   const phase = PHASES.find((p) => p.id === cityPhase);
   const nextFive = plan.slice(0, 5);
@@ -930,9 +988,30 @@ function Overview({
       m.id,
     ),
   );
+  const unlockedCount = VAULT_ITEMS.filter(
+    (i) => (account.levels[i.id] ?? 0) > 0,
+  ).length;
 
   return (
     <div className="space-y-6">
+      {unlockedCount === 0 && (
+        <EmptyHint>
+          {t("emptyVault")}{" "}
+          <button
+            type="button"
+            className="text-[#f0b429] underline"
+            onClick={() => onOpenTab("vault")}
+          >
+            {t("vault")}
+          </button>
+        </EmptyHint>
+      )}
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        <ProgressGradeCard account={account} />
+        <GemBudgetCard account={account} plan={plan} />
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="ticket rounded-2xl p-4">
           <div className="text-xs font-medium text-[#5c6f69]">
@@ -1045,6 +1124,8 @@ function Overview({
           )}
         </div>
 
+        <DailyChecklistCard account={account} nextStep={next ?? null} />
+
         <div className="panel rounded-2xl p-5">
           <h3 className="font-display text-xl font-bold">What to focus on</h3>
           <p className="mt-1 text-sm text-[#9bb5af]">
@@ -1117,8 +1198,12 @@ function Overview({
             ))}
           </div>
         </div>
+
+        <HistoryChartCard refreshKey={historyKey} />
       </div>
       <aside className="space-y-6">
+        <EventCountdownCard />
+        <GearMatchCard account={account} />
         <div className="panel rounded-2xl p-5">
           <h3 className="font-display text-xl font-bold">Your multipliers</h3>
           <p className="mt-1 text-sm text-[#9bb5af]">
@@ -1229,9 +1314,8 @@ function AccountEditor({
   setLevel,
   spendGems,
   setSpendGems,
-  confirmReset,
   setConfirmReset,
-  onReset,
+  emptyHint,
 }: {
   account: Account;
   update: <K extends keyof Account>(k: K, v: Account[K]) => void;
@@ -1241,11 +1325,13 @@ function AccountEditor({
   confirmReset: boolean;
   setConfirmReset: (v: boolean) => void;
   onReset: () => void;
+  emptyHint?: ReactNode;
 }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
       <div className="panel space-y-4 rounded-3xl p-5">
         <h2 className="font-display text-2xl">Account</h2>
+        {emptyHint}
         <Field label="Chef name">
           <input
             value={account.name}
@@ -1348,23 +1434,13 @@ function AccountEditor({
           >
             Unlock all
           </button>
-          {!confirmReset ? (
-            <button
-              type="button"
-              onClick={() => setConfirmReset(true)}
-              className="rounded-lg border border-rose-400/30 px-3 py-1.5 text-xs text-rose-300"
-            >
-              Reset saved data
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={onReset}
-              className="rounded-lg bg-rose-500 px-3 py-1.5 text-xs text-white"
-            >
-              Confirm wipe
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setConfirmReset(true)}
+            className="rounded-lg border border-rose-400/30 px-3 py-1.5 text-xs text-rose-300"
+          >
+            Reset saved data
+          </button>
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -1636,9 +1712,11 @@ function TotalsView({
 function GearView({
   account,
   setGear,
+  emptyHint,
 }: {
   account: Account;
   setGear: (slot: GearSlot | "hand1" | "hand2", id: string) => void;
+  emptyHint?: ReactNode;
 }) {
   const slots: { key: keyof Account["gear"]; label: string; slot: GearSlot }[] =
     [
@@ -1672,6 +1750,7 @@ function GearView({
 
   return (
     <div className="space-y-6">
+      {emptyHint}
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Equipped Gear</h2>
         <p className="mt-1 text-sm text-[#9bb5af]">
@@ -1875,15 +1954,18 @@ function PetsView({
   addPet,
   removePet,
   updatePetLevel,
+  emptyHint,
 }: {
   account: Account;
   addPet: (id: string) => void;
   removePet: (id: string) => void;
   updatePetLevel: (id: string, level: number) => void;
+  emptyHint?: ReactNode;
 }) {
   const ownedIds = new Set(account.pets.map((p) => p.petId));
   return (
     <div className="space-y-6">
+      {emptyHint}
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Your Pets</h2>
         <p className="mt-1 text-sm text-[#9bb5af]">
@@ -2346,6 +2428,7 @@ function BuildsView({ account }: { account: Account }) {
           {account.city}
         </p>
       </div>
+      <GearMatchCard account={account} />
       {BEST_BUILDS.map((b, i) => {
         const active = (() => {
           const [min, max] = b.cityRange
