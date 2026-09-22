@@ -3,14 +3,17 @@ import { VaultIcon } from "./components/VaultIcons";
 import {
   DEFAULT_ACCOUNT,
   EMPTY_LEVELS,
-  GEMS_PER_CITY,
   ITEM_MAP,
   PHASES,
   PLAYSTYLE_META,
   TOTAL_VAULT_GEMS,
   VAULT_ITEMS,
 } from "./data/vault";
-import { AVG_GEMS_PER_CITY, cityForNumber, LOOP_GEMS } from "./data/cities";
+import {
+  AVG_GEMS_PER_CITY,
+  LOOP_GEMS,
+  cityForNumber,
+} from "./data/cities";
 import { CitiesView } from "./components/CitiesView";
 import { GuideView } from "./components/GuideView";
 import {
@@ -42,19 +45,23 @@ import type {
 } from "./types";
 import {
   applyStep,
+  buildFocusTips,
   canUnlock,
+  citiesNeededForGems,
   costToMax,
   effectAt,
   formatCash,
   formatEffect,
   formatGems,
   itemBreakdown,
+  loopsNeededForGems,
   recommendedCityPhase,
   remainingMaxCost,
   remainingPriorityCost,
   remainingUnlockCost,
   spentSoFar,
   upgradeCost,
+  vaultMultiplierRows,
   vaultProgress,
 } from "./utils/calc";
 import {
@@ -373,6 +380,7 @@ export default function App() {
             progress={progress}
             unlockLeft={unlockLeft}
             maxLeft={maxLeft}
+            priorityLeft={priorityLeft}
             invested={invested}
             cityPhase={cityPhase}
             spendGems={spendGems}
@@ -415,7 +423,13 @@ export default function App() {
             priorityLeft={priorityLeft}
           />
         )}
-        {tab === "cities" && <CitiesView currentCity={account.city} />}
+        {tab === "cities" && (
+          <CitiesView
+            currentCity={account.city}
+            gemsToMaxVault={maxLeft}
+            gemsToPriority={priorityLeft}
+          />
+        )}
         {tab === "gear" && <GearView account={account} setGear={setGear} />}
         {tab === "pets" && (
           <PetsView
@@ -678,6 +692,7 @@ function Overview({
   progress,
   unlockLeft,
   maxLeft,
+  priorityLeft,
   invested,
   cityPhase,
   spendGems,
@@ -690,6 +705,7 @@ function Overview({
   progress: ReturnType<typeof vaultProgress>;
   unlockLeft: number;
   maxLeft: number;
+  priorityLeft: number;
   invested: number;
   cityPhase: string;
   spendGems: boolean;
@@ -705,9 +721,70 @@ function Overview({
   const petCount = account.pets.length;
   const hasGear = account.gear.head || account.gear.body || account.gear.hand1;
   const cityMeta = cityForNumber(account.city || 1);
+  const multipliers = vaultMultiplierRows(account.levels);
+  const focusTips = buildFocusTips(
+    account.levels,
+    account.city || 1,
+    account.hasPanda,
+    account.playstyle,
+    next
+      ? { itemId: next.itemId, kind: next.kind, reason: next.reason }
+      : null,
+  );
+  const citiesToFull = citiesNeededForGems(maxLeft, AVG_GEMS_PER_CITY);
+  const citiesToPriority = citiesNeededForGems(priorityLeft, AVG_GEMS_PER_CITY);
+  const citiesAtCurrent = citiesNeededForGems(maxLeft, cityMeta.gems);
+  const loopsToFull = loopsNeededForGems(maxLeft, LOOP_GEMS);
+  const keyMultis = multipliers.filter((m) =>
+    ["remote", "register", "mop", "checkbook", "tv", "pickaxe", "tipJar"].includes(
+      m.id,
+    ),
+  );
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+    <div className="space-y-6">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="ticket rounded-2xl p-4">
+          <div className="text-xs font-medium text-[#5c6f69]">
+            Cities to max vault
+          </div>
+          <div className="mt-1 font-display text-3xl font-extrabold text-[#e8452d]">
+            {citiesToFull.toLocaleString()}
+          </div>
+          <p className="mt-1 text-xs text-[#5c6f69]">
+            ~{AVG_GEMS_PER_CITY} gems/city · {formatGems(maxLeft)} gems left
+          </p>
+        </div>
+        <div className="stat-tile">
+          <div className="text-[11px] text-[#9bb5af]">At your city rate</div>
+          <div className="mt-1 font-display text-2xl font-bold gold-text">
+            {citiesAtCurrent.toLocaleString()}
+          </div>
+          <p className="mt-1 text-[11px] text-[#9bb5af]">
+            {cityMeta.name} pays {cityMeta.gems} gems
+          </p>
+        </div>
+        <div className="stat-tile">
+          <div className="text-[11px] text-[#9bb5af]">Priority path only</div>
+          <div className="mt-1 font-display text-2xl font-bold gem-text">
+            {citiesToPriority.toLocaleString()}
+          </div>
+          <p className="mt-1 text-[11px] text-[#9bb5af]">
+            Upgrade-when-possible cards · {formatGems(priorityLeft)} gems
+          </p>
+        </div>
+        <div className="stat-tile">
+          <div className="text-[11px] text-[#9bb5af]">60-city loops left</div>
+          <div className="mt-1 font-display text-2xl font-bold">
+            {loopsToFull.toFixed(1)}
+          </div>
+          <p className="mt-1 text-[11px] text-[#9bb5af]">
+            {formatGems(LOOP_GEMS)} gems per full loop
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
       <div className="space-y-6">
         <div className="ticket rise rounded-2xl p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -777,6 +854,54 @@ function Overview({
             </>
           )}
         </div>
+
+        <div className="panel rounded-2xl p-5">
+          <h3 className="font-display text-xl font-bold">What to focus on</h3>
+          <p className="mt-1 text-sm text-[#9bb5af]">
+            Based on your vault levels, city {account.city || 1}, and{" "}
+            {PLAYSTYLE_META[account.playstyle].name}.
+          </p>
+          <div className="mt-4 space-y-2">
+            {focusTips.map((tip) => (
+              <div
+                key={tip.title}
+                className={cn(
+                  "rounded-xl border px-3 py-3",
+                  tip.tone === "now" &&
+                    "border-[#e8452d]/40 bg-[#e8452d]/10",
+                  tip.tone === "soon" &&
+                    "border-[#f0b429]/30 bg-[#f0b429]/8",
+                  tip.tone === "later" && "border-white/10 bg-black/20",
+                  tip.tone === "done" &&
+                    "border-[#3ecfb3]/30 bg-[#3ecfb3]/8",
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "rounded px-1.5 py-0.5 text-[10px] font-semibold",
+                      tip.tone === "now" && "bg-[#e8452d] text-white",
+                      tip.tone === "soon" && "bg-[#f0b429] text-[#0b2422]",
+                      tip.tone === "later" && "bg-white/10 text-[#9bb5af]",
+                      tip.tone === "done" && "bg-[#3ecfb3] text-[#0b2422]",
+                    )}
+                  >
+                    {tip.tone === "now"
+                      ? "Now"
+                      : tip.tone === "soon"
+                        ? "Soon"
+                        : tip.tone === "done"
+                          ? "Done"
+                          : "Later"}
+                  </span>
+                  <span className="font-medium">{tip.title}</span>
+                </div>
+                <p className="mt-1 text-xs text-[#9bb5af]">{tip.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="panel rounded-2xl p-5">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="font-display text-xl font-bold">Coming up</h3>
@@ -805,6 +930,43 @@ function Overview({
       </div>
       <aside className="space-y-6">
         <div className="panel rounded-2xl p-5">
+          <h3 className="font-display text-xl font-bold">Your multipliers</h3>
+          <p className="mt-1 text-sm text-[#9bb5af]">
+            Live vault effects at your current levels.
+          </p>
+          <div className="mt-4 space-y-3">
+            {keyMultis.map((row) => (
+              <div key={row.id}>
+                <div className="flex items-center justify-between gap-2 text-sm">
+                  <span className="flex items-center gap-2">
+                    <VaultIcon id={row.id} className="h-6 w-6" />
+                    {row.name}
+                  </span>
+                  <span className="font-semibold" style={{ color: row.accent }}>
+                    {row.current}
+                  </span>
+                </div>
+                <div className="mt-1 flex items-center justify-between text-[11px] text-[#9bb5af]">
+                  <span>
+                    Lv {row.level}/{row.maxLevel} · max {row.max}
+                  </span>
+                  <PriorityBadge priority={row.priority} />
+                </div>
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-black/40">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${row.progress}%`,
+                      background: row.accent,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="panel rounded-2xl p-5">
           <h3 className="font-display text-xl font-bold">Account snapshot</h3>
           <p className="mt-1 text-sm text-[#9bb5af]">
             {PLAYSTYLE_META[account.playstyle].name} · {cityMeta.name} (city{" "}
@@ -822,19 +984,22 @@ function Overview({
             <Row k="Gems invested" v={formatGems(invested)} />
             <Row k="Still to unlock" v={formatGems(unlockLeft)} />
             <Row k="Still to 100% vault" v={formatGems(maxLeft)} />
+            <Row
+              k="Cities to finish vault"
+              v={`${citiesToFull.toLocaleString()} @ avg`}
+            />
             <Row k="Your gems cover" v={`${budget.count} steps`} />
             <Row
               k="Cards unlocked"
               v={`${progress.unlocked}/${progress.totalItems}`}
             />
-            <Row k="Cities completed" v={String(account.citiesCompleted)} />
-            <Row k="Pet food needed" v={formatGems(PET_FOOD_TO_MAX)} />
             <Row
-              k="Scrolls to max arcane"
-              v={formatGems(TOTAL_SCROLLS_TO_MAX)}
+              k="Vault levels"
+              v={`${progress.levelsOwned}/${progress.levelsMax} (${progress.percent.toFixed(0)}%)`}
             />
-            <Row k="Gear equipped" v={hasGear ? "Yes" : "None"} />
+            <Row k="Cities completed" v={String(account.citiesCompleted)} />
             <Row k="Pets owned" v={String(petCount)} />
+            <Row k="Gear equipped" v={hasGear ? "Yes" : "None"} />
             <Row
               k="Arcane vault done"
               v={`${arcaneDone}/${ARCANE_VAULT_ITEMS.length}`}
@@ -848,17 +1013,21 @@ function Overview({
             className="h-40 w-full object-cover opacity-90"
           />
           <div className="bg-[#102a27] p-4 text-xs text-[#9bb5af]">
-            Handbook total to unlock + max every card from zero is{" "}
+            Full vault from zero is{" "}
             <span className="text-[#f0b429]">
               {formatGems(TOTAL_VAULT_GEMS)}
             </span>{" "}
-            gems — about{" "}
+            gems (~
             {Math.ceil(TOTAL_VAULT_GEMS / AVG_GEMS_PER_CITY).toLocaleString()}{" "}
-            cities at ~{AVG_GEMS_PER_CITY} gems each ({formatGems(LOOP_GEMS)} per
-            60-city loop).
+            cities). You still need about{" "}
+            <span className="text-[#3ecfb3]">
+              {citiesToFull.toLocaleString()} cities
+            </span>{" "}
+            or {loopsToFull.toFixed(1)} loops from where you are.
           </div>
         </div>
       </aside>
+      </div>
     </div>
   );
 }
@@ -1198,12 +1367,12 @@ function TotalsView({
         <Stat
           label="Priority to max"
           value={formatGems(priorityLeft)}
-          hint="upgrade-when-possible"
+          hint={`${citiesNeededForGems(priorityLeft, AVG_GEMS_PER_CITY).toLocaleString()} cities`}
         />
         <Stat
           label="Full vault to max"
           value={formatGems(maxLeft)}
-          hint={`${Math.ceil(maxLeft / GEMS_PER_CITY).toLocaleString()} cities`}
+          hint={`${citiesNeededForGems(maxLeft, AVG_GEMS_PER_CITY).toLocaleString()} cities · ${loopsNeededForGems(maxLeft, LOOP_GEMS).toFixed(1)} loops`}
         />
       </div>
       <div className="panel overflow-hidden rounded-3xl">
@@ -1255,7 +1424,7 @@ function TotalsView({
                     {formatGems(row.toMax)}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {(row.toMax / GEMS_PER_CITY).toFixed(1)}
+                    {(row.toMax / AVG_GEMS_PER_CITY).toFixed(1)}
                   </td>
                 </tr>
               ))}
@@ -1265,7 +1434,8 @@ function TotalsView({
       </div>
       <p className="text-xs text-[#9bb5af]">
         Source: Spectre Eatventure Handbook. Level costs match the public vault
-        sheet. City estimates use 184 gems per city and ignore event / investor
+        sheet. City estimates use ~{AVG_GEMS_PER_CITY} gems per city (
+        {formatGems(LOOP_GEMS)} per 60-city loop) and ignore event / investor
         extras.
       </p>
     </div>

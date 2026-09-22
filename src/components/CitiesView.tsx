@@ -9,10 +9,22 @@ import {
 } from "../data/cities";
 import { CITY_RESTAURANT_MAP } from "../data/restaurants";
 import { TOTAL_VAULT_GEMS } from "../data/vault";
-import { formatGems } from "../utils/calc";
+import {
+  citiesNeededForGems,
+  formatGems,
+  loopsNeededForGems,
+} from "../utils/calc";
 import { cn } from "../utils/cn";
 
-export function CitiesView({ currentCity }: { currentCity: number }) {
+export function CitiesView({
+  currentCity,
+  gemsToMaxVault = TOTAL_VAULT_GEMS,
+  gemsToPriority = TOTAL_VAULT_GEMS,
+}: {
+  currentCity: number;
+  gemsToMaxVault?: number;
+  gemsToPriority?: number;
+}) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(Math.max(1, currentCity || 1));
   const active = cityForNumber(selected);
@@ -29,8 +41,11 @@ export function CitiesView({ currentCity }: { currentCity: number }) {
     );
   }, [query]);
 
-  const loopsToMax = TOTAL_VAULT_GEMS / LOOP_GEMS;
   const yourGems = cityForNumber(currentCity || 1).gems;
+  const citiesToFull = citiesNeededForGems(gemsToMaxVault, AVG_GEMS_PER_CITY);
+  const citiesAtYours = citiesNeededForGems(gemsToMaxVault, yourGems);
+  const citiesPriority = citiesNeededForGems(gemsToPriority, AVG_GEMS_PER_CITY);
+  const loopsLeft = loopsNeededForGems(gemsToMaxVault, LOOP_GEMS);
 
   return (
     <div className="space-y-6">
@@ -43,31 +58,66 @@ export function CitiesView({ currentCity }: { currentCity: number }) {
           Every city pays a fixed gem total from its restaurants. Loop average is{" "}
           {AVG_GEMS_PER_CITY} gems · full 60-city loop is {formatGems(LOOP_GEMS)}.
         </p>
-        <div className="mt-5 grid gap-3 sm:grid-cols-4">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl bg-white/70 p-3">
-            <div className="text-xs text-[#5c6f69]">This city</div>
+            <div className="text-xs text-[#5c6f69]">Cities to max your vault</div>
             <div className="mt-1 font-display text-2xl font-bold text-[#e8452d]">
-              {active.gems}
+              {citiesToFull.toLocaleString()}
+            </div>
+            <div className="mt-0.5 text-[11px] text-[#5c6f69]">
+              {formatGems(gemsToMaxVault)} gems left @ avg
             </div>
           </div>
           <div className="rounded-xl bg-white/70 p-3">
-            <div className="text-xs text-[#5c6f69]">Your city gems</div>
-            <div className="mt-1 font-display text-2xl font-bold">{yourGems}</div>
-          </div>
-          <div className="rounded-xl bg-white/70 p-3">
-            <div className="text-xs text-[#5c6f69]">Loop range</div>
+            <div className="text-xs text-[#5c6f69]">At your city rate</div>
             <div className="mt-1 font-display text-2xl font-bold">
-              {MIN_CITY_GEMS}–{MAX_CITY_GEMS}
+              {citiesAtYours.toLocaleString()}
+            </div>
+            <div className="mt-0.5 text-[11px] text-[#5c6f69]">
+              {yourGems} gems in current city
             </div>
           </div>
           <div className="rounded-xl bg-white/70 p-3">
-            <div className="text-xs text-[#5c6f69]">Loops to max vault</div>
+            <div className="text-xs text-[#5c6f69]">Priority cards only</div>
             <div className="mt-1 font-display text-2xl font-bold">
-              {loopsToMax.toFixed(1)}
+              {citiesPriority.toLocaleString()}
+            </div>
+            <div className="mt-0.5 text-[11px] text-[#5c6f69]">
+              {formatGems(gemsToPriority)} gems
+            </div>
+          </div>
+          <div className="rounded-xl bg-white/70 p-3">
+            <div className="text-xs text-[#5c6f69]">Loops still needed</div>
+            <div className="mt-1 font-display text-2xl font-bold">
+              {loopsLeft.toFixed(1)}
+            </div>
+            <div className="mt-0.5 text-[11px] text-[#5c6f69]">
+              This city pays {active.gems}
             </div>
           </div>
         </div>
       </section>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="stat-tile">
+          <div className="text-[11px] text-[#9bb5af]">Selected city gems</div>
+          <div className="mt-1 font-display text-2xl font-bold gold-text">
+            {active.gems}
+          </div>
+        </div>
+        <div className="stat-tile">
+          <div className="text-[11px] text-[#9bb5af]">Loop gem range</div>
+          <div className="mt-1 font-display text-2xl font-bold">
+            {MIN_CITY_GEMS}–{MAX_CITY_GEMS}
+          </div>
+        </div>
+        <div className="stat-tile">
+          <div className="text-[11px] text-[#9bb5af]">From-zero vault loops</div>
+          <div className="mt-1 font-display text-2xl font-bold">
+            {(TOTAL_VAULT_GEMS / LOOP_GEMS).toFixed(1)}
+          </div>
+        </div>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="panel rounded-2xl p-4 sm:p-5">
@@ -125,6 +175,11 @@ export function CitiesView({ currentCity }: { currentCity: number }) {
                 <span>City total</span>
                 <span className="gold-text">{restaurants.totalGems} gems</span>
               </div>
+              <p className="pt-2 text-xs text-[#9bb5af]">
+                At this city’s {active.gems} gems, your remaining vault needs about{" "}
+                {citiesNeededForGems(gemsToMaxVault, active.gems).toLocaleString()}{" "}
+                clears of {active.name}.
+              </p>
             </div>
           ) : (
             <div className="mt-4 rounded-xl border border-dashed border-white/15 p-4 text-sm text-[#9bb5af]">

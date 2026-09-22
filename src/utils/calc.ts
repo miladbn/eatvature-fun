@@ -4,7 +4,7 @@ import {
   LEVEL_COSTS,
   VAULT_ITEMS,
 } from "../data/vault";
-import type { Account, ItemId } from "../types";
+import type { Account, ItemId, VaultItem } from "../types";
 
 export function upgradeCost(itemId: ItemId, toLevel: number): number {
   if (toLevel <= 1) return ITEM_MAP[itemId].unlockCost;
@@ -127,6 +127,193 @@ export function remainingPriorityCost(levels: Record<ItemId, number>): number {
     (sum, item) => sum + costToMax(item.id, levels[item.id]),
     0,
   );
+}
+
+/** How many cities of gem income are needed to cover a gem cost. */
+export function citiesNeededForGems(
+  gemsNeeded: number,
+  gemsPerCity: number,
+): number {
+  if (gemsNeeded <= 0) return 0;
+  const rate = Math.max(1, gemsPerCity);
+  return Math.ceil(gemsNeeded / rate);
+}
+
+export function loopsNeededForGems(
+  gemsNeeded: number,
+  gemsPerLoop: number,
+): number {
+  if (gemsNeeded <= 0) return 0;
+  return gemsNeeded / Math.max(1, gemsPerLoop);
+}
+
+export interface VaultMultiplierRow {
+  id: ItemId;
+  name: string;
+  level: number;
+  maxLevel: number;
+  current: string;
+  max: string;
+  priority: VaultItem["priority"];
+  effectLabel: string;
+  accent: string;
+  progress: number;
+}
+
+export function vaultMultiplierRows(
+  levels: Record<ItemId, number>,
+): VaultMultiplierRow[] {
+  return VAULT_ITEMS.map((item) => {
+    const level = levels[item.id] ?? 0;
+    return {
+      id: item.id,
+      name: item.name,
+      level,
+      maxLevel: item.maxLevel,
+      current: formatEffect(item.id, level),
+      max: formatEffect(item.id, item.maxLevel),
+      priority: item.priority,
+      effectLabel: item.effectLabel,
+      accent: item.accent,
+      progress: item.maxLevel === 0 ? 0 : (level / item.maxLevel) * 100,
+    };
+  });
+}
+
+export interface FocusTip {
+  title: string;
+  detail: string;
+  tone: "now" | "soon" | "later" | "done";
+}
+
+/** Plain-language focus list based on vault levels, city, and playstyle. */
+export function buildFocusTips(
+  levels: Record<ItemId, number>,
+  city: number,
+  hasPanda: boolean,
+  playstyle: Account["playstyle"],
+  nextStep: { itemId: ItemId; kind: string; reason: string } | null,
+): FocusTip[] {
+  const tips: FocusTip[] = [];
+  const remote = levels.remote ?? 0;
+  const mop = levels.mop ?? 0;
+  const checkbook = levels.checkbook ?? 0;
+  const register = levels.register ?? 0;
+  const pickaxe = levels.pickaxe ?? 0;
+  const tipJar = levels.tipJar ?? 0;
+  const locked = VAULT_ITEMS.filter((i) => (levels[i.id] ?? 0) === 0).length;
+
+  if (nextStep) {
+    tips.push({
+      title: `Do this next: ${ITEM_MAP[nextStep.itemId].name}`,
+      detail: nextStep.reason,
+      tone: "now",
+    });
+  } else {
+    tips.push({
+      title: "Vault path complete",
+      detail: "Every card on your chosen structure is already maxed.",
+      tone: "done",
+    });
+  }
+
+  if (locked > 0) {
+    tips.push({
+      title: `Unlock remaining cards first (${locked} locked)`,
+      detail:
+        "Buying locked vault slots is usually better ROI than upgrading mid cards early.",
+      tone: "now",
+    });
+  }
+
+  if (!hasPanda && register > 0 && register < 10) {
+    tips.push({
+      title: `Finish Register (${register}/10)`,
+      detail: "Cheap order-speed card. Max it unless you own Legendary Panda.",
+      tone: "soon",
+    });
+  } else if (hasPanda && register > 0 && register < 10) {
+    tips.push({
+      title: "Skip Register upgrades",
+      detail: "Panda already covers instant orders — put gems into Remote / Mop.",
+      tone: "later",
+    });
+  }
+
+  if (remote > 0 && remote < 20) {
+    tips.push({
+      title: `Keep pushing Remote (${remote}/50)`,
+      detail:
+        playstyle === "ads"
+          ? "Ad path: Remote is your main multiplier. Pair with TV."
+          : "Best gem value in the vault. Protect this upgrade over almost everything.",
+      tone: remote < 10 ? "now" : "soon",
+    });
+  } else if (remote >= 20 && remote < 50) {
+    tips.push({
+      title: `Remote grind (${remote}/50)`,
+      detail: "Late-game Remote is expensive but still the strongest active multiplier.",
+      tone: "soon",
+    });
+  }
+
+  if (mop > 0 && mop < 20) {
+    tips.push({
+      title: `Walk speed — Mop (${mop}/20)`,
+      detail: "Permanent customer walk speed. Cheap clears for every city.",
+      tone: mop < 10 ? "now" : "soon",
+    });
+  }
+
+  if (checkbook > 0 && checkbook < 20) {
+    tips.push({
+      title: `Starting cash — Checkbook (${checkbook}/20)`,
+      detail: "Opens each city and event faster. Push with Mop.",
+      tone: checkbook < 10 ? "now" : "soon",
+    });
+  }
+
+  if (pickaxe > 0 && pickaxe < 8) {
+    tips.push({
+      title: `Pickaxe to ~8 (${pickaxe}/14)`,
+      detail: "Early gem-investor levels pay for themselves. Stop hard-pushing after ~8.",
+      tone: pickaxe < 2 ? "now" : "soon",
+    });
+  } else if (pickaxe >= 8 && pickaxe < 14) {
+    tips.push({
+      title: "Pickaxe leftovers are optional",
+      detail: "Levels past ~8 fall off. Finish later if you want 100% vault.",
+      tone: "later",
+    });
+  }
+
+  if (city < 450 && tipJar > 5) {
+    tips.push({
+      title: "Ease Tip Jar until city 450",
+      detail: "Tips scale late. Early Tip Jar levels are fine; don’t dump gems here yet.",
+      tone: "later",
+    });
+  } else if (city >= 450 && tipJar < 20) {
+    tips.push({
+      title: `Tip Jar is online (${tipJar}/20)`,
+      detail: "After city 450, tip chance becomes much more valuable.",
+      tone: "soon",
+    });
+  }
+
+  tips.push({
+    title: "Leave Hourglass / Knife / Suitcase for last",
+    detail: "Offline cards are weak for active clears. Fill them when the vault is otherwise done.",
+    tone: "later",
+  });
+
+  // Keep the list short and actionable
+  const seen = new Set<string>();
+  return tips.filter((t) => {
+    if (seen.has(t.title)) return false;
+    seen.add(t.title);
+    return true;
+  }).slice(0, 6);
 }
 
 export function itemBreakdown(levels: Record<ItemId, number>) {
