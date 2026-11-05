@@ -1,4 +1,23 @@
-import type { BuildReco, GearItem, GearRarity, GearSlot } from "../types";
+import type {
+  Blueprint,
+  BuildReco,
+  ClubLevel,
+  EquippedGear,
+  GearItem,
+  GearRarity,
+  GearSlot,
+  GearStats,
+} from "../types";
+import { SHEET_ITEMS } from "./sheet/items";
+import { SHEET_BUILDS } from "./sheet/builds";
+import { SHEET_BLUEPRINTS } from "./sheet/blueprints";
+import {
+  SHEET_CLUB_INFO,
+  SHEET_CLUB_LEVELS,
+  SHEET_CLUB_SALVAGE,
+  SHEET_CLUB_TOTAL_REWARDS,
+  SHEET_CLUB_XP_PER_PLAYER,
+} from "./sheet/club";
 
 export const RARITY_ORDER: GearRarity[] = [
   "common",
@@ -18,515 +37,165 @@ export const RARITY_COLORS: Record<GearRarity, string> = {
   mythic: "#3b82f6",
 };
 
-export const RARITY_XP: Record<GearRarity, number> = {
-  common: 4,
-  rare: 9,
-  epic: 22,
-  legendary: 52,
-  ultimate: 122,
-  mythic: 287,
-};
-
 export const SLOT_LABELS: Record<GearSlot, string> = {
   head: "Head",
   body: "Body",
-  hand: "Hand",
+  tool: "Tool",
+  ring: "Ring",
+  necklace: "Necklace",
 };
 
-export const GEAR_ITEMS: GearItem[] = [
-  // Legendary heads
-  {
-    id: "purpleCap",
-    name: "Purple Cap",
-    slot: "head",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 300,
-    instantFood: 0,
-    perfectFood: 0,
-    allWorker: false,
-    description: "Best legendary head. Massive walk speed.",
-  },
-  {
-    id: "irishHat",
-    name: "Irish Hat",
-    slot: "head",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 50,
-    instantFood: 30,
-    perfectFood: 0,
-    allWorker: false,
-    description: "Good all-round legendary head.",
-  },
-  {
-    id: "tallBlackHat",
-    name: "Tall Black Hat",
-    slot: "head",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 50,
-    instantFood: 0,
-    perfectFood: 30,
-    allWorker: false,
-    description: "Perfect food legendary head.",
-  },
-  {
-    id: "elderBeard",
-    name: "Elder Beard",
-    slot: "head",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 50,
-    instantFood: 0,
-    perfectFood: 0,
-    allWorker: true,
-    description: "All-worker legendary head.",
-  },
-  // Ultimate heads
-  {
-    id: "robotHead",
-    name: "Robot Head",
-    slot: "head",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 100,
-    instantFood: 50,
-    perfectFood: 0,
-    allWorker: true,
-    description: "Top-tier ultimate head. Instant + all-worker.",
-  },
-  {
-    id: "sharkHead",
-    name: "Shark Head",
-    slot: "head",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 100,
-    instantFood: 0,
-    perfectFood: 50,
-    allWorker: true,
-    description: "Perfect food ultimate head.",
-  },
-  {
-    id: "royalCrown",
-    name: "Royal Crown",
-    slot: "head",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 50,
-    instantFood: 30,
-    perfectFood: 30,
-    allWorker: true,
-    description: "Balanced ultimate head.",
-  },
-  {
-    id: "torchHelmet",
-    name: "Torch Helmet",
-    slot: "head",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 50,
-    instantFood: 0,
-    perfectFood: 0,
-    allWorker: true,
-    description: "All-worker focused ultimate head.",
-  },
-  // Mythic head
-  {
-    id: "chefsHelmet",
-    name: "Chef's Helmet",
-    slot: "head",
-    rarity: "mythic",
-    profitPct: 1458,
-    walkSpeed: 100,
-    instantFood: 50,
-    perfectFood: 50,
-    allWorker: true,
-    description: "Best head in the game. Requires ultimate BPs.",
-  },
-  // Legendary bodies
-  {
-    id: "kimonoBlackBelt",
-    name: "Kimono Black Belt",
-    slot: "body",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 200,
-    instantFood: 50,
-    perfectFood: 0,
-    allWorker: false,
-    description: "Best legendary body. Walk speed + instant.",
-  },
-  {
-    id: "italianChef",
-    name: "Italian Chef",
-    slot: "body",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 50,
-    instantFood: 30,
-    perfectFood: 30,
-    allWorker: false,
-    description: "Balanced legendary body.",
-  },
-  {
-    id: "blackApron",
-    name: "Black Apron",
-    slot: "body",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 50,
-    instantFood: 0,
-    perfectFood: 50,
-    allWorker: false,
-    description: "Perfect food legendary body.",
-  },
-  {
-    id: "tankTop",
-    name: "Tank Top",
-    slot: "body",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 50,
-    instantFood: 0,
-    perfectFood: 0,
-    allWorker: true,
-    description: "All-worker legendary body.",
-  },
-  // Ultimate bodies
-  {
-    id: "robotSuit",
-    name: "Robot Suit",
-    slot: "body",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 100,
-    instantFood: 50,
-    perfectFood: 0,
-    allWorker: true,
-    description: "Top ultimate body. Instant + all-worker.",
-  },
-  {
-    id: "sharkBody",
-    name: "Shark Body",
-    slot: "body",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 100,
-    instantFood: 0,
-    perfectFood: 50,
-    allWorker: true,
-    description: "Perfect food ultimate body.",
-  },
-  {
-    id: "royalRobe",
-    name: "Royal Robe",
-    slot: "body",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 50,
-    instantFood: 30,
-    perfectFood: 30,
-    allWorker: true,
-    description: "Balanced ultimate body.",
-  },
-  {
-    id: "toolBelt",
-    name: "Tool Belt",
-    slot: "body",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 50,
-    instantFood: 0,
-    perfectFood: 0,
-    allWorker: true,
-    description: "All-worker ultimate body.",
-  },
-  // Mythic body
-  {
-    id: "armouredApron",
-    name: "Armoured Apron",
-    slot: "body",
-    rarity: "mythic",
-    profitPct: 1458,
-    walkSpeed: 100,
-    instantFood: 50,
-    perfectFood: 50,
-    allWorker: true,
-    description: "Best body in the game. Requires ultimate BPs.",
-  },
-  // Legendary hands
-  {
-    id: "pepperMill",
-    name: "Pepper Mill",
-    slot: "hand",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 0,
-    instantFood: 65,
-    perfectFood: 50,
-    allWorker: false,
-    description: "Best legendary hand. Instant + perfect.",
-  },
-  {
-    id: "chopsticks",
-    name: "Chopsticks",
-    slot: "hand",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 0,
-    instantFood: 50,
-    perfectFood: 0,
-    allWorker: false,
-    description: "Instant food legendary hand.",
-  },
-  {
-    id: "mixer",
-    name: "Mixer",
-    slot: "hand",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 0,
-    instantFood: 0,
-    perfectFood: 50,
-    allWorker: false,
-    description: "Perfect food legendary hand.",
-  },
-  {
-    id: "cookBook",
-    name: "Cook Book",
-    slot: "hand",
-    rarity: "legendary",
-    profitPct: 162,
-    walkSpeed: 0,
-    instantFood: 0,
-    perfectFood: 0,
-    allWorker: true,
-    description: "All-worker legendary hand.",
-  },
-  // Ultimate hands
-  {
-    id: "laserGun",
-    name: "Laser Gun",
-    slot: "hand",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 0,
-    instantFood: 60,
-    perfectFood: 0,
-    allWorker: true,
-    description: "Top ultimate hand. Instant + all-worker.",
-  },
-  {
-    id: "royalSceptre",
-    name: "Royal Sceptre",
-    slot: "hand",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 0,
-    instantFood: 30,
-    perfectFood: 30,
-    allWorker: true,
-    description: "Balanced ultimate hand.",
-  },
-  {
-    id: "anchor",
-    name: "Anchor",
-    slot: "hand",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 0,
-    instantFood: 0,
-    perfectFood: 50,
-    allWorker: true,
-    description: "Perfect food ultimate hand.",
-  },
-  {
-    id: "pickaxeHand",
-    name: "Pickaxe",
-    slot: "hand",
-    rarity: "ultimate",
-    profitPct: 486,
-    walkSpeed: 0,
-    instantFood: 0,
-    perfectFood: 0,
-    allWorker: true,
-    description: "All-worker ultimate hand.",
-  },
-  // Mythic hands
-  {
-    id: "warriorsCleaver",
-    name: "Warrior's Cleaver",
-    slot: "hand",
-    rarity: "mythic",
-    profitPct: 1458,
-    walkSpeed: 0,
-    instantFood: 60,
-    perfectFood: 50,
-    allWorker: true,
-    description: "Best mythic hand. Instant + perfect + all-worker.",
-  },
-  {
-    id: "warriorsTenderiser",
-    name: "Warrior's Tenderiser",
-    slot: "hand",
-    rarity: "mythic",
-    profitPct: 1458,
-    walkSpeed: 0,
-    instantFood: 60,
-    perfectFood: 50,
-    allWorker: true,
-    description: "Best mythic hand. Same stats as Cleaver.",
-  },
+/** Every equippable item from the handbook's Items tab. */
+export const GEAR_ITEMS: GearItem[] = SHEET_ITEMS;
+
+export const GEAR_MAP: Record<string, GearItem> = Object.fromEntries(
+  GEAR_ITEMS.map((g) => [g.id, g]),
+);
+
+/** Equipment slots in the Gear tab, mapped to the item slot they accept. */
+export const EQUIP_SLOTS: { key: keyof EquippedGear; label: string; slot: GearSlot }[] = [
+  { key: "head", label: "Head", slot: "head" },
+  { key: "body", label: "Body", slot: "body" },
+  { key: "hand1", label: "Tool 1", slot: "tool" },
+  { key: "hand2", label: "Tool 2", slot: "tool" },
+  { key: "ring", label: "Ring", slot: "ring" },
+  { key: "necklace", label: "Necklace", slot: "necklace" },
 ];
 
-export const GEAR_MAP: Record<string, GearItem> = {};
-GEAR_ITEMS.forEach((g) => (GEAR_MAP[g.id] = g));
+export const EMPTY_GEAR: EquippedGear = {
+  head: "",
+  body: "",
+  hand1: "",
+  hand2: "",
+  ring: "",
+  necklace: "",
+};
 
-export const BEST_BUILDS: BuildReco[] = [
-  {
-    cityRange: "1 – 59",
-    label: "Early solo 1",
-    head: "Hood",
-    body: "Box",
-    hand: "Rolling Pin",
-    notes: "~97% instant · 10% perfect · 190% walk. Pure solo before city 60.",
-  },
-  {
-    cityRange: "1 – 59",
-    label: "Early solo 2",
-    head: "Hood",
-    body: "Box",
-    hand: "Pizza Cutter",
-    notes: "~112% instant · 190% walk. Slightly more instant than Rolling Pin.",
-  },
-  {
-    cityRange: "60 – 119",
-    label: "Mid legendary 1",
-    head: "Irish Hat",
-    body: "Kimono Black Belt",
-    hand: "Pepper Mill",
-    notes: "~180% instant · 100% perfect · 280% all-worker walk. Pair with a delivery pet.",
-  },
-  {
-    cityRange: "60 – 119",
-    label: "Mid legendary 2",
-    head: "Irish Hat",
-    body: "Italian Chef",
-    hand: "Pepper Mill",
-    notes: "~130% instant · 100% perfect · 280% walk · 300% food. Strong solo mid-game.",
-  },
-  {
-    cityRange: "120+",
-    label: "Late ultimate 1",
-    head: "Robot Head",
-    body: "Kimono Black Belt",
-    hand: "Laser Gun + Laser Gun",
-    notes: "~230% instant · 120% AW instant · 90% AW perfect · 396% AW walk (Moon event gear).",
-  },
-  {
-    cityRange: "120+",
-    label: "Late ultimate 2",
-    head: "Robot Head",
-    body: "Shark",
-    hand: "Laser Gun + Royal Sceptre",
-    notes: "~247% instant · Seaport Shark body for AW instant. Mix Moon + Middle Ages tools.",
-  },
-  {
-    cityRange: "600+",
-    label: "Mythic endgame",
-    head: "Chef's Helmet",
-    body: "Armoured Apron",
-    hand: "Warrior's Cleaver",
-    notes: "Club mythics: double food, divine, and all-worker instant. Swap Purple Cap if walk is the bottleneck.",
-  },
+/** Gear ids saved by earlier versions of the app → current catalog ids. */
+export const LEGACY_GEAR_IDS: Record<string, string> = {
+  purpleCap: "purpleCapHead",
+  irishHat: "irishHatHead",
+  tallBlackHat: "tallBlackHatHead",
+  elderBeard: "elderBeardHead",
+  robotHead: "robotHeadHead",
+  sharkHead: "sharkHead",
+  royalCrown: "royalCrownHead",
+  torchHelmet: "torchHelmetHead",
+  chefsHelmet: "chefSHelmetHead",
+  kimonoBlackBelt: "kimonoBlackBeltBody",
+  italianChef: "italianChefBody",
+  blackApron: "blackApronBody",
+  tankTop: "tankTopBody",
+  robotSuit: "robotSuitBody",
+  sharkBody: "sharkBody",
+  royalRobe: "royalRobeBody",
+  toolBelt: "toolBeltBody",
+  armouredApron: "armouredApronBody",
+  pepperMill: "pepperMillTool",
+  chopsticks: "chopsticksTool",
+  mixer: "mixerTool",
+  cookBook: "cookBookTool",
+  laserGun: "laserGunTool",
+  royalSceptre: "royalSceptreTool",
+  anchor: "anchorTool",
+  pickaxeHand: "pickaxeTool",
+  warriorsCleaver: "warriorSCleaverTool",
+  warriorsTenderiser: "warriorSTenderiserTool",
+};
+
+export const STAT_LABELS: Record<keyof GearStats, string> = {
+  instantFood: "Instant food",
+  perfectFood: "Perfect food",
+  doubleFood: "Double food",
+  divineFood: "Divine food",
+  anotherOrder: "Another order",
+  fasterFood: "Faster food",
+  fasterWalk: "Faster walk",
+};
+
+/** Display order: the handbook's stat priority (instant → perfect → …). */
+export const STAT_ORDER: (keyof GearStats)[] = [
+  "instantFood",
+  "perfectFood",
+  "doubleFood",
+  "divineFood",
+  "anotherOrder",
+  "fasterFood",
+  "fasterWalk",
 ];
 
-export const CLOTHING_LEVELS = [
-  { level: 1, profit: 3, ringAp: 6, xpToNext: 5, totalXp: 0 },
-  { level: 2, profit: 4, ringAp: 8, xpToNext: 5, totalXp: 5 },
-  { level: 3, profit: 5, ringAp: 10, xpToNext: 6, totalXp: 10 },
-  { level: 4, profit: 6, ringAp: 12, xpToNext: 7, totalXp: 16 },
-  { level: 5, profit: 7, ringAp: 14, xpToNext: 8, totalXp: 23 },
-  { level: 10, profit: 12, ringAp: 24, xpToNext: 16, totalXp: 77 },
-  { level: 15, profit: 17, ringAp: 34, xpToNext: 33, totalXp: 186 },
-  { level: 20, profit: 22, ringAp: 44, xpToNext: 34, totalXp: 353 },
-  { level: 25, profit: 27, ringAp: 54, xpToNext: 36, totalXp: 528 },
-  { level: 30, profit: 32, ringAp: 64, xpToNext: 38, totalXp: 711 },
-  { level: 35, profit: 37, ringAp: 74, xpToNext: 40, totalXp: 904 },
-  { level: 40, profit: 42, ringAp: 84, xpToNext: 42, totalXp: 1107 },
-  { level: 45, profit: 47, ringAp: 94, xpToNext: 44, totalXp: 1320 },
-  { level: 50, profit: 52, ringAp: 104, xpToNext: 0, totalXp: 1544 },
+export const EMPTY_STATS: GearStats = {
+  fasterFood: 0,
+  fasterWalk: 0,
+  perfectFood: 0,
+  instantFood: 0,
+  doubleFood: 0,
+  anotherOrder: 0,
+  divineFood: 0,
+};
+
+/** Sum the character-only and all-worker bonuses of the equipped items. */
+export function gearTotals(gear: EquippedGear): {
+  self: GearStats;
+  aw: GearStats;
+  apMin: number;
+  apMax: number;
+} {
+  const self = { ...EMPTY_STATS };
+  const aw = { ...EMPTY_STATS };
+  let apMin = 0;
+  let apMax = 0;
+  for (const { key } of EQUIP_SLOTS) {
+    const item = GEAR_MAP[gear[key]];
+    if (!item) continue;
+    apMin += item.apMin;
+    apMax += item.apMax;
+    for (const k of STAT_ORDER) {
+      self[k] += item.self[k];
+      aw[k] += item.aw[k];
+    }
+  }
+  return { self, aw, apMin, apMax };
+}
+
+/** City range each handbook build section applies to. */
+export const PHASE_RANGES: Record<string, { min: number; max: number; label: string }> = {
+  "Before City 60": { min: 1, max: 59, label: "Cities 1 – 59" },
+  "After City 60": { min: 60, max: Infinity, label: "City 60+" },
+  "Solo Builds": { min: 60, max: Infinity, label: "City 60+ · solo" },
+  "Mythic Builds": { min: 60, max: Infinity, label: "Endgame · mythic gear" },
+};
+
+export const BEST_BUILDS: BuildReco[] = SHEET_BUILDS;
+
+export function buildInRange(build: BuildReco, city: number): boolean {
+  const r = PHASE_RANGES[build.phase];
+  return !!r && city >= r.min && city <= r.max;
+}
+
+export const CLUB_LEVELS: ClubLevel[] = SHEET_CLUB_LEVELS;
+export const CLUB_TOTAL_REWARDS = SHEET_CLUB_TOTAL_REWARDS;
+export const CLUB_INFO = SHEET_CLUB_INFO;
+export const CLUB_SALVAGE = SHEET_CLUB_SALVAGE;
+export const CLUB_XP_PER_PLAYER = SHEET_CLUB_XP_PER_PLAYER;
+export const CLUB_MAX_XP = CLUB_LEVELS[CLUB_LEVELS.length - 1]?.totalXp ?? 0;
+
+/** Salvage XP per item / egg (handbook Clothing & Accessories legend). */
+export const SALVAGE_XP: { name: string; xp: number; rarity: GearRarity }[] = [
+  { name: "Common", xp: 4, rarity: "common" },
+  { name: "Rare", xp: 9, rarity: "rare" },
+  { name: "Epic", xp: 22, rarity: "epic" },
+  { name: "Legendary BP", xp: 26, rarity: "legendary" },
+  { name: "Legendary", xp: 52, rarity: "legendary" },
+  { name: "Ultimate BP", xp: 61, rarity: "ultimate" },
+  { name: "Ultimate", xp: 122, rarity: "ultimate" },
+  { name: "Mythic BP", xp: 144, rarity: "mythic" },
+  { name: "Mythic", xp: 287, rarity: "mythic" },
+  { name: "Common Egg", xp: 25, rarity: "common" },
+  { name: "Rare Egg", xp: 50, rarity: "rare" },
+  { name: "Epic Egg", xp: 150, rarity: "epic" },
+  { name: "Legendary Egg", xp: 425, rarity: "legendary" },
+  { name: "Ultimate Egg", xp: 1000, rarity: "ultimate" },
 ];
 
-export const CLUB_LEVELS: { level: number; xp: number; rewards: string }[] = [
-  { level: 1, xp: 0, rewards: "—" },
-  { level: 5, xp: 1200, rewards: "2 Small Boxes" },
-  { level: 10, xp: 3600, rewards: "2 Big Boxes" },
-  { level: 15, xp: 7200, rewards: "200 Gems" },
-  { level: 20, xp: 12000, rewards: "4 Big Boxes" },
-  { level: 25, xp: 18000, rewards: "500 Pet Food" },
-  { level: 30, xp: 25200, rewards: "6 Big Boxes" },
-  { level: 35, xp: 33600, rewards: "1 Epic Egg" },
-  { level: 40, xp: 43200, rewards: "8 Big Boxes" },
-  { level: 45, xp: 54000, rewards: "2000 Gems" },
-  { level: 50, xp: 66000, rewards: "14 Big Boxes + 2x Profit" },
-];
-
-export const BLUEPRINT_RECIPES: {
-  result: string;
-  rarity: string;
-  ingredients: string[];
-}[] = [
-  {
-    result: "Irish Hat",
-    rarity: "Legendary",
-    ingredients: ["3× White Hat", "3× Fireman Hat", "3× Cool Cap", "3× Cone", "2× Mafia Hat", "2× Red Glasses", "2× Hood", "2× Black Chef's Hat"],
-  },
-  {
-    result: "Kimono Black Belt",
-    rarity: "Legendary",
-    ingredients: ["3× Tux", "3× Apron", "3× Bowtie", "3× Blue Hoodie", "2× Purple Apron", "2× Robe", "2× Kimono White Belt", "2× Black & White Sweater"],
-  },
-  {
-    result: "Pepper Mill",
-    rarity: "Legendary",
-    ingredients: ["6× Ketchup", "6× Pasta Spoon", "6× Cheese Grater", "6× Broomstick", "4× Pizza Cutter", "4× Mug", "4× Whisk", "4× Rolling Pin"],
-  },
-  {
-    result: "Robot Head",
-    rarity: "Ultimate",
-    ingredients: ["3× White Hat", "3× Fireman Hat", "3× Sushi Hat", "3× Cool Cap", "2× Mafia Hat", "2× Red Glasses", "2× Hood", "2× Black Chef's Hat", "1× Elder Beard", "1× Irish Hat", "1× Purple Cap", "1× Tall Black Hat"],
-  },
-  {
-    result: "Robot Suit",
-    rarity: "Ultimate",
-    ingredients: ["3× Tux", "3× Blue Hoodie", "3× Yellow Hoodie", "3× Bowtie", "2× Robe", "2× Black & White Sweater", "2× Purple Apron", "2× Kimono White Belt", "1× Kimono Black Belt", "1× Tank Top", "1× Italian Chef", "1× Black Apron"],
-  },
-  {
-    result: "Laser Gun",
-    rarity: "Ultimate",
-    ingredients: ["6× Scooper", "6× Ketchup", "6× Cheese Grater", "6× Pasta Spoon", "4× Mug", "4× Rolling Pin", "4× Whisk", "4× Pizza Cutter", "2× Pepper Mill", "2× Chopsticks", "2× Mixer", "2× Cook Book"],
-  },
-  {
-    result: "Chef's Helmet",
-    rarity: "Mythic",
-    ingredients: ["1× Robot Head", "1× Royal Crown", "1× Shark Head", "1× Torch Helmet"],
-  },
-  {
-    result: "Armoured Apron",
-    rarity: "Mythic",
-    ingredients: ["1× Robot Suit", "1× Royal Robe", "1× Shark Body", "1× Tool Belt"],
-  },
-  {
-    result: "Warrior's Cleaver",
-    rarity: "Mythic",
-    ingredients: ["2× Laser Gun", "2× Royal Sceptre", "2× Anchor", "2× Pickaxe"],
-  },
-  {
-    result: "Warrior's Tenderiser",
-    rarity: "Mythic",
-    ingredients: ["2× Laser Gun", "2× Royal Sceptre", "2× Anchor", "2× Pickaxe"],
-  },
-];
+export const BLUEPRINT_RECIPES: Blueprint[] = SHEET_BLUEPRINTS;

@@ -33,27 +33,93 @@ export interface VaultItem {
   unlockOrder: number;
 }
 
-export type GearSlot = "head" | "body" | "hand";
+/** Item slots as named in the handbook's Items tab. */
+export type GearSlot = "head" | "body" | "tool" | "ring" | "necklace";
 export type GearRarity = "common" | "rare" | "epic" | "legendary" | "ultimate" | "mythic";
+
+/** Percentage bonuses an item gives (e.g. instantFood 65 = +65% chance). */
+export interface GearStats {
+  fasterFood: number;
+  fasterWalk: number;
+  perfectFood: number;
+  instantFood: number;
+  doubleFood: number;
+  anotherOrder: number;
+  divineFood: number;
+}
 
 export interface GearItem {
   id: string;
   name: string;
   slot: GearSlot;
   rarity: GearRarity;
-  profitPct: number;
-  walkSpeed: number;
-  instantFood: number;
-  perfectFood: number;
-  allWorker: boolean;
-  description: string;
+  event: string;
+  apMin: number;
+  apMax: number;
+  /** Bonuses for your character only. */
+  self: GearStats;
+  /** Bonuses for all workers (your character included). */
+  aw: GearStats;
 }
 
 export interface EquippedGear {
   head: string;
   body: string;
+  /** Tool slots keep their original storage keys. */
   hand1: string;
   hand2: string;
+  ring: string;
+  necklace: string;
+}
+
+export interface BlueprintIngredient {
+  count: number;
+  name: string;
+  itemId: string | null;
+}
+
+export interface Blueprint {
+  result: string;
+  resultId: string | null;
+  rarity: GearRarity;
+  slot: GearSlot | "";
+  ingredients: BlueprintIngredient[];
+  /** Stat lines as written in the handbook. */
+  stats: string[];
+  /** Where the blueprint drops. */
+  source: string;
+  /** Legacy items can no longer be forged. */
+  legacy: boolean;
+}
+
+export interface Potion {
+  id: string;
+  name: string;
+  effect: string;
+  ingredients: string[];
+  levels: {
+    level: number;
+    /** % gained at this level */
+    gain: number;
+    /** cumulative % */
+    total: number;
+    /** ingredient cost with Alchemy Scales maxed */
+    cost: number[];
+    /** ingredient cost without Alchemy Scales */
+    costNoScales?: number[];
+  }[];
+  totalCost?: number[];
+  totalCostNoScales?: number[];
+}
+
+export interface PetLevelRow {
+  level: number;
+  profitPct: number;
+  foodToNext: number;
+  /** Total pet food including hatching / merging into this rarity. */
+  totalWithHatch: number;
+  /** Pet food spent from level 1. */
+  total: number;
 }
 
 export type PetRarity = "common" | "rare" | "epic" | "legendary" | "ultimate";
@@ -98,20 +164,32 @@ export interface ArcaneVaultItem {
   effects: string[];
 }
 
-export interface BuildReco {
-  cityRange: string;
+export interface BuildSlot {
+  /** Column label from the handbook: Head, Body, Tool 1, Ring, ... */
   label: string;
-  head: string;
-  body: string;
-  hand: string;
-  notes: string;
+  slot: GearSlot;
+  name: string;
+  itemId: string | null;
+  /** Event the item comes from, if any. */
+  source: string;
+  stats: string[];
+}
+
+export interface BuildReco {
+  id: string;
+  label: string;
+  kind: string;
+  /** Handbook section: Before City 60, After City 60, Solo Builds, Mythic Builds */
+  phase: string;
+  slots: BuildSlot[];
+  totals: { solo: string[]; aw: string[] };
 }
 
 export interface ClubLevel {
   level: number;
-  xpRequired: number;
-  cumulativeXp: number;
-  rewards: string;
+  xpNeeded: number;
+  totalXp: number;
+  reward: string;
 }
 
 export interface Account {

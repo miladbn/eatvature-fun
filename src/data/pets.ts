@@ -1,4 +1,11 @@
-import type { Pet } from "../types";
+import type { Pet, PetLevelRow, PetRarity } from "../types";
+import {
+  SHEET_PET_DISH_NOTES,
+  SHEET_PET_FOOD_CONVERSION,
+  SHEET_PET_HATCH,
+  SHEET_PET_LEVELS,
+  SHEET_PET_TIPS,
+} from "./sheet/pets";
 
 export const PETS: Pet[] = [
   {
@@ -199,31 +206,73 @@ export const PETS: Pet[] = [
   },
 ];
 
-export const PET_MAP: Record<string, Pet> = {};
-PETS.forEach((p) => (PET_MAP[p.id] = p));
 
-export const PET_XP_PER_LEVEL: Record<string, number[]> = {
-  common: [25],
-  rare: [50],
-  epic: [150],
-  legendary: [425],
-  ultimate: [1000],
-};
+export const PET_MAP: Record<string, Pet> = Object.fromEntries(
+  PETS.map((p) => [p.id, p]),
+);
 
-export const PET_FOOD_PER_LEVEL: number[] = [
-  0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90,
-  95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165,
-  170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240,
-  245,
+export const PET_RARITIES: PetRarity[] = ["common", "rare", "epic", "legendary", "ultimate"];
+
+/** Level curve per pet rarity (All Profit %, pet food per level), levels 1–50. */
+export const PET_LEVELS: Record<PetRarity, PetLevelRow[]> = SHEET_PET_LEVELS;
+export const PET_MAX_LEVEL = 50;
+
+/** Pet food to hatch / merge into each rarity (egg cost). */
+export const PET_HATCH = SHEET_PET_HATCH;
+export const PET_TIPS = SHEET_PET_TIPS;
+/** Average boxes / cities needed to collect a given amount of pet food. */
+export const PET_FOOD_CONVERSION = SHEET_PET_FOOD_CONVERSION;
+/** Dish value multipliers per pet type (handbook Pets Guide). */
+export const PET_DISH_NOTES = SHEET_PET_DISH_NOTES;
+
+export function petLevelRow(rarity: PetRarity, level: number): PetLevelRow | undefined {
+  return PET_LEVELS[rarity]?.find((r) => r.level === level);
+}
+
+/** Pet food to level a pet of this rarity from `from` to `to` (1–50). */
+export function petFoodBetween(rarity: PetRarity, from: number, to: number): number {
+  const a = petLevelRow(rarity, Math.max(1, Math.min(PET_MAX_LEVEL, Math.floor(from))));
+  const b = petLevelRow(rarity, Math.max(1, Math.min(PET_MAX_LEVEL, Math.floor(to))));
+  if (!a || !b) return 0;
+  return Math.max(0, b.total - a.total);
+}
+
+/** Pet food to take a pet of each rarity from level 1 to 50. */
+export const PET_FOOD_TO_MAX: Record<PetRarity, number> = Object.fromEntries(
+  PET_RARITIES.map((r) => [r, petFoodBetween(r, 1, PET_MAX_LEVEL)]),
+) as Record<PetRarity, number>;
+
+/** Pet pairings from the handbook's Pets Guide. */
+export const BEST_PET_COMBOS: { stage: string; pets: string[][]; notes: string }[] = [
+  {
+    stage: "Before city 60 · 1 slot",
+    pets: [["panda"], ["penguin"], ["pony"], ["turtle"]],
+    notes: "Delivery pet is best to have.",
+  },
+  {
+    stage: "Before mythic gear",
+    pets: [
+      ["panda", "darkHorse"],
+      ["panda", "tortoise"],
+    ],
+    notes: "Delivery pet + perfect pet are best to have. Either combo works.",
+  },
+  {
+    stage: "Mythic meta",
+    pets: [
+      ["redPanda", "babyKraken"],
+      ["redPanda", "panda"],
+      ["panda", "panda"],
+    ],
+    notes:
+      "Any combo listed here works well with double cleaver or mixed mythic tools.",
+  },
 ];
 
-export const PET_FOOD_TO_MAX = PET_FOOD_PER_LEVEL.reduce((a, b) => a + b, 0);
-
-export const BEST_PET_COMBOS: { city: string; combo: string; notes: string }[] = [
-  { city: "1 – 119", combo: "Penguin / Turtle / Pony", notes: "Delivery pet for solo play. Keep at level 1." },
-  { city: "1 – 119", combo: "Panda", notes: "Best legendary. Instant orders + delivery. Level to 50 ASAP." },
-  { city: "120+", combo: "Panda + Dark Horse", notes: "Best combo. Panda orders, Horse doubles perfect food." },
-  { city: "120+", combo: "Panda + Tortoise", notes: "Same as Dark Horse. Use whichever you have." },
-  { city: "Endgame", combo: "Red Panda + Baby Kraken", notes: "Divine food stacking. +60% divine total." },
-  { city: "Endgame", combo: "Baby Dragon + Mole", notes: "Instant orders + golden customers. Niche but strong." },
+/** Egg merging ratios (Pets Guide). */
+export const EGG_MERGE: { from: PetRarity; count: number; to: PetRarity }[] = [
+  { from: "common", count: 6, to: "rare" },
+  { from: "rare", count: 6, to: "epic" },
+  { from: "epic", count: 10, to: "legendary" },
+  { from: "legendary", count: 5, to: "ultimate" },
 ];

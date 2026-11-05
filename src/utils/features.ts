@@ -3,7 +3,7 @@ import type { Account, ItemId, Playstyle, UpgradeStep } from "../types";
 import type { MilestoneId } from "../data/meta";
 import { ITEM_MAP, VAULT_ITEMS } from "../data/vault";
 import { CLOTHING_XP, type ClothingRarity } from "../data/clothing";
-import { PET_FOOD_PER_LEVEL } from "../data/pets";
+import { PET_HATCH } from "../data/pets";
 import { citiesNeededForGems } from "./calc";
 
 /** Project gem income for the next N cities starting from a city number. */
@@ -40,23 +40,13 @@ export function clothingAtLevel(rarity: ClothingRarity, level: number) {
   return curve.find((r) => r.level === level) ?? null;
 }
 
-/** Pet food from current level to target (exclusive of hatch cost). */
-export function petFoodBetween(fromLevel: number, toLevel: number): number {
-  let total = 0;
-  const from = Math.max(0, Math.floor(fromLevel));
-  const to = Math.max(from, Math.floor(toLevel));
-  for (let lvl = from; lvl < to && lvl < PET_FOOD_PER_LEVEL.length; lvl++) {
-    total += PET_FOOD_PER_LEVEL[lvl + 1] ?? 0;
-  }
-  return total;
-}
-
+/** Pet food to hatch an egg of each rarity (Pet XP / Pet Food tab). */
 export const EGG_COSTS = {
-  common: 100,
-  rare: 300,
-  epic: 900,
-  legendary: 2700,
-  ultimate: 8100,
+  common: PET_HATCH.common.food,
+  rare: PET_HATCH.rare.food,
+  epic: PET_HATCH.epic.food,
+  legendary: PET_HATCH.legendary.food,
+  ultimate: PET_HATCH.ultimate.food,
 } as const;
 
 export const EGG_MERGE = {
@@ -66,8 +56,10 @@ export const EGG_MERGE = {
   legendaryToUltimate: 5,
 } as const;
 
+/** Club Data tab: 241,950 XP for max rewards split across 10 members. */
 export const CLUB_EQUAL_SHARE_XP = 24195;
-export const CLUB_XP_PER_CITY = 236;
+/** Handbook: 24,195 XP ≈ 2,688 small boxes ≈ 151 cities → ~160 XP per city. */
+export const CLUB_XP_PER_CITY = Math.round(CLUB_EQUAL_SHARE_XP / 151);
 
 export function clubCitiesToTarget(currentXp: number, target = CLUB_EQUAL_SHARE_XP) {
   const need = Math.max(0, target - currentXp);

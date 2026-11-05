@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { AVG_GEMS_PER_CITY, LOOP_GEMS } from "../data/cities";
 import { CLOTHING_XP, type ClothingRarity } from "../data/clothing";
 import { ITEM_MAP, PLAYSTYLE_META, TOTAL_VAULT_GEMS, VAULT_ITEMS } from "../data/vault";
-import { POTIONS } from "../data/arcane";
 import type { Account, ItemId, Playstyle } from "../types";
 import {
   effectAt,
@@ -20,9 +19,12 @@ import {
   comparePlaystylesBase,
   EGG_COSTS,
   EGG_MERGE,
-  petFoodBetween,
   projectGemIncome,
 } from "../utils/features";
+import { PET_MAX_LEVEL, PET_RARITIES, petFoodBetween } from "../data/pets";
+import { ARCANE_MAP } from "../data/arcane";
+import { PotionsPanel } from "./PotionsPanel";
+import type { PetRarity } from "../types";
 import {
   applySyncCode,
   encodeShareLink,
@@ -48,6 +50,7 @@ export function ToolsView({
   const [clothRarity, setClothRarity] = useState<ClothingRarity>("common");
   const [clothFrom, setClothFrom] = useState(1);
   const [clothTo, setClothTo] = useState(20);
+  const [petRarity, setPetRarity] = useState<PetRarity>("legendary");
   const [petFrom, setPetFrom] = useState(1);
   const [petTo, setPetTo] = useState(50);
   const [whatIfId, setWhatIfId] = useState<ItemId>("remote");
@@ -62,7 +65,7 @@ export function ToolsView({
 
   const clothXp = clothingXpToLevel(clothRarity, clothFrom, clothTo);
   const clothNow = clothingAtLevel(clothRarity, clothFrom);
-  const petFood = petFoodBetween(petFrom, petTo);
+  const petFood = petFoodBetween(petRarity, petFrom, petTo);
   const whatIfLevel = account.levels[whatIfId] ?? 0;
   const whatIfItem = ITEM_MAP[whatIfId];
   const nextCost =
@@ -304,10 +307,24 @@ export function ToolsView({
       <section className="panel rounded-2xl p-5">
         <h3 className="font-display text-xl font-bold">Pet food calculator</h3>
         <div className="mt-3 flex flex-wrap items-center gap-2">
+          <select
+            aria-label="Pet rarity"
+            value={petRarity}
+            onChange={(e) => setPetRarity(e.target.value as PetRarity)}
+            className="field w-auto"
+          >
+            {PET_RARITIES.map((r) => (
+              <option key={r} value={r}>
+                {r[0].toUpperCase() + r.slice(1)}
+              </option>
+            ))}
+          </select>
+          <span className="text-sm text-[#9bb5af]">level</span>
           <input
             type="number"
-            min={0}
-            max={50}
+            min={1}
+            max={PET_MAX_LEVEL}
+            aria-label="From level"
             value={petFrom}
             onChange={(e) => setPetFrom(Number(e.target.value))}
             className="field w-20"
@@ -315,8 +332,9 @@ export function ToolsView({
           <span className="text-sm text-[#9bb5af]">to</span>
           <input
             type="number"
-            min={0}
-            max={50}
+            min={1}
+            max={PET_MAX_LEVEL}
+            aria-label="To level"
             value={petTo}
             onChange={(e) => setPetTo(Number(e.target.value))}
             className="field w-20"
@@ -354,28 +372,11 @@ export function ToolsView({
       </section>
 
       {/* Potion overview */}
-      <section className="panel rounded-2xl p-5">
-        <h3 className="font-display text-xl font-bold">Potion brewing</h3>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {POTIONS.map((p) => (
-            <div
-              key={p.name}
-              className="rounded-xl border border-white/10 bg-black/20 p-3"
-            >
-              <div className="font-medium text-[#3ecfb3]">{p.name}</div>
-              <div className="text-xs text-[#9bb5af]">{p.effect}</div>
-              <div className="mt-1 text-[11px] text-[#9bb5af]">
-                {p.ingredients.join(" · ")}
-              </div>
-              {p.totalToMax && (
-                <div className="mt-1 text-[11px] text-[#f0b429]">
-                  {p.totalToMax}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
+      <PotionsPanel
+        scalesMaxed={
+          account.arcaneLevels.alchemyScales >= ARCANE_MAP.alchemyScales.maxLevel
+        }
+      />
 
       {/* Remote value table */}
       <section className="panel rounded-2xl p-5">

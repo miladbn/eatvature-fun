@@ -4,11 +4,12 @@ import {
   CLOTHING_XP,
   type ClothingRarity,
 } from "../data/clothing";
-import { BEST_PET_COMBOS, PET_FOOD_TO_MAX, PETS } from "../data/pets";
+import { BEST_PET_COMBOS, PET_FOOD_TO_MAX, PET_MAP, PETS } from "../data/pets";
 import { RARITY_COLORS } from "../data/gear";
 import type { GearRarity } from "../types";
 import { formatGems } from "../utils/calc";
 import { cn } from "../utils/cn";
+import { ItemIcon, petIconUrl } from "./ItemIcon";
 
 const RARITIES = Object.keys(CLOTHING_XP) as ClothingRarity[];
 
@@ -91,21 +92,24 @@ export function GuideView() {
         <section className="panel rounded-2xl p-5">
           <h3 className="font-display text-xl font-bold">Pet food to max</h3>
           <p className="mt-1 text-sm text-[#9bb5af]">
-            Feed Legendary Panda first. One pet from hatch to 50 costs about{" "}
+            Feed Legendary Panda first. A legendary pet from level 1 to 50
+            costs{" "}
             <span className="gold-text font-semibold">
-              {formatGems(PET_FOOD_TO_MAX)}
+              {formatGems(PET_FOOD_TO_MAX.legendary)}
             </span>{" "}
-            pet food (level curve only).
+            pet food (ultimate: {formatGems(PET_FOOD_TO_MAX.ultimate)}).
           </p>
           <div className="mt-4 space-y-2">
             {BEST_PET_COMBOS.map((c) => (
               <div
-                key={`${c.city}-${c.combo}`}
+                key={c.stage}
                 className="rounded-xl border border-white/8 bg-black/20 p-3"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <span className="font-medium">{c.combo}</span>
-                  <span className="shrink-0 text-xs text-[#f0b429]">{c.city}</span>
+                <div className="text-xs text-[#f0b429]">{c.stage}</div>
+                <div className="mt-1 font-medium">
+                  {c.pets
+                    .map((combo) => combo.map((id) => PET_MAP[id]?.name ?? id).join(" + "))
+                    .join(" · ")}
                 </div>
                 <p className="mt-1 text-xs text-[#9bb5af]">{c.notes}</p>
               </div>
@@ -122,9 +126,10 @@ export function GuideView() {
                 className="rounded-xl border border-white/8 bg-black/20 p-3"
               >
                 <div
-                  className="font-medium"
+                  className="flex items-center gap-2 font-medium"
                   style={{ color: RARITY_COLORS[pet.rarity as GearRarity] }}
                 >
+                  <ItemIcon src={petIconUrl(pet.id)} className="h-8 w-8" />
                   {pet.name}
                 </div>
                 <div className="text-xs capitalize text-[#9bb5af]">

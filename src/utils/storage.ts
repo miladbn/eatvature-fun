@@ -1,5 +1,6 @@
 import { DEFAULT_ACCOUNT, EMPTY_LEVELS, ITEM_IDS } from "../data/vault";
 import { EMPTY_ARCANE } from "../data/arcane";
+import { EMPTY_GEAR, GEAR_MAP, LEGACY_GEAR_IDS } from "../data/gear";
 import type { Account, ArcaneVaultId, ItemId, OwnedPet, Playstyle } from "../types";
 
 const KEY = "eatventure-vault-planner-v2";
@@ -40,29 +41,21 @@ function parseArcane(raw: unknown): Record<ArcaneVaultId, number> {
   return levels;
 }
 
-function parseGear(raw: unknown): Account["gear"] {
-  const def = { head: "", body: "", hand1: "", hand2: "" };
-  if (raw && typeof raw === "object") {
-    return {
-      head:
-        typeof (raw as Record<string, unknown>).head === "string"
-          ? (raw as Record<string, string>).head
-          : "",
-      body:
-        typeof (raw as Record<string, unknown>).body === "string"
-          ? (raw as Record<string, string>).body
-          : "",
-      hand1:
-        typeof (raw as Record<string, unknown>).hand1 === "string"
-          ? (raw as Record<string, string>).hand1
-          : "",
-      hand2:
-        typeof (raw as Record<string, unknown>).hand2 === "string"
-          ? (raw as Record<string, string>).hand2
-          : "",
-    };
+/**
+ * Reads saved gear, migrating ids from earlier app versions (e.g. "purpleCap"
+ * → "purpleCapHead") and dropping ids that no longer exist.
+ */
+export function parseGear(raw: unknown): Account["gear"] {
+  const gear = { ...EMPTY_GEAR };
+  if (!raw || typeof raw !== "object") return gear;
+  const obj = raw as Record<string, unknown>;
+  for (const key of Object.keys(gear) as (keyof Account["gear"])[]) {
+    const v = obj[key];
+    if (typeof v !== "string" || !v) continue;
+    const id = GEAR_MAP[v] ? v : LEGACY_GEAR_IDS[v];
+    if (id && GEAR_MAP[id]) gear[key] = id;
   }
-  return def;
+  return gear;
 }
 
 function parsePets(raw: unknown): OwnedPet[] {
@@ -150,7 +143,7 @@ export function freshAccount(): Account {
     ...DEFAULT_ACCOUNT,
     levels: { ...EMPTY_LEVELS },
     arcaneLevels: { ...EMPTY_ARCANE },
-    gear: { head: "", body: "", hand1: "", hand2: "" },
+    gear: { ...EMPTY_GEAR },
     pets: [],
     inventory: {},
     notes: "",

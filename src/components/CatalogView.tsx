@@ -8,6 +8,8 @@ import {
 import { RARITY_COLORS } from "../data/gear";
 import type { GearRarity } from "../types";
 import { ItemIcon, catalogIconUrl } from "./ItemIcon";
+import { GearStatChips } from "./GearStatChips";
+import { formatGems } from "../utils/calc";
 
 export function CatalogView() {
   const [q, setQ] = useState("");
@@ -38,7 +40,8 @@ export function CatalogView() {
         </h2>
         <p className="mt-1 text-sm text-[#5c6f69]">
           {CATALOG_ITEMS.length} items from the Spectre handbook — filter by
-          rarity, slot, and event.
+          rarity, slot, and event. Chips marked <strong>AW</strong> apply to
+          all workers, you included.
         </p>
       </section>
 
@@ -119,45 +122,9 @@ export function CatalogView() {
               {i.slot} · {i.event}
             </p>
             <p className="mt-1 text-xs text-[#c5d5d0]">
-              AP {i.apMin}–{i.apMax}
+              AP {formatGems(i.apMin)}–{formatGems(i.apMax)}
             </p>
-            <div className="mt-2 flex flex-wrap gap-1 text-[11px]">
-              {i.fasterFood > 0 && (
-                <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-amber-300">
-                  +{i.fasterFood}% food
-                </span>
-              )}
-              {i.fasterWalk > 0 && (
-                <span className="rounded bg-teal-500/15 px-1.5 py-0.5 text-teal-300">
-                  +{i.fasterWalk}% walk
-                </span>
-              )}
-              {i.instantFood > 0 && (
-                <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-emerald-300">
-                  {i.instantFood}% instant
-                </span>
-              )}
-              {i.perfectFood > 0 && (
-                <span className="rounded bg-purple-500/15 px-1.5 py-0.5 text-purple-300">
-                  {i.perfectFood}% perfect
-                </span>
-              )}
-              {i.doubleFood > 0 && (
-                <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-sky-300">
-                  {i.doubleFood}% double
-                </span>
-              )}
-              {i.divineFood > 0 && (
-                <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-rose-300">
-                  {i.divineFood}% divine
-                </span>
-              )}
-              {i.anotherOrder > 0 && (
-                <span className="rounded bg-orange-500/15 px-1.5 py-0.5 text-orange-300">
-                  {i.anotherOrder}% another
-                </span>
-              )}
-            </div>
+            <GearStatChips item={i} className="mt-2" />
           </article>
         ))}
       </div>

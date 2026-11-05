@@ -12,6 +12,8 @@ import {
   toggleChecked,
 } from "../utils/checklist";
 import { evaluateGearMatch } from "../utils/gearMatch";
+import { PHASE_RANGES } from "../data/gear";
+import { ItemIcon, itemIconUrl } from "./ItemIcon";
 import {
   formatCountdown,
   getEventRotation,
@@ -235,18 +237,34 @@ export function GearMatchCard({ account }: { account: Account }) {
     <section className="panel rounded-2xl p-5">
       <h3 className="font-display text-xl font-bold">{t("gearMatch")}</h3>
       <p className="mt-1 text-sm text-[#9bb5af]">
-        {report.build.label} · {report.build.cityRange}
+        {report.build.label} · {PHASE_RANGES[report.build.phase]?.label ?? report.build.phase}
       </p>
       <p className="mt-2 text-sm">{report.summary}</p>
       <ul className="mt-3 space-y-1 text-sm">
         {report.rows.map((row) => (
           <li
-            key={row.slot}
-            className="flex justify-between gap-2 rounded-lg bg-black/20 px-3 py-1.5"
+            key={row.label}
+            className="flex items-center justify-between gap-2 rounded-lg bg-black/20 px-3 py-1.5"
           >
-            <span className="text-[#9bb5af]">{row.slot}</span>
-            <span className={row.match ? "text-[#3ecfb3]" : "text-rose-300"}>
-              {row.equippedName} {row.match ? "✓" : `→ need ${row.needed}`}
+            <span className="text-[#9bb5af]">{row.label}</span>
+            <span
+              className={cn(
+                "flex items-center gap-1.5 text-right",
+                row.match ? "text-[#3ecfb3]" : "text-rose-300",
+              )}
+            >
+              {row.match ? (
+                <>
+                  <ItemIcon src={itemIconUrl(row.neededId)} className="h-6 w-6" />
+                  {row.equippedName} ✓
+                </>
+              ) : (
+                <>
+                  {row.equippedName} → need
+                  <ItemIcon src={itemIconUrl(row.neededId)} className="h-6 w-6" />
+                  {row.needed}
+                </>
+              )}
             </span>
           </li>
         ))}

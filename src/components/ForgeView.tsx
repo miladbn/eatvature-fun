@@ -1,14 +1,16 @@
 import { useMemo, useState } from "react";
-import { BLUEPRINT_RECIPES } from "../data/gear";
-import type { Account } from "../types";
+import { BLUEPRINT_RECIPES, GEAR_MAP, SLOT_LABELS } from "../data/gear";
+import type { Account, BlueprintIngredient } from "../types";
+import { ItemIcon, itemIconUrl } from "./ItemIcon";
 import { cn } from "../utils/cn";
 import { EmptyHint } from "./OverviewExtras";
 import { useI18n } from "../utils/i18n";
 
-function parseIngredient(raw: string): { count: number; name: string } {
-  const m = raw.match(/^(\d+)\s*[×xX]\s*(.+)$/);
-  if (m) return { count: Number(m[1]), name: m[2].trim() };
-  return { count: 1, name: raw.trim() };
+const FORGEABLE = BLUEPRINT_RECIPES.filter((r) => !r.legacy && r.ingredients.length);
+
+/** Inventory key for an ingredient: the catalog item's name (falls back to the sheet text). */
+function invKey(ing: BlueprintIngredient): string {
+  return (ing.itemId && GEAR_MAP[ing.itemId]?.name) || ing.name;
 }
 
 export function ForgeView({
@@ -22,12 +24,12 @@ export function ForgeView({
   const [filter, setFilter] = useState("");
   const recipes = useMemo(() => {
     const q = filter.trim().toLowerCase();
-    if (!q) return BLUEPRINT_RECIPES;
-    return BLUEPRINT_RECIPES.filter(
+    if (!q) return FORGEABLE;
+    return FORGEABLE.filter(
       (r) =>
         r.result.toLowerCase().includes(q) ||
         r.rarity.toLowerCase().includes(q) ||
-        r.ingredients.some((i) => i.toLowerCase().includes(q)),
+        r.ingredients.some((i) => i.name.toLowerCase().includes(q)),
     );
   }, [filter]);
 
@@ -64,21 +66,27 @@ export function ForgeView({
 
       <div className="space-y-4">
         {recipes.map((bp) => {
-          const parts = bp.ingredients.map(parseIngredient);
+          const parts = bp.ingredients.map((i) => ({ ...i, key: invKey(i) }));
           const ready = parts.every(
-            (p) => (account.inventory[p.name] ?? 0) >= p.count,
+            (p) => (account.inventory[p.key] ?? 0) >= p.count,
           );
           return (
             <article
-              key={bp.result}
+              key={`${bp.rarity}-${bp.slot}-${bp.result}`}
               className={cn(
                 "panel rounded-2xl p-4",
                 ready && "ring-1 ring-[#3ecfb3]/50",
               )}
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-display text-xl font-bold">{bp.result}</h3>
-                <span className="text-sm text-[#f0b429]">{bp.rarity}</span>
+                <h3 className="flex items-center gap-2 font-display text-xl font-bold">
+                  <ItemIcon src={itemIconUrl(bp.resultId)} className="h-9 w-9" />
+                  {bp.result}
+                </h3>
+                <span className="text-sm capitalize text-[#f0b429]">
+                  {bp.rarity}
+                  {bp.slot && ` · ${SLOT_LABELS[bp.slot]}`}
+                </span>
               </div>
               {ready && (
                 <p className="mt-1 text-xs font-medium text-[#3ecfb3]">
@@ -87,23 +95,30 @@ export function ForgeView({
               )}
               <div className="mt-3 space-y-2">
                 {parts.map((p) => {
-                  const have = account.inventory[p.name] ?? 0;
+                  const have = account.inventory[p.key] ?? 0;
                   const ok = have >= p.count;
                   return (
                     <div
-                      key={p.name}
+                      key={p.key}
                       className="flex flex-wrap items-center gap-2 text-sm"
                     >
-                      <span className={cn("min-w-[12rem]", ok && "text-[#3ecfb3]")}>
-                        {p.count}× {p.name}
+                      <span
+                        className={cn(
+                          "flex min-w-[12rem] items-center gap-1.5",
+                          ok && "text-[#3ecfb3]",
+                        )}
+                      >
+                        <ItemIcon src={itemIconUrl(p.itemId)} className="h-6 w-6" />
+                        {p.count}× {p.key}
                       </span>
                       <span className="text-xs text-[#9bb5af]">have</span>
                       <input
                         type="number"
                         min={0}
                         value={have}
+                        aria-label={`How many ${p.key} you have`}
                         onChange={(e) =>
-                          setCount(p.name, Number(e.target.value))
+                          setCount(p.key, Number(e.target.value))
                         }
                         className="field w-20 py-1"
                       />

@@ -1,6 +1,13 @@
 ﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { VaultIcon } from "./components/VaultIcons";
-import { ItemIcon, arcaneIconUrl, gearIconUrl } from "./components/ItemIcon";
+import { ItemIcon, arcaneIconUrl } from "./components/ItemIcon";
+import { GearView } from "./components/GearView";
+import { PetsView } from "./components/PetsView";
+import { ClubView } from "./components/ClubView";
+import { PotionsPanel } from "./components/PotionsPanel";
+import { BuildsView } from "./components/BuildsView";
+import { BlueprintsView } from "./components/BlueprintsView";
+import { Field, Stat } from "./components/ui";
 import {
   DEFAULT_ACCOUNT,
   EMPTY_LEVELS,
@@ -54,27 +61,16 @@ import { useI18n, type StringKey } from "./utils/i18n";
 import {
   ARCANE_MAP,
   ARCANE_VAULT_ITEMS,
-  POTIONS,
   SCROLLS_PER_EVENT_WITH_PASS,
   TOTAL_SCROLLS_TO_MAX,
 } from "./data/arcane";
-import {
-  BEST_BUILDS,
-  BLUEPRINT_RECIPES,
-  CLUB_LEVELS,
-  GEAR_ITEMS,
-  GEAR_MAP,
-  RARITY_COLORS,
-  RARITY_ORDER,
-  SLOT_LABELS,
-} from "./data/gear";
-import { BEST_PET_COMBOS, PET_FOOD_PER_LEVEL, PET_FOOD_TO_MAX, PET_MAP, PETS } from "./data/pets";
+import { PET_MAP } from "./data/pets";
 import type {
   Account,
   ArcaneVaultId,
-  GearRarity,
-  GearSlot,
+  EquippedGear,
   ItemId,
+  OwnedPet,
   Playstyle,
   UpgradeStep,
 } from "./types";
@@ -300,18 +296,29 @@ export default function App() {
     }));
   }
 
-  function updatePetLevel(petId: string, level: number) {
+  function updatePet(
+    petId: string,
+    patch: Partial<Pick<OwnedPet, "level" | "rarity">>,
+  ) {
     setAccount((prev) => ({
       ...prev,
       pets: prev.pets.map((p) =>
         p.petId === petId
-          ? { ...p, level: Math.max(0, Math.min(50, level)) }
+          ? {
+              ...p,
+              ...patch,
+              level:
+                patch.level != null
+                  ? Math.max(1, Math.min(50, Math.floor(patch.level) || 1))
+                  : p.level,
+            }
           : p,
       ),
     }));
   }
 
-  function setGear(slot: GearSlot | "hand1" | "hand2", itemId: string) {
+
+  function setGear(slot: keyof EquippedGear, itemId: string) {
     setAccount((prev) => ({
       ...prev,
       gear: { ...prev.gear, [slot]: itemId },
@@ -600,7 +607,7 @@ export default function App() {
             account={account}
             setGear={setGear}
             emptyHint={
-              !(account.gear.head || account.gear.body || account.gear.hand1) ? (
+              !Object.values(account.gear).some(Boolean) ? (
                 <EmptyHint>{t("emptyGear")}</EmptyHint>
               ) : null
             }
@@ -611,7 +618,7 @@ export default function App() {
             account={account}
             addPet={addPet}
             removePet={removePet}
-            updatePetLevel={updatePetLevel}
+            updatePet={updatePet}
             emptyHint={
               account.pets.length === 0 ? (
                 <EmptyHint>{t("emptyPets")}</EmptyHint>
@@ -1754,580 +1761,6 @@ function TotalsView({
   );
 }
 
-/* ─── Gear View ─── */
-function GearView({
-  account,
-  setGear,
-  emptyHint,
-}: {
-  account: Account;
-  setGear: (slot: GearSlot | "hand1" | "hand2", id: string) => void;
-  emptyHint?: ReactNode;
-}) {
-  const slots: { key: keyof Account["gear"]; label: string; slot: GearSlot }[] =
-    [
-      { key: "head", label: "Head", slot: "head" },
-      { key: "body", label: "Body", slot: "body" },
-      { key: "hand1", label: "Hand 1", slot: "hand" },
-      { key: "hand2", label: "Hand 2", slot: "hand" },
-    ];
-  const equipped = [
-    account.gear.head,
-    account.gear.body,
-    account.gear.hand1,
-    account.gear.hand2,
-  ].filter(Boolean);
-  const totalProfit = equipped.reduce(
-    (sum, id) => sum + (GEAR_MAP[id]?.profitPct ?? 0),
-    0,
-  );
-  const totalWalk = equipped.reduce(
-    (sum, id) => sum + (GEAR_MAP[id]?.walkSpeed ?? 0),
-    0,
-  );
-  const totalInstant = equipped.reduce(
-    (sum, id) => sum + (GEAR_MAP[id]?.instantFood ?? 0),
-    0,
-  );
-  const totalPerfect = equipped.reduce(
-    (sum, id) => sum + (GEAR_MAP[id]?.perfectFood ?? 0),
-    0,
-  );
-
-  return (
-    <div className="space-y-6">
-      {emptyHint}
-      <div className="panel rounded-3xl p-5">
-        <h2 className="font-display text-2xl">Equipped Gear</h2>
-        <p className="mt-1 text-sm text-[#9bb5af]">
-          Select what you currently wear. Stats are calculated from equipped
-          items.
-        </p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {slots.map(({ key, label, slot }) => (
-            <div key={key}>
-              <label className="mb-1 block text-xs uppercase tracking-wide text-[#9bb5af]">
-                {label}
-              </label>
-              <select
-                value={account.gear[key]}
-                onChange={(e) => setGear(key, e.target.value)}
-                className="field text-sm"
-              >
-                <option value="">None</option>
-                {GEAR_ITEMS.filter((g) => g.slot === slot)
-                  .sort(
-                    (a, b) =>
-                      RARITY_ORDER.indexOf(a.rarity) -
-                      RARITY_ORDER.indexOf(b.rarity),
-                  )
-                  .map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.name} ({g.rarity})
-                    </option>
-                  ))}
-              </select>
-              {account.gear[key] && GEAR_MAP[account.gear[key]] && (
-                <div className="mt-2 rounded-xl border border-[#f0b429]/10 bg-black/20 p-2 text-xs">
-                  <div className="flex items-center gap-2">
-                    <ItemIcon
-                      src={gearIconUrl(GEAR_MAP[account.gear[key]])}
-                      className="h-10 w-10"
-                    />
-                    <div
-                      className="font-medium"
-                      style={{
-                        color: RARITY_COLORS[GEAR_MAP[account.gear[key]].rarity],
-                      }}
-                    >
-                      {GEAR_MAP[account.gear[key]].name}
-                    </div>
-                  </div>
-                  <div className="mt-1 text-[#9bb5af]">
-                    {GEAR_MAP[account.gear[key]].description}
-                  </div>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {GEAR_MAP[account.gear[key]].profitPct > 0 && (
-                      <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-amber-300">
-                        +{GEAR_MAP[account.gear[key]].profitPct}% profit
-                      </span>
-                    )}
-                    {GEAR_MAP[account.gear[key]].walkSpeed > 0 && (
-                      <span className="rounded bg-teal-500/15 px-1.5 py-0.5 text-teal-300">
-                        +{GEAR_MAP[account.gear[key]].walkSpeed}% walk
-                      </span>
-                    )}
-                    {GEAR_MAP[account.gear[key]].instantFood > 0 && (
-                      <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-emerald-300">
-                        {GEAR_MAP[account.gear[key]].instantFood}% instant
-                      </span>
-                    )}
-                    {GEAR_MAP[account.gear[key]].perfectFood > 0 && (
-                      <span className="rounded bg-purple-500/15 px-1.5 py-0.5 text-purple-300">
-                        {GEAR_MAP[account.gear[key]].perfectFood}% perfect
-                      </span>
-                    )}
-                    {GEAR_MAP[account.gear[key]].allWorker && (
-                      <span className="rounded bg-blue-500/15 px-1.5 py-0.5 text-blue-300">
-                        All-worker
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-4">
-        <Stat
-          label="Total Profit"
-          value={`+${totalProfit}%`}
-          hint="from equipped gear"
-        />
-        <Stat
-          label="Walk Speed"
-          value={`+${totalWalk}%`}
-          hint="movement speed"
-        />
-        <Stat
-          label="Instant Food"
-          value={`${totalInstant}%`}
-          hint="chance to serve instantly"
-        />
-        <Stat
-          label="Perfect Food"
-          value={`${totalPerfect}%`}
-          hint="chance for perfect food"
-        />
-      </div>
-      <div className="panel rounded-2xl p-5">
-        <h3 className="font-display text-xl font-bold">Build checker</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
-          Your totals vs handbook targets. Aim: 100% instant, then perfect, then
-          walk.
-        </p>
-        <ul className="mt-3 space-y-1 text-sm">
-          <li>
-            Instant:{" "}
-            <span
-              className={
-                totalInstant >= 100 ? "text-[#3ecfb3]" : "text-[#f0b429]"
-              }
-            >
-              {totalInstant}%
-            </span>{" "}
-            {totalInstant >= 100 ? "— capped" : `— need ${100 - totalInstant}% more`}
-          </li>
-          <li>
-            Perfect:{" "}
-            <span
-              className={
-                totalPerfect >= 100 ? "text-[#3ecfb3]" : "text-[#9bb5af]"
-              }
-            >
-              {totalPerfect}%
-            </span>
-          </li>
-          <li>Walk: +{totalWalk}%</li>
-          <li>Profit: +{totalProfit}%</li>
-        </ul>
-        <p className="mt-3 text-xs text-[#9bb5af]">
-          City {account.city}: see Builds tab for the recommended set in your
-          range.
-        </p>
-      </div>
-      <div className="panel rounded-3xl p-5">
-        <h3 className="font-display text-xl">All Gear Items</h3>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {GEAR_ITEMS.sort(
-            (a, b) =>
-              RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity),
-          ).map((g) => (
-            <div
-              key={g.id}
-              className="rounded-2xl border border-[#f0b429]/10 bg-black/20 p-3"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="flex min-w-0 items-center gap-2">
-                  <ItemIcon src={gearIconUrl(g)} className="h-9 w-9" />
-                  <span
-                    className="font-medium"
-                    style={{ color: RARITY_COLORS[g.rarity] }}
-                  >
-                    {g.name}
-                  </span>
-                </span>
-                <span
-                  className="text-[11px] uppercase"
-                  style={{ color: RARITY_COLORS[g.rarity] }}
-                >
-                  {g.rarity}
-                </span>
-              </div>
-              <div className="text-xs text-[#9bb5af]">
-                {SLOT_LABELS[g.slot]} · {g.description}
-              </div>
-              <div className="mt-1 flex flex-wrap gap-1 text-[11px]">
-                {g.profitPct > 0 && (
-                  <span className="rounded bg-amber-500/10 px-1 py-0.5 text-amber-300">
-                    +{g.profitPct}%
-                  </span>
-                )}
-                {g.walkSpeed > 0 && (
-                  <span className="rounded bg-teal-500/10 px-1 py-0.5 text-teal-300">
-                    +{g.walkSpeed}% walk
-                  </span>
-                )}
-                {g.instantFood > 0 && (
-                  <span className="rounded bg-emerald-500/10 px-1 py-0.5 text-emerald-300">
-                    {g.instantFood}% instant
-                  </span>
-                )}
-                {g.perfectFood > 0 && (
-                  <span className="rounded bg-purple-500/10 px-1 py-0.5 text-purple-300">
-                    {g.perfectFood}% perfect
-                  </span>
-                )}
-                {g.allWorker && (
-                  <span className="rounded bg-blue-500/10 px-1 py-0.5 text-blue-300">
-                    All-worker
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Pets View ─── */
-function PetsView({
-  account,
-  addPet,
-  removePet,
-  updatePetLevel,
-  emptyHint,
-}: {
-  account: Account;
-  addPet: (id: string) => void;
-  removePet: (id: string) => void;
-  updatePetLevel: (id: string, level: number) => void;
-  emptyHint?: ReactNode;
-}) {
-  const ownedIds = new Set(account.pets.map((p) => p.petId));
-  return (
-    <div className="space-y-6">
-      {emptyHint}
-      <div className="panel rounded-3xl p-5">
-        <h2 className="font-display text-2xl">Your Pets</h2>
-        <p className="mt-1 text-sm text-[#9bb5af]">
-          Add pets you own and set their level. Save all pet food for Legendary
-          Panda first.
-        </p>
-        {account.pets.length === 0 ? (
-          <p className="mt-4 text-sm text-[#9bb5af]">
-            No pets added yet. Add one below.
-          </p>
-        ) : (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {account.pets.map((op) => {
-              const pet = PET_MAP[op.petId];
-              if (!pet) return null;
-              return (
-                <div
-                  key={op.petId}
-                  className="rounded-2xl border border-[#f0b429]/15 bg-black/20 p-4"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div
-                        className="font-medium"
-                        style={{
-                          color: RARITY_COLORS[pet.rarity as GearRarity],
-                        }}
-                      >
-                        {pet.name}
-                      </div>
-                      <div className="text-xs text-[#9bb5af]">
-                        {pet.rarity} · {pet.ability}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removePet(op.petId)}
-                      className="text-xs text-rose-400"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-xs text-[#9bb5af]">Level</span>
-                    <button
-                      type="button"
-                      onClick={() => updatePetLevel(op.petId, op.level - 1)}
-                      className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      min={0}
-                      max={50}
-                      value={op.level}
-                      onChange={(e) =>
-                        updatePetLevel(op.petId, Number(e.target.value))
-                      }
-                      className="h-7 w-14 rounded border border-[#f0b429]/20 bg-black/30 text-center text-sm outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => updatePetLevel(op.petId, op.level + 1)}
-                      className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
-                    >
-                      +
-                    </button>
-                    <span className="text-xs text-[#9bb5af]">/ 50</span>
-                  </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-black/40">
-                    <div
-                      className="h-full rounded-lg bg-[#f0b429]"
-                      style={{ width: `${(op.level / 50) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-      <div className="panel rounded-3xl p-5">
-        <h3 className="font-display text-xl">Add a Pet</h3>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {PETS.sort(
-            (a, b) =>
-              RARITY_ORDER.indexOf(a.rarity as GearRarity) -
-              RARITY_ORDER.indexOf(b.rarity as GearRarity),
-          ).map((pet) => (
-            <button
-              key={pet.id}
-              type="button"
-              onClick={() => addPet(pet.id)}
-              disabled={ownedIds.has(pet.id)}
-              className={cn(
-                "rounded-2xl border p-3 text-left transition",
-                ownedIds.has(pet.id)
-                  ? "border-[#f0b429]/10 opacity-40"
-                  : "border-[#f0b429]/15 bg-black/20 hover:border-[#f0b429]/40",
-              )}
-            >
-              <div
-                className="font-medium"
-                style={{ color: RARITY_COLORS[pet.rarity as GearRarity] }}
-              >
-                {pet.name}
-              </div>
-              <div className="text-xs text-[#9bb5af]">
-                {pet.rarity} · {pet.ability}
-              </div>
-              {ownedIds.has(pet.id) && (
-                <div className="mt-1 text-[11px] text-[#f0b429]">Owned</div>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="panel rounded-3xl p-5">
-        <h3 className="font-display text-xl">Best Pet Combos</h3>
-        <div className="mt-3 space-y-2">
-          {BEST_PET_COMBOS.map((c, i) => (
-            <div
-              key={i}
-              className="rounded-2xl border border-[#f0b429]/10 bg-black/20 p-3"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium">{c.combo}</span>
-                <span className="text-xs text-[#f0b429]">{c.city}</span>
-              </div>
-              <div className="text-xs text-[#9bb5af]">{c.notes}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="panel rounded-3xl p-5">
-        <h3 className="font-display text-xl">Pet Food</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
-          Total pet food to max one pet from level 1 to 50:{" "}
-          <span className="text-[#f0b429]">{formatGems(PET_FOOD_TO_MAX)}</span>
-        </p>
-        {account.pets.length > 0 && (
-          <div className="mt-3 space-y-2">
-            {account.pets.map((op) => {
-              const pet = PET_MAP[op.petId];
-              const need = PET_FOOD_PER_LEVEL.slice(op.level + 1).reduce(
-                (a, b) => a + b,
-                0,
-              );
-              return (
-                <div
-                  key={op.petId}
-                  className="flex justify-between rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm"
-                >
-                  <span>{pet?.name ?? op.petId} lv {op.level}</span>
-                  <span className="text-[#3ecfb3]">
-                    {formatGems(need)} to 50
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-        <p className="mt-3 text-xs text-[#9bb5af]">
-          Advisor: before city 60 use a delivery pet; with Panda keep a perfect
-          pet (Dark Horse / Tortoise). Endgame: Red Panda + Baby Kraken for
-          divine stacking.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Club View ─── */
-function ClubView({
-  account,
-  update,
-}: {
-  account: Account;
-  update: <K extends keyof Account>(k: K, v: Account[K]) => void;
-}) {
-  const xpItems = [
-    { name: "Common", xp: 4, color: "#9ca3af" },
-    { name: "Rare", xp: 9, color: "#22c55e" },
-    { name: "Epic", xp: 22, color: "#a855f7" },
-    { name: "Legendary BP", xp: 26, color: "#f59e0b" },
-    { name: "Legendary", xp: 52, color: "#f59e0b" },
-    { name: "Ultimate BP", xp: 61, color: "#ef4444" },
-    { name: "Ultimate", xp: 122, color: "#ef4444" },
-    { name: "Mythic BP", xp: 144, color: "#3b82f6" },
-    { name: "Mythic", xp: 287, color: "#3b82f6" },
-    { name: "Common Egg", xp: 25, color: "#9ca3af" },
-    { name: "Rare Egg", xp: 50, color: "#22c55e" },
-    { name: "Epic Egg", xp: 150, color: "#a855f7" },
-    { name: "Legendary Egg", xp: 425, color: "#f59e0b" },
-    { name: "Ultimate Egg", xp: 1000, color: "#ef4444" },
-  ];
-  const xpPerCity = 236;
-  const citiesNeeded = Math.ceil(24195 / xpPerCity);
-
-  return (
-    <div className="space-y-6">
-      <div className="panel rounded-3xl p-5">
-        <h2 className="font-display text-2xl">Club Tracker</h2>
-        <p className="mt-1 text-sm text-[#9bb5af]">
-          Track your club level and XP contribution. Clubs unlock at City 7.
-        </p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <Field label="Club Level (0–50)">
-            <input
-              type="number"
-              min={0}
-              max={50}
-              value={account.clubLevel}
-              onChange={(e) => update("clubLevel", Number(e.target.value))}
-              className="field"
-            />
-          </Field>
-          <Field label="Your XP this season">
-            <input
-              type="number"
-              min={0}
-              value={account.clubXp}
-              onChange={(e) => update("clubXp", Number(e.target.value))}
-              className="field"
-            />
-          </Field>
-          <Field label="Target per member">
-            <div className="rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 text-[#f0b429]">
-              {formatGems(24195)} XP
-            </div>
-          </Field>
-        </div>
-        <div className="mt-4 h-3 overflow-hidden rounded-lg bg-black/40">
-          <div
-            className="h-full rounded-lg bg-gradient-to-r from-[#f0b429] to-[#3ecfb3]"
-            style={{
-              width: `${Math.min(100, (account.clubXp / 24195) * 100)}%`,
-            }}
-          />
-        </div>
-        <p className="mt-2 text-xs text-[#9bb5af]">
-          Your contribution: {formatGems(account.clubXp)} / 24,195 XP (
-          {((account.clubXp / 24195) * 100).toFixed(1)}%)
-        </p>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Stat
-          label="Cities to max"
-          value={String(citiesNeeded)}
-          hint={`@ ${xpPerCity} XP/city`}
-        />
-        <Stat
-          label="XP per city"
-          value={String(xpPerCity)}
-          hint="salvaging all small boxes"
-        />
-        <Stat label="Big box XP/gem" value="0.40" hint="best gem-to-XP ratio" />
-      </div>
-      <div className="panel rounded-3xl p-5">
-        <h3 className="font-display text-xl">Salvage XP Values</h3>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {xpItems.map((item) => (
-            <div
-              key={item.name}
-              className="flex items-center justify-between rounded-xl border border-[#f0b429]/10 bg-black/20 px-3 py-2"
-            >
-              <span className="text-sm" style={{ color: item.color }}>
-                {item.name}
-              </span>
-              <span className="text-sm font-medium text-[#f0b429]">
-                {item.xp} XP
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="panel rounded-3xl p-5">
-        <h3 className="font-display text-xl">Club Milestones</h3>
-        <div className="mt-3 space-y-2">
-          {CLUB_LEVELS.map((cl) => (
-            <div
-              key={cl.level}
-              className={cn(
-                "flex items-center justify-between rounded-xl border px-3 py-2",
-                account.clubLevel >= cl.level
-                  ? "border-[#3ecfb3]/30 bg-[#3ecfb3]/5"
-                  : "border-[#f0b429]/10 bg-black/20",
-              )}
-            >
-              <div>
-                <span className="font-medium">Level {cl.level}</span>
-                <span className="ml-2 text-xs text-[#9bb5af]">
-                  {cl.rewards}
-                </span>
-              </div>
-              <span className="text-sm text-[#f0b429]">
-                {formatGems(cl.xp)} XP
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ─── Arcane Vault View ─── */
 function ArcaneView({
   account,
@@ -2449,181 +1882,11 @@ function ArcaneView({
           );
         })}
       </div>
-      <div className="panel rounded-3xl p-5">
-        <h3 className="font-display text-xl">Potions</h3>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {POTIONS.map((p) => (
-            <div
-              key={p.name}
-              className="rounded-2xl border border-[#f0b429]/10 bg-black/20 p-3"
-            >
-              <div className="font-medium text-[#3ecfb3]">{p.name}</div>
-              <div className="text-xs text-[#9bb5af]">{p.effect}</div>
-              <div className="mt-1 text-[11px] text-[#9bb5af]">
-                {p.ingredients.join(" · ")}
-              </div>
-              {p.totalToMax && (
-                <div className="mt-1 text-[11px] text-[#f0b429]">
-                  {p.totalToMax}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Builds View ─── */
-function BuildsView({ account }: { account: Account }) {
-  return (
-    <div className="space-y-6">
-      <div className="panel rounded-3xl p-5">
-        <h2 className="font-display text-2xl">Best Builds</h2>
-        <p className="mt-1 text-sm text-[#9bb5af]">
-          Recommended gear progression from the Eatventure Handbook. Your city:{" "}
-          {account.city}
-        </p>
-      </div>
-      <GearMatchCard account={account} />
-      {BEST_BUILDS.map((b, i) => {
-        const active = (() => {
-          const [min, max] = b.cityRange
-            .replace("+", "-99999")
-            .split("–")
-            .map((s) => parseInt(s.trim()));
-          return account.city >= min && account.city <= max;
-        })();
-        return (
-          <div
-            key={i}
-            className={cn(
-              "panel rounded-3xl p-5",
-              active && "ring-2 ring-[#f0b429]",
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-display text-xl">{b.label}</h3>
-                  {active && (
-                    <span className="rounded-lg bg-[#f0b429] px-2 py-0.5 text-[11px] font-semibold text-[#0b2422] uppercase">
-                      your range
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-[#f0b429]">{b.cityRange}</p>
-              </div>
-            </div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              <div className="rounded-xl bg-black/20 p-2">
-                <span className="text-[11px] uppercase text-[#9bb5af]">
-                  Head
-                </span>
-                <div className="text-sm">{b.head}</div>
-              </div>
-              <div className="rounded-xl bg-black/20 p-2">
-                <span className="text-[11px] uppercase text-[#9bb5af]">
-                  Body
-                </span>
-                <div className="text-sm">{b.body}</div>
-              </div>
-              <div className="rounded-xl bg-black/20 p-2">
-                <span className="text-[11px] uppercase text-[#9bb5af]">
-                  Hand
-                </span>
-                <div className="text-sm">{b.hand}</div>
-              </div>
-            </div>
-            <p className="mt-2 text-xs text-[#9bb5af]">{b.notes}</p>
-          </div>
-        );
-      })}
-      <div className="panel rounded-3xl p-5">
-        <h3 className="font-display text-xl">Upgrade Priority</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
-          Stat priority order for gear:
-        </p>
-        <ol className="mt-3 space-y-1 text-sm">
-          <li>
-            1. <span className="text-emerald-300">Instant Food %</span> — aim
-            for 100%
-          </li>
-          <li>
-            2. <span className="text-purple-300">Perfect Food %</span> — aim for
-            100%
-          </li>
-          <li>
-            3. <span className="text-blue-300">Double Food %</span> — extra
-            servings
-          </li>
-          <li>
-            4. <span className="text-amber-300">Divine Food %</span> — endgame
-            multiplier
-          </li>
-          <li>
-            5. <span className="text-teal-300">Walk Speed %</span> — faster
-            clears
-          </li>
-          <li>
-            6. <span className="text-[#f0b429]">All Profit %</span> — general
-            boost
-          </li>
-        </ol>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Blueprints View ─── */
-function BlueprintsView() {
-  return (
-    <div className="space-y-6">
-      <div className="panel rounded-3xl p-5">
-        <h2 className="font-display text-2xl">Blueprint Recipes</h2>
-        <p className="mt-1 text-sm text-[#9bb5af]">
-          What you need to forge each item. Keep 6 rare and 4 epic of the same
-          items to always have enough for forging.
-        </p>
-      </div>
-      {BLUEPRINT_RECIPES.map((bp, i) => (
-        <div key={i} className="panel rounded-3xl p-5">
-          <div className="flex items-center justify-between">
-            <h3 className="font-display text-xl">{bp.result}</h3>
-            <span
-              className="text-sm"
-              style={{
-                color:
-                  RARITY_COLORS[bp.rarity.toLowerCase() as GearRarity] ||
-                  "#f0b429",
-              }}
-            >
-              {bp.rarity}
-            </span>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {bp.ingredients.map((ing, j) => (
-              <span
-                key={j}
-                className="rounded-lg border border-[#f0b429]/15 bg-black/20 px-2 py-1 text-xs text-[#c5d5d0]"
-              >
-                {ing}
-              </span>
-            ))}
-          </div>
-        </div>
-      ))}
-      <div className="panel rounded-3xl p-5">
-        <h3 className="font-display text-xl">Salvage Tips</h3>
-        <ul className="mt-2 space-y-1 text-sm text-[#9bb5af]">
-          <li>• No XP loss when salvaging leveled items</li>
-          <li>• Forging leveled items does transfer XP</li>
-          <li>• Use commons to salvage and upgrade your gear</li>
-          <li>• Keep 6 rare + 4 epic of the same items for forging</li>
-          <li>• Only donate duplicate or clearly obsolete gear to club</li>
-        </ul>
-      </div>
+      <PotionsPanel
+        scalesMaxed={
+          account.arcaneLevels.alchemyScales >= ARCANE_MAP.alchemyScales.maxLevel
+        }
+      />
     </div>
   );
 }
@@ -2738,44 +2001,6 @@ function LevelRow({
       {level === 0 && !canUnlock(id, levels) && (
         <span className="text-[11px] text-[#9bb5af]">needs previous card</span>
       )}
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs tracking-wide text-[#9bb5af]">
-        {label}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  hint,
-  gem,
-}: {
-  label: string;
-  value: string;
-  hint: string;
-  gem?: boolean;
-}) {
-  return (
-    <div className="stat-tile">
-      <div className="text-xs text-[#9bb5af]">{label}</div>
-      <div
-        className={cn(
-          "mt-1 text-2xl font-semibold",
-          gem ? "gem-text" : "gold-text",
-        )}
-      >
-        {value}
-      </div>
-      <div className="mt-1 text-xs text-[#9bb5af]">{hint}</div>
     </div>
   );
 }

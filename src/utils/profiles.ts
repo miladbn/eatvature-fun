@@ -1,5 +1,5 @@
 import type { Account } from "../types";
-import { freshAccount, loadAccount, saveAccount } from "./storage";
+import { freshAccount, loadAccount, parseGear, saveAccount } from "./storage";
 
 const PROFILES_KEY = "eatventure-profiles-v1";
 const ACTIVE_KEY = "eatventure-active-profile";
@@ -72,7 +72,7 @@ export function saveProfile(id: string, account: Account) {
 
 export function loadProfile(id: string): Account {
   const map = readProfiles();
-  if (map[id]) return map[id];
+  if (map[id]) return { ...map[id], gear: parseGear(map[id].gear) };
   if (id === "main") {
     const existing = loadAccount();
     if (existing) return existing;
@@ -115,6 +115,7 @@ export function importAccountJson(raw: string): Account | null {
     return {
       ...freshAccount(),
       ...acc,
+      gear: parseGear(acc.gear),
       inventory: acc.inventory && typeof acc.inventory === "object" ? acc.inventory : {},
       notes: typeof acc.notes === "string" ? acc.notes : "",
     };

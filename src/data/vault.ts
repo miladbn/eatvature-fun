@@ -555,7 +555,7 @@ export const DEFAULT_ACCOUNT: Account = {
     oakSapling: 0,
     funnel: 0,
   },
-  gear: { head: "", body: "", hand1: "", hand2: "" },
+  gear: { head: "", body: "", hand1: "", hand2: "", ring: "", necklace: "" },
   pets: [],
   clubLevel: 0,
   clubXp: 0,

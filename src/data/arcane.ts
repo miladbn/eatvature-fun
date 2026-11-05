@@ -1,4 +1,5 @@
-import type { ArcaneVaultItem, ArcaneVaultId } from "../types";
+import type { ArcaneVaultItem, ArcaneVaultId, Potion } from "../types";
+import { SHEET_POTIONS } from "./sheet/potions";
 
 /**
  * Potion Shop Arcane Vault — Spectre Handbook (patch 1.33.2).
@@ -156,47 +157,5 @@ export const TOTAL_SCROLLS_TO_MAX = ARCANE_VAULT_ITEMS.reduce(
 export const SCROLLS_PER_EVENT = 75;
 export const SCROLLS_PER_EVENT_WITH_PASS = 150;
 
-export const POTIONS: {
-  name: string;
-  effect: string;
-  ingredients: string[];
-  totalToMax?: string;
-  levels?: { level: number; effect: number; total: number }[];
-}[] = [
-  {
-    name: "Swift Serum",
-    effect: "All-worker faster walk (up to +350% at level 10)",
-    ingredients: ["Bat Wing Extract", "Dragon Scale Dust"],
-    totalToMax: "1,357 + 676 ingredients",
-  },
-  {
-    name: "Sizzle Serum",
-    effect: "All-worker faster food (up to +800% at level 10)",
-    ingredients: ["Dragon Scale Dust", "Unicorn Horn Shavings"],
-    totalToMax: "1,357 + 676 ingredients",
-  },
-  {
-    name: "Perfect Potion",
-    effect: "All-worker perfect food (up to +100% at level 10)",
-    ingredients: ["Spider Silk", "Mystic Mushrooms"],
-    totalToMax: "Scaled by alchemy scales",
-  },
-  {
-    name: "Telepathic Tincture",
-    effect: "Instant order chance (up to +100% at level 10)",
-    ingredients: ["Djinn's Breath", "Dragon Scale Dust"],
-    totalToMax: "1,697 + 1,016 ingredients",
-  },
-  {
-    name: "Divine Decoction",
-    effect: "All-worker divine food (up to +60% at level 10)",
-    ingredients: ["Spider Silk", "Mystic Mushrooms"],
-    totalToMax: "1,697 + 676 ingredients",
-  },
-  {
-    name: "Greedy Gulp",
-    effect: "Greedy customer chance (up to +50% at level 10)",
-    ingredients: ["Djinn's Breath", "Dragon Scale Dust"],
-    totalToMax: "Scaled by alchemy scales",
-  },
-];
+/** All potions with per-level effect and ingredient costs (Potions tab). */
+export const POTIONS: Potion[] = SHEET_POTIONS;
