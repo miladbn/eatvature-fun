@@ -401,7 +401,7 @@ export default function App() {
   ).length;
   
   return (
-    <div className="relative min-h-screen overflow-x-hidden text-[#f2f5f3]">
+    <div className="relative min-h-screen overflow-x-hidden text-[var(--ink)]">
       <Analytics />
       <CommandPalette
         tabs={localizedTabs}
@@ -414,9 +414,9 @@ export default function App() {
         onCancel={() => setConfirmReset(false)}
         onConfirm={resetAll}
       />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] kitchen-grid opacity-40" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] kitchen-grid opacity-40 [mask-image:linear-gradient(180deg,black,transparent)]" />
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[380px] opacity-30"
+        className="hero-bg pointer-events-none absolute inset-x-0 top-0 h-[380px] opacity-25"
         style={{
           backgroundImage:
             "linear-gradient(180deg, rgba(11,36,34,0.2), #0b2422), url('/images/hero-vault.jpg')",

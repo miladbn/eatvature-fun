@@ -49,7 +49,25 @@ export function ProgressGradeCard({ account }: { account: Account }) {
           {t(gradeLabelKey(report.grade))} · {report.scorePct}%
         </span>
       </div>
-      <p className="mt-3 text-xs text-[#9bb5af]">
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-black/40">
+        <div
+          className="h-full rounded-full transition-[width] duration-500"
+          style={{
+            width: `${Math.max(2, report.scorePct)}%`,
+            background:
+              report.grade === "ahead"
+                ? "#3ecfb3"
+                : report.grade === "onTrack"
+                  ? "#f0b429"
+                  : report.grade === "behind"
+                    ? "#fb923c"
+                    : report.grade === "farBehind"
+                      ? "#fb7185"
+                      : "#9bb5af",
+          }}
+        />
+      </div>
+      <p className="mt-2 text-xs text-[#9bb5af]">
         Met {report.met}/{report.total} handbook targets
         {report.lockedCount > 0 ? ` · ${report.lockedCount} locked cards` : ""}
       </p>
@@ -58,7 +76,7 @@ export function ProgressGradeCard({ account }: { account: Account }) {
           {report.behind.map((b) => (
             <li
               key={b.id}
-              className="flex justify-between gap-2 rounded-lg bg-black/20 px-3 py-1.5"
+              className="flex justify-between gap-2 rounded-lg border border-white/5 bg-black/20 px-3 py-1.5"
             >
               <span>{b.name}</span>
               <span className="text-rose-300">
@@ -113,9 +131,9 @@ export function GemBudgetCard({
           <> — gems cover the remaining path.</>
         )}
       </p>
-      <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/40">
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-black/40">
         <div
-          className="h-full rounded-full bg-[#3ecfb3]"
+          className="h-full rounded-full bg-gradient-to-r from-[#3ecfb3] to-[#8fe3d2] transition-[width] duration-500"
           style={{ width: `${report.pctCovered}%` }}
         />
       </div>
@@ -140,14 +158,40 @@ export function DailyChecklistCard({
     void tick;
     return buildDailyChecklist(account, nextStep);
   }, [account, nextStep, tick]);
+  const doneCount = items.filter((i) => i.done).length;
 
   return (
     <section className="panel rounded-2xl p-5">
-      <h3 className="font-display text-xl font-bold">{t("dailyChecklist")}</h3>
-      <ul className="mt-3 space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="font-display text-xl font-bold">{t("dailyChecklist")}</h3>
+        <span
+          className={cn(
+            "rounded-full px-2.5 py-0.5 text-xs font-semibold",
+            doneCount === items.length && items.length > 0
+              ? "bg-[#3ecfb3]/15 text-[#3ecfb3]"
+              : "bg-white/5 text-[#9bb5af]",
+          )}
+        >
+          {doneCount}/{items.length}
+        </span>
+      </div>
+      <div className="mt-3 h-1 overflow-hidden rounded-full bg-black/40">
+        <div
+          className="h-full rounded-full bg-[#3ecfb3] transition-[width] duration-500"
+          style={{ width: `${items.length ? (doneCount / items.length) * 100 : 0}%` }}
+        />
+      </div>
+      <ul className="mt-4 space-y-2">
         {items.map((item) => (
           <li key={item.id}>
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+            <label
+              className={cn(
+                "flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-2.5 transition-colors",
+                item.done
+                  ? "border-[#3ecfb3]/20 bg-[#3ecfb3]/5"
+                  : "border-white/10 bg-black/20 hover:border-[#f0b429]/30",
+              )}
+            >
               <input
                 type="checkbox"
                 checked={item.done}
@@ -156,7 +200,7 @@ export function DailyChecklistCard({
                   toggleChecked(item.id);
                   setTick((n) => n + 1);
                 }}
-                className="mt-1"
+                className="mt-0.5 shrink-0"
               />
               <span>
                 <span
@@ -655,7 +699,7 @@ function HistoryChart({
 
       {hp && (
         <div
-          className="pointer-events-none absolute top-1 z-10 rounded-lg border border-white/10 bg-[#0b2422]/95 px-2.5 py-1.5 text-xs shadow-lg backdrop-blur"
+          className="pointer-events-none absolute top-1 z-10 rounded-lg border border-white/10 bg-[var(--panel-b)] px-2.5 py-1.5 text-xs shadow-lg backdrop-blur"
           style={{
             left: Math.min(Math.max(hx, 70), width - 70),
             transform: "translateX(-50%)",
