@@ -127,7 +127,7 @@ export function GuideView() {
                 >
                   {pet.name}
                 </div>
-                <div className="text-[11px] capitalize text-[#9bb5af]">
+                <div className="text-xs capitalize text-[#9bb5af]">
                   {pet.rarity}
                 </div>
                 <p className="mt-1 text-xs text-[#c5d5d0]">{pet.ability}</p>

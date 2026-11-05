@@ -105,17 +105,17 @@ export function CatalogView() {
               >
                 {i.name}
               </h3>
-              <span className="text-[10px] capitalize text-[#9bb5af]">
+              <span className="text-[11px] capitalize text-[#9bb5af]">
                 {i.rarity}
               </span>
             </div>
             <p className="text-xs text-[#9bb5af]">
               {i.slot} · {i.event}
             </p>
-            <p className="mt-1 text-[11px] text-[#c5d5d0]">
+            <p className="mt-1 text-xs text-[#c5d5d0]">
               AP {i.apMin}–{i.apMax}
             </p>
-            <div className="mt-2 flex flex-wrap gap-1 text-[10px]">
+            <div className="mt-2 flex flex-wrap gap-1 text-[11px]">
               {i.fasterFood > 0 && (
                 <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-amber-300">
                   +{i.fasterFood}% food

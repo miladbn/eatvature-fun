@@ -439,7 +439,7 @@ export default function App() {
               <p className="truncate font-display text-lg font-extrabold leading-tight tracking-tight text-[#f0b429] sm:text-xl">
                 Eatventure Handbook
               </p>
-              <p className="hidden text-[11px] text-[#9bb5af] sm:block">
+              <p className="hidden text-xs text-[#9bb5af] sm:block">
                 v{HANDBOOK_META.handbookVersion} · patch {HANDBOOK_META.gamePatch}
               </p>
             </div>
@@ -490,7 +490,7 @@ export default function App() {
             onClick={() => setTab("cities")}
             className="city-card mb-3 hidden lg:block"
           >
-            <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#9bb5af]">
+            <span className="block text-xs font-medium text-[#9bb5af]">
               Current city
             </span>
             <span className="mt-0.5 block font-display text-2xl font-bold leading-none text-[#f0b429]">
@@ -511,7 +511,7 @@ export default function App() {
         </nav>
 
         <div className="min-w-0">
-        <div key={`${tab}-body`} className="rise">
+        <div key={`${tab}-body`}>
         {tab === "overview" && (
           <Overview
             account={account}
@@ -1042,74 +1042,65 @@ function Overview({
       )}
 
       <div className="grid gap-4 xl:grid-cols-[1.25fr_1fr]">
-        <div className="ticket next-ticket rounded-2xl p-5 sm:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="ticket-eyebrow">
-                Next kitchen ticket
-              </p>
-              {next ? (
+        <article className="next-ticket" aria-label="Next kitchen ticket">
+          <div className={cn("ticket ticket-main p-5 sm:p-6", !next && "ticket-solo")}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="ticket-eyebrow">Next kitchen ticket</p>
                 <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-[#14201c]">
-                  {next.kind === "unlock" ? "Unlock" : "Upgrade"}{" "}
-                  {ITEM_MAP[next.itemId].name}
+                  {next
+                    ? `${next.kind === "unlock" ? "Unlock" : "Upgrade"} ${ITEM_MAP[next.itemId].name}`
+                    : "Vault is finished."}
                 </h2>
-              ) : (
-                <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-[#14201c]">
-                  Vault is finished.
-                </h2>
+              </div>
+              {next && (
+                <div className="ticket-price">
+                  <span className="font-display text-3xl font-extrabold text-[#b3301a]">
+                    {formatGems(next.cost)}
+                  </span>
+                  <span className="text-xs text-[#5c6f69]">gems</span>
+                </div>
               )}
             </div>
             {next && (
-              <div className="text-right">
-                <div className="text-3xl font-bold text-[#e8452d]">
-                  {formatGems(next.cost)}
-                </div>
-                <div className="text-xs text-[#5c6f69]">gems</div>
-              </div>
-            )}
-          </div>
-          {next && (
-            <>
               <div className="mt-5 flex items-center gap-4">
                 <div
-                  className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white/70"
+                  className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-black/10"
                   style={{ background: `${ITEM_MAP[next.itemId].accent}33` }}
                 >
                   <VaultIcon id={next.itemId} className="h-12 w-12" />
                 </div>
-                <div>
-                  <p className="text-sm text-[#2a3d38]">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-[#2a3d38]">
                     {next.kind === "unlock"
-                      ? `Open ${ITEM_MAP[next.itemId].name} at level 1.`
-                      : `Level ${next.from} → ${next.to} · ${formatEffect(next.itemId, next.to)}`}
+                      ? `Open ${ITEM_MAP[next.itemId].name} at level 1`
+                      : `Level ${next.from} → ${next.to}, ${formatEffect(next.itemId, next.to)}`}
                   </p>
                   <p className="mt-1 text-sm text-[#5c6f69]">{next.reason}</p>
-                  <p className="mt-1 text-xs font-medium text-[#e8452d]">
-                    {next.phaseName} · {ITEM_MAP[next.itemId].effectLabel}
+                  <p className="mt-1 text-xs font-medium text-[#b3301a]">
+                    {next.phaseName}: {ITEM_MAP[next.itemId].effectLabel}
                   </p>
                 </div>
               </div>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={() => onComplete(next)}
-                  className="btn-primary"
-                >
-                  {spendGems ? "I bought this" : "Mark complete"}
-                </button>
-                <button
-                  type="button"
-                  onClick={onBurst}
-                  className="btn-ticket"
-                >
-                  {spendGems
-                    ? `Spend ${formatGems(budget.spent)} on next ${budget.count || 0}`
-                    : "Complete next only"}
-                </button>
-              </div>
-            </>
+            )}
+          </div>
+          {next && (
+            <div className="ticket ticket-stub flex flex-wrap gap-3 px-5 py-4 sm:px-6">
+              <button
+                type="button"
+                onClick={() => onComplete(next)}
+                className="btn-primary"
+              >
+                {spendGems ? "I bought this" : "Mark complete"}
+              </button>
+              <button type="button" onClick={onBurst} className="btn-ticket">
+                {spendGems
+                  ? `Spend ${formatGems(budget.spent)} on next ${budget.count || 0}`
+                  : "Complete next only"}
+              </button>
+            </div>
           )}
-        </div>
+        </article>
         <div className="grid grid-cols-2 gap-3 content-start">
           <div className="stat-tile stat-tile--hero">
             <div className="text-xs font-medium text-[#9bb5af]">
@@ -1123,29 +1114,29 @@ function Overview({
             </p>
           </div>
           <div className="stat-tile">
-            <div className="text-[11px] text-[#9bb5af]">At your city rate</div>
+            <div className="text-xs text-[#9bb5af]">At your city rate</div>
             <div className="mt-1 font-display text-2xl font-bold gold-text">
               {citiesAtCurrent.toLocaleString()}
             </div>
-            <p className="mt-1 text-[11px] text-[#9bb5af]">
+            <p className="mt-1 text-xs text-[#9bb5af]">
               {cityMeta.name} pays {cityMeta.gems} gems
             </p>
           </div>
           <div className="stat-tile">
-            <div className="text-[11px] text-[#9bb5af]">Priority path only</div>
+            <div className="text-xs text-[#9bb5af]">Priority path only</div>
             <div className="mt-1 font-display text-2xl font-bold gem-text">
               {citiesToPriority.toLocaleString()}
             </div>
-            <p className="mt-1 text-[11px] text-[#9bb5af]">
+            <p className="mt-1 text-xs text-[#9bb5af]">
               Upgrade-when-possible cards · {formatGems(priorityLeft)} gems
             </p>
           </div>
           <div className="stat-tile">
-            <div className="text-[11px] text-[#9bb5af]">60-city loops left</div>
+            <div className="text-xs text-[#9bb5af]">60-city loops left</div>
             <div className="mt-1 font-display text-2xl font-bold">
               {loopsToFull.toFixed(1)}
             </div>
-            <p className="mt-1 text-[11px] text-[#9bb5af]">
+            <p className="mt-1 text-xs text-[#9bb5af]">
               {formatGems(LOOP_GEMS)} gems per full loop
             </p>
           </div>
@@ -1185,7 +1176,7 @@ function Overview({
                 <div className="flex items-center gap-2">
                   <span
                     className={cn(
-                      "rounded px-1.5 py-0.5 text-[10px] font-semibold",
+                      "rounded px-1.5 py-0.5 text-[11px] font-semibold",
                       tip.tone === "now" && "bg-[#e8452d] text-white",
                       tip.tone === "soon" && "bg-[#f0b429] text-[#0b2422]",
                       tip.tone === "later" && "bg-white/10 text-[#9bb5af]",
@@ -1256,7 +1247,7 @@ function Overview({
                     {row.current}
                   </span>
                 </div>
-                <div className="mt-1 flex items-center justify-between text-[11px] text-[#9bb5af]">
+                <div className="mt-1 flex items-center justify-between text-xs text-[#9bb5af]">
                   <span>
                     Lv {row.level}/{row.maxLevel} · max {row.max}
                   </span>
@@ -1502,7 +1493,7 @@ function AccountEditor({
               levels={account.levels}
               onChange={(n) => setLevel(item.id, n)}
             />
-            <div className="mt-2 flex justify-between text-[11px] text-[#9bb5af]">
+            <div className="mt-2 flex justify-between text-xs text-[#9bb5af]">
               <span>Now {formatEffect(item.id, account.levels[item.id])}</span>
               <span>
                 {account.levels[item.id] >= item.maxLevel
@@ -1594,7 +1585,7 @@ function PlanView({
                 <div className="flex items-center gap-2">
                   <h3 className="font-display text-2xl">{group.phaseName}</h3>
                   {active && (
-                    <span className="rounded-lg bg-[#f0b429] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#0b2422] uppercase">
+                    <span className="rounded-lg bg-[#f0b429] px-2 py-0.5 text-[11px] font-semibold tracking-wide text-[#0b2422] uppercase">
                       your city
                     </span>
                   )}
@@ -1699,7 +1690,7 @@ function TotalsView({
                       <VaultIcon id={row.item.id} className="h-8 w-8" />
                       <div>
                         <div>{row.item.name}</div>
-                        <div className="text-[11px] text-[#9bb5af]">
+                        <div className="text-xs text-[#9bb5af]">
                           Unlock{" "}
                           {row.item.unlockCost === 0
                             ? "Free"
@@ -1939,16 +1930,16 @@ function GearView({
                   {g.name}
                 </span>
                 <span
-                  className="text-[10px] uppercase"
+                  className="text-[11px] uppercase"
                   style={{ color: RARITY_COLORS[g.rarity] }}
                 >
                   {g.rarity}
                 </span>
               </div>
-              <div className="text-[11px] text-[#9bb5af]">
+              <div className="text-xs text-[#9bb5af]">
                 {SLOT_LABELS[g.slot]} · {g.description}
               </div>
-              <div className="mt-1 flex flex-wrap gap-1 text-[10px]">
+              <div className="mt-1 flex flex-wrap gap-1 text-[11px]">
                 {g.profitPct > 0 && (
                   <span className="rounded bg-amber-500/10 px-1 py-0.5 text-amber-300">
                     +{g.profitPct}%
@@ -2109,11 +2100,11 @@ function PetsView({
               >
                 {pet.name}
               </div>
-              <div className="text-[11px] text-[#9bb5af]">
+              <div className="text-xs text-[#9bb5af]">
                 {pet.rarity} · {pet.ability}
               </div>
               {ownedIds.has(pet.id) && (
-                <div className="mt-1 text-[10px] text-[#f0b429]">Owned</div>
+                <div className="mt-1 text-[11px] text-[#f0b429]">Owned</div>
               )}
             </button>
           ))}
@@ -2406,7 +2397,7 @@ function ArcaneView({
                   / {item.maxLevel}
                 </span>
               </div>
-              <div className="mt-2 flex justify-between text-[11px] text-[#9bb5af]">
+              <div className="mt-2 flex justify-between text-xs text-[#9bb5af]">
                 <span>
                   {item.effectLabel}: {item.effects[level] ?? "—"}
                 </span>
@@ -2436,11 +2427,11 @@ function ArcaneView({
             >
               <div className="font-medium text-[#3ecfb3]">{p.name}</div>
               <div className="text-xs text-[#9bb5af]">{p.effect}</div>
-              <div className="mt-1 text-[10px] text-[#9bb5af]">
+              <div className="mt-1 text-[11px] text-[#9bb5af]">
                 {p.ingredients.join(" · ")}
               </div>
               {p.totalToMax && (
-                <div className="mt-1 text-[10px] text-[#f0b429]">
+                <div className="mt-1 text-[11px] text-[#f0b429]">
                   {p.totalToMax}
                 </div>
               )}
@@ -2485,7 +2476,7 @@ function BuildsView({ account }: { account: Account }) {
                 <div className="flex items-center gap-2">
                   <h3 className="font-display text-xl">{b.label}</h3>
                   {active && (
-                    <span className="rounded-lg bg-[#f0b429] px-2 py-0.5 text-[10px] font-semibold text-[#0b2422] uppercase">
+                    <span className="rounded-lg bg-[#f0b429] px-2 py-0.5 text-[11px] font-semibold text-[#0b2422] uppercase">
                       your range
                     </span>
                   )}
@@ -2495,19 +2486,19 @@ function BuildsView({ account }: { account: Account }) {
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <div className="rounded-xl bg-black/20 p-2">
-                <span className="text-[10px] uppercase text-[#9bb5af]">
+                <span className="text-[11px] uppercase text-[#9bb5af]">
                   Head
                 </span>
                 <div className="text-sm">{b.head}</div>
               </div>
               <div className="rounded-xl bg-black/20 p-2">
-                <span className="text-[10px] uppercase text-[#9bb5af]">
+                <span className="text-[11px] uppercase text-[#9bb5af]">
                   Body
                 </span>
                 <div className="text-sm">{b.body}</div>
               </div>
               <div className="rounded-xl bg-black/20 p-2">
-                <span className="text-[10px] uppercase text-[#9bb5af]">
+                <span className="text-[11px] uppercase text-[#9bb5af]">
                   Hand
                 </span>
                 <div className="text-sm">{b.hand}</div>
@@ -2629,7 +2620,7 @@ function StepRow({
         dim && "opacity-45",
       )}
     >
-      <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/5 text-[11px] font-semibold text-[#9bb5af]">
+      <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/5 text-xs font-semibold text-[#9bb5af]">
         {index}
       </div>
       <div
@@ -2643,7 +2634,7 @@ function StepRow({
           {step.kind === "unlock" ? "Unlock" : `Lv ${step.from} → ${step.to}`}{" "}
           {item.name}
         </div>
-        <div className="truncate text-[11px] text-[#9bb5af]">
+        <div className="truncate text-xs text-[#9bb5af]">
           {item.effectKind === "cash"
             ? formatCash(effectAt(item.id, step.to) ?? 0)
             : formatEffect(item.id, step.to)}
@@ -2655,7 +2646,7 @@ function StepRow({
           {formatGems(step.cost)}
         </div>
         {running != null && (
-          <div className="text-[10px] text-[#9bb5af]">
+          <div className="text-[11px] text-[#9bb5af]">
             {formatGems(running)} total
           </div>
         )}
@@ -2713,7 +2704,7 @@ function LevelRow({
       </button>
       <span className="text-xs text-[#9bb5af]">/ {item.maxLevel}</span>
       {level === 0 && !canUnlock(id, levels) && (
-        <span className="text-[10px] text-[#9bb5af]">needs previous card</span>
+        <span className="text-[11px] text-[#9bb5af]">needs previous card</span>
       )}
     </div>
   );
@@ -2743,7 +2734,7 @@ function Stat({
 }) {
   return (
     <div className="stat-tile">
-      <div className="text-[11px] text-[#9bb5af]">{label}</div>
+      <div className="text-xs text-[#9bb5af]">{label}</div>
       <div
         className={cn(
           "mt-1 text-2xl font-semibold",
@@ -2752,7 +2743,7 @@ function Stat({
       >
         {value}
       </div>
-      <div className="mt-1 text-[11px] text-[#9bb5af]">{hint}</div>
+      <div className="mt-1 text-xs text-[#9bb5af]">{hint}</div>
     </div>
   );
 }
@@ -2779,7 +2770,7 @@ function PriorityBadge({
   const m = map[priority];
   return (
     <span
-      className={cn("rounded-lg px-2 py-0.5 text-[10px] font-medium", m.cls)}
+      className={cn("rounded-lg px-2 py-0.5 text-[11px] font-medium", m.cls)}
     >
       {m.label}
     </span>
@@ -2813,7 +2804,7 @@ function GemChip({
         {formatGems(value)}
       </span>
       <span
-        className={cn("text-[11px]", gem ? "text-[#8fd9cc]" : "text-[#c4b5fd]")}
+        className={cn("text-xs", gem ? "text-[#8fd9cc]" : "text-[#c4b5fd]")}
       >
         {label}
       </span>

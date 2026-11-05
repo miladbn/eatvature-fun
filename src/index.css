@@ -41,7 +41,7 @@ html[data-theme="light"] {
   --ink: #14201c;
   --muted: #5c6f69;
   --soft: #3a4f49;
-  --gold: #b7820b;
+  --gold: #8a5f00;
   --gem: #12866f;
   --chili: #cf3a22;
   --line: rgba(20, 32, 28, 0.1);
@@ -237,11 +237,9 @@ main {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #cf3a22;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #b3301a;
   }
 
   .ticket-eyebrow::before {
@@ -253,18 +251,74 @@ main {
     box-shadow: 0 0 0 3px rgba(207, 58, 34, 0.18);
   }
 
-  /* Perforated edge on the "next ticket" hero */
+  /* The one bold element: a kitchen order ticket. The body and the
+     tear-off stub are separate pieces, each punched with half-notches on
+     their shared edge, so the notches always line up with the tear line
+     however tall either part grows. */
   .next-ticket {
-    overflow: hidden;
-    padding-left: 1.75rem;
+    --notch: 10px;
+    display: flex;
+    flex-direction: column;
+    filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.32));
   }
 
-  .next-ticket::before {
+  .next-ticket .ticket {
+    border: none;
+    box-shadow: none;
+  }
+
+  .ticket-main {
+    flex: 1;
+    border-radius: 16px 16px 0 0;
+    -webkit-mask:
+      radial-gradient(circle var(--notch) at 0 100%, transparent 97%, #000) left / 51% 100% no-repeat,
+      radial-gradient(circle var(--notch) at 100% 100%, transparent 97%, #000) right / 51% 100% no-repeat;
+    mask:
+      radial-gradient(circle var(--notch) at 0 100%, transparent 97%, #000) left / 51% 100% no-repeat,
+      radial-gradient(circle var(--notch) at 100% 100%, transparent 97%, #000) right / 51% 100% no-repeat;
+  }
+
+  .ticket-main.ticket-solo {
+    border-radius: 16px;
+    -webkit-mask: none;
+    mask: none;
+  }
+
+  .ticket-stub {
+    position: relative;
+    border-radius: 0 0 16px 16px;
+    background: #efe7d6;
+    -webkit-mask:
+      radial-gradient(circle var(--notch) at 0 0, transparent 97%, #000) left / 51% 100% no-repeat,
+      radial-gradient(circle var(--notch) at 100% 0, transparent 97%, #000) right / 51% 100% no-repeat;
+    mask:
+      radial-gradient(circle var(--notch) at 0 0, transparent 97%, #000) left / 51% 100% no-repeat,
+      radial-gradient(circle var(--notch) at 100% 0, transparent 97%, #000) right / 51% 100% no-repeat;
+  }
+
+  .ticket-stub::before {
     content: "";
     position: absolute;
-    inset: 0 auto 0 0;
-    width: 6px;
-    background: linear-gradient(180deg, #e8452d, #f0b429);
+    top: 0;
+    left: calc(var(--notch) + 6px);
+    right: calc(var(--notch) + 6px);
+    border-top: 2px dashed rgba(20, 32, 28, 0.2);
+  }
+
+  .ticket-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1;
+    gap: 0.25rem;
+  }
+
+  @media (max-width: 639px) {
+    .ticket-price {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 0.4rem;
+    }
   }
 
   .shine {
@@ -322,7 +376,7 @@ main {
     justify-content: center;
     gap: 0.5rem;
     border-radius: 10px;
-    background: linear-gradient(180deg, #f0563f, #d93a22);
+    background: linear-gradient(180deg, #d23a22, #b52e19);
     color: #fff8f6;
     font-weight: 600;
     padding: 0.65rem 1.15rem;
@@ -470,16 +524,6 @@ main {
     color: #0b2422;
   }
 
-  .step-row {
-    transition:
-      border-color 0.15s ease,
-      background 0.15s ease;
-  }
-
-  .step-row:hover {
-    border-color: rgba(240, 180, 41, 0.28);
-    background: var(--surface-hover);
-  }
 
   /* Header */
   .app-header {
@@ -570,12 +614,10 @@ main {
 
   .nav-group {
     padding: 0 0.75rem 0.3rem;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
     color: var(--muted);
-    opacity: 0.8;
+    opacity: 0.85;
   }
 
   .nav-group:hover {
@@ -706,11 +748,6 @@ main {
     border: 1px solid var(--line);
     background: var(--surface);
     padding: 0.9rem 1rem;
-    transition: border-color 0.15s ease;
-  }
-
-  .stat-tile:hover {
-    border-color: var(--line-strong);
   }
 
   .stat-tile--hero {
@@ -730,10 +767,8 @@ main {
     position: sticky;
     top: 0;
     z-index: 1;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
     white-space: nowrap;
     border-bottom: 1px solid var(--line-strong);
   }
@@ -820,7 +855,7 @@ html[data-theme="light"] :where(.panel, .stat-tile, .city-card, main, header) .t
 }
 
 html[data-theme="light"] :where(.panel, .stat-tile, .city-card, main, header) .text-\[\#f0b429\] {
-  color: #a87405;
+  color: #8a5f00;
 }
 
 html[data-theme="light"] :where(.panel, .stat-tile, .city-card, main, header) .text-\[\#3ecfb3\] {

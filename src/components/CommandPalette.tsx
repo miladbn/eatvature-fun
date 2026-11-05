@@ -82,7 +82,7 @@ export function CommandPalette({
               >
                 <NavIcon id={tab.id} className="h-4 w-4 text-[#9bb5af]" />
                 <span className="flex-1">{tab.label}</span>
-                <span className="text-[10px] uppercase tracking-wide text-[#9bb5af]">
+                <span className="text-xs text-[#9bb5af]">
                   {tab.group}
                 </span>
               </button>

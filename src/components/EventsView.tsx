@@ -50,7 +50,7 @@ export function EventsView() {
         <p className="mt-2 text-xs text-[#9bb5af]">
           ~{formatCountdown(rot.msLeft)} left · next: {rot.next.name}
         </p>
-        <p className="mt-1 text-[10px] text-[#9bb5af]">
+        <p className="mt-1 text-[11px] text-[#9bb5af]">
           Rotation is an estimate — live schedules vary.
         </p>
       </section>

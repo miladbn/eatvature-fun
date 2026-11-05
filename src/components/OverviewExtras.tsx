@@ -438,7 +438,7 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
                 className="absolute inset-x-0 top-0 h-0.5 transition-opacity"
                 style={{ background: m.color, opacity: on ? 1 : 0 }}
               />
-              <span className="flex items-center gap-1.5 text-[11px] text-[#9bb5af]">
+              <span className="flex items-center gap-1.5 text-xs text-[#9bb5af]">
                 <span
                   className="h-2 w-2 rounded-full"
                   style={{ background: m.color }}
@@ -477,7 +477,7 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
 
       {changes.length > 0 && (
         <div className="mt-4">
-          <h4 className="text-xs font-semibold uppercase tracking-wide text-[#9bb5af]">
+          <h4 className="text-sm font-semibold text-[#c5d5d0]">
             Recent changes
           </h4>
           <ul className="mt-2 divide-y divide-white/5 rounded-xl bg-black/20">

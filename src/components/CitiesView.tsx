@@ -64,7 +64,7 @@ export function CitiesView({
             <div className="mt-1 font-display text-2xl font-bold text-[#e8452d]">
               {citiesToFull.toLocaleString()}
             </div>
-            <div className="mt-0.5 text-[11px] text-[#5c6f69]">
+            <div className="mt-0.5 text-xs text-[#5c6f69]">
               {formatGems(gemsToMaxVault)} gems left @ avg
             </div>
           </div>
@@ -73,7 +73,7 @@ export function CitiesView({
             <div className="mt-1 font-display text-2xl font-bold">
               {citiesAtYours.toLocaleString()}
             </div>
-            <div className="mt-0.5 text-[11px] text-[#5c6f69]">
+            <div className="mt-0.5 text-xs text-[#5c6f69]">
               {yourGems} gems in current city
             </div>
           </div>
@@ -82,7 +82,7 @@ export function CitiesView({
             <div className="mt-1 font-display text-2xl font-bold">
               {citiesPriority.toLocaleString()}
             </div>
-            <div className="mt-0.5 text-[11px] text-[#5c6f69]">
+            <div className="mt-0.5 text-xs text-[#5c6f69]">
               {formatGems(gemsToPriority)} gems
             </div>
           </div>
@@ -91,7 +91,7 @@ export function CitiesView({
             <div className="mt-1 font-display text-2xl font-bold">
               {loopsLeft.toFixed(1)}
             </div>
-            <div className="mt-0.5 text-[11px] text-[#5c6f69]">
+            <div className="mt-0.5 text-xs text-[#5c6f69]">
               This city pays {active.gems}
             </div>
           </div>
@@ -100,19 +100,19 @@ export function CitiesView({
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="stat-tile">
-          <div className="text-[11px] text-[#9bb5af]">Selected city gems</div>
+          <div className="text-xs text-[#9bb5af]">Selected city gems</div>
           <div className="mt-1 font-display text-2xl font-bold gold-text">
             {active.gems}
           </div>
         </div>
         <div className="stat-tile">
-          <div className="text-[11px] text-[#9bb5af]">Loop gem range</div>
+          <div className="text-xs text-[#9bb5af]">Loop gem range</div>
           <div className="mt-1 font-display text-2xl font-bold">
             {MIN_CITY_GEMS}–{MAX_CITY_GEMS}
           </div>
         </div>
         <div className="stat-tile">
-          <div className="text-[11px] text-[#9bb5af]">From-zero vault loops</div>
+          <div className="text-xs text-[#9bb5af]">From-zero vault loops</div>
           <div className="mt-1 font-display text-2xl font-bold">
             {(TOTAL_VAULT_GEMS / LOOP_GEMS).toFixed(1)}
           </div>

@@ -364,11 +364,11 @@ export function ToolsView({
             >
               <div className="font-medium text-[#3ecfb3]">{p.name}</div>
               <div className="text-xs text-[#9bb5af]">{p.effect}</div>
-              <div className="mt-1 text-[10px] text-[#9bb5af]">
+              <div className="mt-1 text-[11px] text-[#9bb5af]">
                 {p.ingredients.join(" · ")}
               </div>
               {p.totalToMax && (
-                <div className="mt-1 text-[10px] text-[#f0b429]">
+                <div className="mt-1 text-[11px] text-[#f0b429]">
                   {p.totalToMax}
                 </div>
               )}
