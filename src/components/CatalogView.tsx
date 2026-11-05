@@ -7,6 +7,7 @@ import {
 } from "../data/catalog";
 import { RARITY_COLORS } from "../data/gear";
 import type { GearRarity } from "../types";
+import { ItemIcon, catalogIconUrl } from "./ItemIcon";
 
 export function CatalogView() {
   const [q, setQ] = useState("");
@@ -96,8 +97,13 @@ export function CatalogView() {
             className="rounded-2xl border border-white/10 bg-black/20 p-3"
           >
             <div className="flex items-start justify-between gap-2">
+              <ItemIcon
+                src={catalogIconUrl(i.id)}
+                alt=""
+                className="h-11 w-11"
+              />
               <h3
-                className="font-medium"
+                className="mr-auto self-center font-medium"
                 style={{
                   color:
                     RARITY_COLORS[i.rarity as GearRarity] || "#f2f5f3",

@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { VaultIcon } from "./components/VaultIcons";
+import { ItemIcon, arcaneIconUrl, gearIconUrl } from "./components/ItemIcon";
 import {
   DEFAULT_ACCOUNT,
   EMPTY_LEVELS,
@@ -1809,13 +1810,19 @@ function GearView({
               </select>
               {account.gear[key] && GEAR_MAP[account.gear[key]] && (
                 <div className="mt-2 rounded-xl border border-[#f0b429]/10 bg-black/20 p-2 text-xs">
-                  <div
-                    className="font-medium"
-                    style={{
-                      color: RARITY_COLORS[GEAR_MAP[account.gear[key]].rarity],
-                    }}
-                  >
-                    {GEAR_MAP[account.gear[key]].name}
+                  <div className="flex items-center gap-2">
+                    <ItemIcon
+                      src={gearIconUrl(GEAR_MAP[account.gear[key]])}
+                      className="h-10 w-10"
+                    />
+                    <div
+                      className="font-medium"
+                      style={{
+                        color: RARITY_COLORS[GEAR_MAP[account.gear[key]].rarity],
+                      }}
+                    >
+                      {GEAR_MAP[account.gear[key]].name}
+                    </div>
                   </div>
                   <div className="mt-1 text-[#9bb5af]">
                     {GEAR_MAP[account.gear[key]].description}
@@ -1922,12 +1929,15 @@ function GearView({
               key={g.id}
               className="rounded-2xl border border-[#f0b429]/10 bg-black/20 p-3"
             >
-              <div className="flex items-center justify-between">
-                <span
-                  className="font-medium"
-                  style={{ color: RARITY_COLORS[g.rarity] }}
-                >
-                  {g.name}
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex min-w-0 items-center gap-2">
+                  <ItemIcon src={gearIconUrl(g)} className="h-9 w-9" />
+                  <span
+                    className="font-medium"
+                    style={{ color: RARITY_COLORS[g.rarity] }}
+                  >
+                    {g.name}
+                  </span>
                 </span>
                 <span
                   className="text-[11px] uppercase"
@@ -2366,7 +2376,10 @@ function ArcaneView({
             level < item.maxLevel ? item.scrollCosts[level + 1] : 0;
           return (
             <article key={item.id} className="panel rounded-3xl p-4">
-              <h3 className="font-medium">{item.name}</h3>
+              <h3 className="flex items-center gap-2 font-medium">
+                <ItemIcon src={arcaneIconUrl(item.id)} className="h-10 w-10" />
+                {item.name}
+              </h3>
               <p className="text-xs text-[#9bb5af]">{item.description}</p>
               <div className="mt-2 flex items-center gap-2">
                 <button
