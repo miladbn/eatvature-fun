@@ -47,6 +47,8 @@ import {
 } from "./utils/profiles";
 import { recordHistory, clearHistory } from "./utils/history";
 import { NavIcon } from "./components/NavIcons";
+import { usePwaInstall } from "./utils/pwa";
+import { IosInstallHint } from "./components/IosInstallHint";
 import { evaluateCityProgress } from "./utils/features";
 import { useI18n, type StringKey } from "./utils/i18n";
 import {
@@ -158,7 +160,12 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [onboarding, setOnboarding] = useState(false);
   const [step, setStep] = useState(0);
-  const [tab, setTab] = useState<MainTab>("overview");
+  const [tab, setTab] = useState<MainTab>(() => {
+    // Lets PWA shortcuts / shared links open a tab directly, e.g. /#catalog.
+    const hash = window.location.hash.slice(1);
+    return MAIN_TABS.some((t) => t.id === hash) ? (hash as MainTab) : "overview";
+  });
+  const pwa = usePwaInstall();
   const [spendGems, setSpendGems] = useState(true);
   const [confirmReset, setConfirmReset] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -410,6 +417,7 @@ export default function App() {
         onClose={() => setPaletteOpen(false)}
         onSelect={(id) => setTab(id as MainTab)}
       />
+      {pwa.iosHint && <IosInstallHint onClose={pwa.closeIosHint} />}
       <ResetModal
         open={confirmReset}
         onCancel={() => setConfirmReset(false)}
@@ -460,6 +468,17 @@ export default function App() {
               <GemChip value={account.gems} label="gems" />
               <GemChip value={account.scrolls} label="scrolls" gem={false} />
             </div>
+            {pwa.canInstall && (
+              <button
+                type="button"
+                onClick={pwa.install}
+                className="icon-btn inline-flex"
+                aria-label="Install app"
+                title="Install app"
+              >
+                <NavIcon id="install" className="h-4 w-4" />
+              </button>
+            )}
             <a
               href="https://github.com/miladbn/eatvature-fun"
               target="_blank"

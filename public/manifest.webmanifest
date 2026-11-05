@@ -1,17 +1,23 @@
 {
+  "id": "/",
   "name": "Eatventure Handbook",
   "short_name": "Eatventure",
   "description": "Vault planner, city gems, gear, pets, and handbook tools for Eatventure.",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
   "background_color": "#0b2422",
   "theme_color": "#0b2422",
+  "categories": ["games", "utilities"],
   "icons": [
-    {
-      "src": "/images/gem-icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Vault planner", "url": "/?source=pwa#vault", "icons": [{ "src": "/images/vault/tipJar.png", "sizes": "200x200" }] },
+    { "name": "Item catalog", "url": "/?source=pwa#catalog", "icons": [{ "src": "/images/items/purpleCapHead.png", "sizes": "104x104" }] }
   ]
 }
