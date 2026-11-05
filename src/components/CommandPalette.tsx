@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "../utils/cn";
 import { useI18n } from "../utils/i18n";
+import { NavIcon } from "./NavIcons";
 
 export type PaletteTab = {
   id: string;
@@ -41,12 +42,12 @@ export function CommandPalette({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-start justify-center bg-black/60 p-4 pt-[12vh]"
+      className="fixed inset-0 z-[80] flex items-start justify-center bg-black/60 p-4 pt-[12vh] backdrop-blur-sm"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="panel w-full max-w-lg overflow-hidden rounded-2xl shadow-2xl"
+        className="panel pop w-full max-w-lg overflow-hidden rounded-2xl shadow-2xl"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-label="Command palette"
@@ -66,18 +67,24 @@ export function CommandPalette({
           className="field w-full rounded-none border-0 border-b border-white/10 bg-transparent px-4 py-3"
         />
         <ul className="max-h-72 overflow-y-auto p-2">
-          {filtered.map((tab) => (
+          {filtered.map((tab, i) => (
             <li key={tab.id}>
               <button
                 type="button"
-                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm hover:bg-white/10"
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm hover:bg-white/10",
+                  i === 0 && q.trim() && "bg-white/[0.06]",
+                )}
                 onClick={() => {
                   onSelect(tab.id);
                   onClose();
                 }}
               >
-                <span>{tab.label}</span>
-                <span className="text-[10px] text-[#9bb5af]">{tab.group}</span>
+                <NavIcon id={tab.id} className="h-4 w-4 text-[#9bb5af]" />
+                <span className="flex-1">{tab.label}</span>
+                <span className="text-[10px] uppercase tracking-wide text-[#9bb5af]">
+                  {tab.group}
+                </span>
               </button>
             </li>
           ))}
@@ -140,32 +147,42 @@ export function GroupedNav({
   };
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
+    <div className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:px-0 lg:pb-0">
       {groups.map(({ group, items }) => {
         const collapsed = collapsedGroups.has(group);
         const hasActive = items.some((i) => i.id === active);
+        const open = !collapsed || hasActive;
         return (
           <div key={group} className="contents lg:block">
             <button
               type="button"
               onClick={() => toggleGroup(group)}
-              className="mb-1 mt-3 hidden w-full items-center justify-between px-2 text-[10px] text-[#9bb5af] first:mt-0 lg:flex"
+              aria-expanded={open}
+              className="nav-group mt-4 hidden w-full items-center justify-between first:mt-0 lg:flex"
             >
               <span>{groupLabel(group)}</span>
-              <span>{collapsed && !hasActive ? "+" : "−"}</span>
+              <NavIcon
+                id="chevron"
+                className={cn(
+                  "h-3.5 w-3.5 transition-transform",
+                  !open && "-rotate-90",
+                )}
+              />
             </button>
-            {(!collapsed || hasActive) &&
-              items.map((tab) => (
+            {items.map((tab) => (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() => onSelect(tab.id)}
+                  aria-current={active === tab.id ? "page" : undefined}
                   className={cn(
                     "nav-item shrink-0 whitespace-nowrap",
                     active === tab.id && "active",
+                    !open && "lg:hidden",
                   )}
                 >
-                  {tab.label}
+                  <NavIcon id={tab.id} />
+                  <span>{tab.label}</span>
                 </button>
               ))}
           </div>

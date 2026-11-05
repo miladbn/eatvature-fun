@@ -385,7 +385,7 @@ export function ToolsView({
           {account.levels.remote}).
         </p>
         <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[420px] text-left text-sm">
+          <table className="data-table w-full min-w-[420px] text-left text-sm">
             <thead className="text-[#9bb5af]">
               <tr>
                 <th className="px-2 py-1">Level</th>

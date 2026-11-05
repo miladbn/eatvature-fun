@@ -55,7 +55,7 @@ export function GuideView() {
           ))}
         </div>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[520px] text-left text-sm">
+          <table className="data-table w-full min-w-[520px] text-left text-sm">
             <thead className="text-[#9bb5af]">
               <tr>
                 <th className="px-2 py-2 font-medium">Level</th>
