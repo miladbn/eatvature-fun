@@ -480,9 +480,9 @@ export default function App() {
         </div>
       </div>
 
-      <main className="relative z-10 mx-auto grid max-w-7xl gap-6 px-4 pb-24 pt-4 sm:px-6 sm:pt-6 lg:grid-cols-[220px_1fr]">
+      <main className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pb-24 pt-4 sm:px-6 sm:pt-6 lg:grid-cols-[220px_1fr]">
         <nav
-          className="nav-rail lg:sticky lg:top-[84px] lg:max-h-[calc(100vh-100px)] lg:self-start lg:overflow-y-auto"
+          className="nav-rail min-w-0 lg:sticky lg:top-[84px] lg:max-h-[calc(100vh-100px)] lg:self-start lg:overflow-y-auto"
           aria-label={t("sections")}
         >
           <button
@@ -1152,7 +1152,7 @@ function Overview({
         </div>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid items-start gap-3 lg:grid-cols-2">
         <ProgressGradeCard account={account} />
         <GemBudgetCard account={account} plan={plan} />
       </div>
