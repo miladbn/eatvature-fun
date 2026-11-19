@@ -3,13 +3,13 @@ import type { GearItem, GearStats } from "../types";
 import { cn } from "../utils/cn";
 
 const STYLE: Record<keyof GearStats, { short: string; cls: string; plus: boolean }> = {
-  instantFood: { short: "instant", cls: "bg-emerald-500/15 text-emerald-300", plus: false },
-  perfectFood: { short: "perfect", cls: "bg-purple-500/15 text-purple-300", plus: false },
-  doubleFood: { short: "double", cls: "bg-sky-500/15 text-sky-300", plus: false },
-  divineFood: { short: "divine", cls: "bg-rose-500/15 text-rose-300", plus: false },
-  anotherOrder: { short: "another order", cls: "bg-orange-500/15 text-orange-300", plus: false },
-  fasterFood: { short: "food speed", cls: "bg-amber-500/15 text-amber-300", plus: true },
-  fasterWalk: { short: "walk", cls: "bg-teal-500/15 text-teal-300", plus: true },
+  instantFood: { short: "instant", cls: "bg-raised text-soft", plus: false },
+  perfectFood: { short: "perfect", cls: "bg-raised text-soft", plus: false },
+  doubleFood: { short: "double", cls: "bg-raised text-soft", plus: false },
+  divineFood: { short: "divine", cls: "bg-raised text-soft", plus: false },
+  anotherOrder: { short: "another order", cls: "bg-raised text-soft", plus: false },
+  fasterFood: { short: "food speed", cls: "bg-raised text-soft", plus: true },
+  fasterWalk: { short: "walk", cls: "bg-raised text-soft", plus: true },
 };
 
 function Chips({ stats, aw }: { stats: GearStats; aw?: boolean }) {
@@ -43,7 +43,7 @@ export function GearStatChips({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-wrap gap-1 text-[11px]", className)}>
+    <div className={cn("flex flex-wrap gap-1 text-xs", className)}>
       <Chips stats={item.self} />
       <Chips stats={item.aw} aw />
     </div>

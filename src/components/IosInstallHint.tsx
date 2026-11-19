@@ -15,7 +15,7 @@ export function IosInstallHint({ onClose }: { onClose: () => void }) {
         <h2 id="ios-install-title" className="font-display text-xl">
           Install Eatventure Handbook
         </h2>
-        <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-[#c5d5d0]">
+        <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-soft">
           <li>
             Tap the <strong>Share</strong> button in Safari's toolbar.
           </li>
@@ -30,7 +30,7 @@ export function IosInstallHint({ onClose }: { onClose: () => void }) {
         <button
           type="button"
           onClick={onClose}
-          className="mt-4 w-full rounded-xl border border-[#f0b429]/30 py-2 text-sm text-[#f0b429]"
+          className="mt-4 w-full rounded-xl border border-line-strong py-2 text-sm text-gold"
         >
           Got it
         </button>

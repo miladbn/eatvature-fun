@@ -50,7 +50,7 @@ export function CloudSyncPanel({
   return (
     <section className="panel rounded-2xl p-5">
       <h3 className="font-display text-xl font-bold">{t("cloudSync")}</h3>
-      <p className="mt-1 text-sm text-[#9bb5af]">
+      <p className="mt-1 text-sm text-muted">
         Optional cross-device sync via jsonblob.com (no account). Keep your sync id
         private — anyone with it can read the snapshot.
       </p>
@@ -78,7 +78,7 @@ export function CloudSyncPanel({
           Download
         </button>
       </div>
-      {status && <p className="mt-2 text-xs text-[#9bb5af]">{status}</p>}
+      {status && <p className="mt-2 text-xs text-muted">{status}</p>}
     </section>
   );
 }

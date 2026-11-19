@@ -41,12 +41,12 @@ export function PetsView({
       {emptyHint}
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Your Pets</h2>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           Add the pets you own and set their rarity and level. Merging raises a
           pet's rarity but never changes its ability.
         </p>
         {account.pets.length === 0 ? (
-          <p className="mt-4 text-sm text-[#9bb5af]">No pets added yet. Add one below.</p>
+          <p className="mt-4 text-sm text-muted">No pets added yet. Add one below.</p>
         ) : (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {account.pets.map((op) => {
@@ -58,7 +58,7 @@ export function PetsView({
               return (
                 <div
                   key={op.petId}
-                  className="rounded-2xl border border-[#f0b429]/15 bg-black/20 p-4"
+                  className="rounded-2xl border border-line bg-sunken p-4"
                 >
                   <div className="flex items-start gap-3">
                     <ItemIcon src={petIconUrl(pet.id)} className="h-12 w-12" />
@@ -69,12 +69,12 @@ export function PetsView({
                       >
                         {pet.name}
                       </div>
-                      <div className="text-xs text-[#9bb5af]">{pet.ability}</div>
+                      <div className="text-xs text-muted">{pet.ability}</div>
                     </div>
                     <button
                       type="button"
                       onClick={() => removePet(op.petId)}
-                      className="text-xs text-rose-400"
+                      className="text-xs text-chili"
                     >
                       Remove
                     </button>
@@ -97,12 +97,12 @@ export function PetsView({
                         </option>
                       ))}
                     </select>
-                    <span className="text-xs text-[#9bb5af]">Level</span>
+                    <span className="text-xs text-muted">Level</span>
                     <button
                       type="button"
                       aria-label="Decrease level"
                       onClick={() => updatePet(op.petId, { level: op.level - 1 })}
-                      className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
+                      className="h-9 w-9 rounded border border-line text-sm"
                     >
                       −
                     </button>
@@ -113,35 +113,35 @@ export function PetsView({
                       value={op.level}
                       aria-label="Level"
                       onChange={(e) => updatePet(op.petId, { level: Number(e.target.value) })}
-                      className="h-7 w-14 rounded border border-[#f0b429]/20 bg-black/30 text-center text-sm outline-none"
+                      className="h-9 w-14 rounded border border-line bg-sunken text-center text-sm outline-none"
                     />
                     <button
                       type="button"
                       aria-label="Increase level"
                       onClick={() => updatePet(op.petId, { level: op.level + 1 })}
-                      className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
+                      className="h-9 w-9 rounded border border-line text-sm"
                     >
                       +
                     </button>
-                    <span className="text-xs text-[#9bb5af]">/ {PET_MAX_LEVEL}</span>
+                    <span className="text-xs text-muted">/ {PET_MAX_LEVEL}</span>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-black/40">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-sunken">
                     <div
-                      className="h-full rounded-lg bg-[#f0b429]"
+                      className="h-full rounded-lg bg-action"
                       style={{ width: `${(level / PET_MAX_LEVEL) * 100}%` }}
                     />
                   </div>
-                  <div className="mt-2 flex justify-between text-xs text-[#9bb5af]">
+                  <div className="mt-2 flex justify-between text-xs text-muted">
                     <span>
                       All profit{" "}
-                      <span className="text-[#f0b429]">+{row?.profitPct ?? 0}%</span>
+                      <span className="text-gold">+{row?.profitPct ?? 0}%</span>
                     </span>
                     <span>
                       {level >= PET_MAX_LEVEL ? (
                         "Maxed"
                       ) : (
                         <>
-                          <span className="text-[#3ecfb3]">{formatGems(toMax)}</span> food to{" "}
+                          <span className="text-gem">{formatGems(toMax)}</span> food to{" "}
                           {PET_MAX_LEVEL}
                         </>
                       )}
@@ -168,8 +168,8 @@ export function PetsView({
                 className={cn(
                   "flex items-start gap-3 rounded-2xl border p-3 text-left transition",
                   ownedIds.has(pet.id)
-                    ? "border-[#f0b429]/10 opacity-40"
-                    : "border-[#f0b429]/15 bg-black/20 hover:border-[#f0b429]/40",
+                    ? "border-line opacity-40"
+                    : "border-line bg-sunken hover:border-line-strong",
                 )}
               >
                 <ItemIcon src={petIconUrl(pet.id)} className="h-10 w-10" />
@@ -180,11 +180,11 @@ export function PetsView({
                   >
                     {pet.name}
                   </span>
-                  <span className="block text-xs text-[#9bb5af]">
+                  <span className="block text-xs text-muted">
                     {cap(pet.rarity)} egg · {pet.ability}
                   </span>
                   {ownedIds.has(pet.id) && (
-                    <span className="mt-1 block text-[11px] text-[#f0b429]">Owned</span>
+                    <span className="mt-1 block text-xs text-gem">Owned</span>
                   )}
                 </span>
               </button>
@@ -198,18 +198,18 @@ export function PetsView({
           {BEST_PET_COMBOS.map((c) => (
             <div
               key={c.stage}
-              className="rounded-2xl border border-[#f0b429]/10 bg-black/20 p-3"
+              className="rounded-2xl border border-line bg-sunken p-3"
             >
-              <div className="text-sm font-medium text-[#f0b429]">{c.stage}</div>
+              <div className="text-sm font-medium text-muted">{c.stage}</div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {c.pets.map((combo) => (
                   <span
                     key={combo.join("+")}
-                    className="flex items-center gap-1 rounded-xl border border-white/10 bg-black/20 px-2 py-1 text-sm"
+                    className="flex items-center gap-1 rounded-xl border border-line bg-sunken px-2 py-1 text-sm"
                   >
                     {combo.map((id, i) => (
                       <span key={`${id}-${i}`} className="flex items-center gap-1">
-                        {i > 0 && <span className="text-[#9bb5af]">+</span>}
+                        {i > 0 && <span className="text-muted">+</span>}
                         <ItemIcon src={petIconUrl(id)} className="h-6 w-6" />
                         {PET_MAP[id]?.name ?? id}
                       </span>
@@ -217,7 +217,7 @@ export function PetsView({
                   </span>
                 ))}
               </div>
-              <div className="mt-2 text-xs text-[#9bb5af]">{c.notes}</div>
+              <div className="mt-2 text-xs text-muted">{c.notes}</div>
             </div>
           ))}
         </div>
@@ -225,14 +225,14 @@ export function PetsView({
 
       <div className="panel rounded-3xl p-5">
         <h3 className="font-display text-xl">Dish value by pet</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           How much each dish is worth with the pet's ability active.
         </p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {PET_DISH_NOTES.map((n) => (
-            <div key={n.title} className="rounded-2xl border border-white/10 bg-black/20 p-3">
-              <div className="font-medium text-[#3ecfb3]">{n.title}</div>
-              <ul className="mt-1 space-y-0.5 text-xs text-[#c5d5d0]">
+            <div key={n.title} className="rounded-2xl border border-line bg-sunken p-3">
+              <div className="font-medium text-gem">{n.title}</div>
+              <ul className="mt-1 space-y-0.5 text-xs text-soft">
                 {n.lines.map((l) => (
                   <li key={l}>{l}</li>
                 ))}
@@ -246,7 +246,7 @@ export function PetsView({
         <h3 className="font-display text-xl">Pet food</h3>
         <div className="mt-3 overflow-x-auto">
           <table className="data-table w-full min-w-[420px] text-left text-sm">
-            <thead className="text-[#9bb5af]">
+            <thead className="text-muted">
               <tr>
                 <th className="px-2 py-1">Rarity</th>
                 <th className="px-2 py-1 text-right">Hatch / merge</th>
@@ -256,7 +256,7 @@ export function PetsView({
             </thead>
             <tbody>
               {PET_RARITIES.map((r) => (
-                <tr key={r} className="border-t border-white/8">
+                <tr key={r} className="border-t border-line">
                   <td className="px-2 py-1.5">
                     <span className="flex items-center gap-2" style={{ color: RARITY_COLORS[r] }}>
                       <ItemIcon src={eggIconUrl(r)} className="h-6 w-6" />
@@ -266,15 +266,15 @@ export function PetsView({
                   <td className="px-2 py-1.5 text-right">
                     {formatGems(PET_HATCH[r].food)}
                     {r === "ultimate" && (
-                      <span className="block text-[11px] text-[#9bb5af]">
+                      <span className="block text-xs text-muted">
                         {PET_HATCH[r].label}
                       </span>
                     )}
                   </td>
-                  <td className="px-2 py-1.5 text-right text-[#3ecfb3]">
+                  <td className="px-2 py-1.5 text-right text-gem">
                     {formatGems(PET_FOOD_TO_MAX[r])}
                   </td>
-                  <td className="px-2 py-1.5 text-right text-[#f0b429]">
+                  <td className="px-2 py-1.5 text-right text-gold">
                     +{petLevelRow(r, 1)?.profitPct}% → +{petLevelRow(r, PET_MAX_LEVEL)?.profitPct}%
                   </td>
                 </tr>
@@ -302,7 +302,7 @@ export function PetsView({
             <div>
               <h4 className="text-sm font-semibold">Pet food conversion (average)</h4>
               <table className="data-table mt-2 w-full text-left text-sm">
-                <thead className="text-[#9bb5af]">
+                <thead className="text-muted">
                   <tr>
                     <th className="px-2 py-1">Pet food</th>
                     <th className="px-2 py-1 text-right">Boxes</th>
@@ -311,7 +311,7 @@ export function PetsView({
                 </thead>
                 <tbody>
                   {PET_FOOD_CONVERSION.map((c) => (
-                    <tr key={c.food} className="border-t border-white/8">
+                    <tr key={c.food} className="border-t border-line">
                       <td className="px-2 py-1">{formatGems(c.food)}</td>
                       <td className="px-2 py-1 text-right">{formatGems(c.boxes)}</td>
                       <td className="px-2 py-1 text-right">{c.cities}</td>
@@ -323,7 +323,7 @@ export function PetsView({
           )}
         </div>
 
-        <ul className="mt-5 space-y-1 text-xs text-[#9bb5af]">
+        <ul className="mt-5 space-y-1 text-xs text-muted">
           {PET_TIPS.map((t) => (
             <li key={t}>• {t}</li>
           ))}

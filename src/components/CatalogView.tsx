@@ -34,11 +34,11 @@ export function CatalogView() {
 
   return (
     <div className="space-y-5">
-      <section className="ticket rounded-2xl p-5">
-        <h2 className="font-display text-3xl font-bold text-[#14201c]">
+      <section className="page-head">
+        <h2 className="font-display text-3xl font-bold text-ink">
           Item catalog
         </h2>
-        <p className="mt-1 text-sm text-[#5c6f69]">
+        <p className="mt-1 text-sm text-muted">
           {CATALOG_ITEMS.length} items from the Spectre handbook — filter by
           rarity, slot, and event. Chips marked <strong>AW</strong> apply to
           all workers, you included.
@@ -90,14 +90,14 @@ export function CatalogView() {
             ))}
           </select>
         </div>
-        <p className="mt-2 text-xs text-[#9bb5af]">{rows.length} matches</p>
+        <p className="mt-2 text-xs text-muted">{rows.length} matches</p>
       </div>
 
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((i) => (
           <article
             key={i.id}
-            className="rounded-2xl border border-white/10 bg-black/20 p-3"
+            className="rounded-2xl border border-line bg-sunken p-3"
           >
             <div className="flex items-start justify-between gap-2">
               <ItemIcon
@@ -114,14 +114,14 @@ export function CatalogView() {
               >
                 {i.name}
               </h3>
-              <span className="text-[11px] capitalize text-[#9bb5af]">
+              <span className="text-xs capitalize text-muted">
                 {i.rarity}
               </span>
             </div>
-            <p className="text-xs text-[#9bb5af]">
+            <p className="text-xs text-muted">
               {i.slot} · {i.event}
             </p>
-            <p className="mt-1 text-xs text-[#c5d5d0]">
+            <p className="mt-1 text-xs text-soft">
               AP {formatGems(i.apMin)}–{formatGems(i.apMax)}
             </p>
             <GearStatChips item={i} className="mt-2" />

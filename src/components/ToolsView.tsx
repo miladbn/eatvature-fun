@@ -160,9 +160,9 @@ export function ToolsView({
 
   return (
     <div className="space-y-6">
-      <section className="ticket rounded-2xl p-5">
-        <h2 className="font-display text-3xl font-bold text-[#14201c]">Tools</h2>
-        <p className="mt-1 text-sm text-[#5c6f69]">
+      <section className="page-head">
+        <h2 className="font-display text-3xl font-bold text-ink">Tools</h2>
+        <p className="mt-1 text-sm text-muted">
           Calculators, comparisons, export/import, and share links.
         </p>
       </section>
@@ -176,10 +176,10 @@ export function ToolsView({
       {/* Gem projector */}
       <section className="panel rounded-2xl p-5">
         <h3 className="font-display text-xl font-bold">Gem income projector</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           Starting from city {account.city || 1}
         </p>
-        <label className="mt-3 block text-xs text-[#9bb5af]">
+        <label className="mt-3 block text-xs text-muted">
           Cities ahead
           <input
             type="number"
@@ -193,7 +193,7 @@ export function ToolsView({
         <p className="mt-3 text-2xl font-bold gold-text">
           {formatGems(projection.gems)} gems
         </p>
-        <p className="text-xs text-[#9bb5af]">
+        <p className="text-xs text-muted">
           Avg city ≈ {AVG_GEMS_PER_CITY} · loop {formatGems(LOOP_GEMS)} · vault
           from zero {formatGems(TOTAL_VAULT_GEMS)}
         </p>
@@ -215,19 +215,19 @@ export function ToolsView({
         </select>
         <dl className="mt-3 space-y-1 text-sm">
           <div className="flex justify-between">
-            <dt className="text-[#9bb5af]">Now</dt>
+            <dt className="text-muted">Now</dt>
             <dd>{formatEffect(whatIfId, whatIfLevel)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-[#9bb5af]">Next</dt>
+            <dt className="text-muted">Next</dt>
             <dd>{nextEffect}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-[#9bb5af]">Next cost</dt>
-            <dd className="text-[#3ecfb3]">{formatGems(nextCost)} gems</dd>
+            <dt className="text-muted">Next cost</dt>
+            <dd className="text-gem">{formatGems(nextCost)} gems</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-[#9bb5af]">Cities to afford</dt>
+            <dt className="text-muted">Cities to afford</dt>
             <dd>{citiesForNext}</dd>
           </div>
         </dl>
@@ -236,7 +236,7 @@ export function ToolsView({
       {/* Playstyle compare */}
       <section className="panel rounded-2xl p-5">
         <h3 className="font-display text-xl font-bold">Compare playstyles</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           Remaining plan from your current vault levels.{" "}
           {comparePlaystylesBase().avgGems} gems/city avg.
         </p>
@@ -245,12 +245,12 @@ export function ToolsView({
             <div
               key={row.id}
               className={cn(
-                "flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm",
-                row.id === account.playstyle && "ring-1 ring-[#f0b429]",
+                "flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-sunken px-3 py-2 text-sm",
+                row.id === account.playstyle && "ring-1 ring-action",
               )}
             >
               <span className="font-medium">{row.name}</span>
-              <span className="text-[#9bb5af]">
+              <span className="text-muted">
                 {row.steps} steps · {formatGems(row.cost)} gems · ~{row.cities}{" "}
                 cities
               </span>
@@ -282,7 +282,7 @@ export function ToolsView({
             onChange={(e) => setClothFrom(Number(e.target.value))}
             className="field w-20"
           />
-          <span className="self-center text-sm text-[#9bb5af]">to</span>
+          <span className="self-center text-sm text-muted">to</span>
           <input
             type="number"
             min={1}
@@ -296,7 +296,7 @@ export function ToolsView({
           {formatGems(clothXp)} XP
         </p>
         {clothNow && (
-          <p className="text-xs text-[#9bb5af]">
+          <p className="text-xs text-muted">
             At lv {clothFrom}: +{clothNow.profitPct}% profit
             {clothNow.apPct != null ? ` · +${clothNow.apPct}% AP` : ""}
           </p>
@@ -319,7 +319,7 @@ export function ToolsView({
               </option>
             ))}
           </select>
-          <span className="text-sm text-[#9bb5af]">level</span>
+          <span className="text-sm text-muted">level</span>
           <input
             type="number"
             min={1}
@@ -329,7 +329,7 @@ export function ToolsView({
             onChange={(e) => setPetFrom(Number(e.target.value))}
             className="field w-20"
           />
-          <span className="text-sm text-[#9bb5af]">to</span>
+          <span className="text-sm text-muted">to</span>
           <input
             type="number"
             min={1}
@@ -343,7 +343,7 @@ export function ToolsView({
         <p className="mt-3 text-lg font-semibold gem-text">
           {formatGems(petFood)} pet food
         </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 text-xs text-[#9bb5af]">
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 text-xs text-muted">
           <div>Common egg hatch: {EGG_COSTS.common}</div>
           <div>Rare egg hatch: {EGG_COSTS.rare}</div>
           <div>
@@ -358,14 +358,14 @@ export function ToolsView({
       {/* Club planner */}
       <section className="panel rounded-2xl p-5">
         <h3 className="font-display text-xl font-bold">Club contribution</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           Equal share target {formatGems(CLUB_EQUAL_SHARE_XP)} XP · ~
           {CLUB_XP_PER_CITY} XP/city salvaging small boxes
         </p>
         <p className="mt-3 text-2xl font-bold">
           {clubNeed} cities
         </p>
-        <p className="text-xs text-[#9bb5af]">
+        <p className="text-xs text-muted">
           You have {formatGems(account.clubXp)} XP · need{" "}
           {formatGems(Math.max(0, CLUB_EQUAL_SHARE_XP - account.clubXp))} more
         </p>
@@ -381,13 +381,13 @@ export function ToolsView({
       {/* Remote value table */}
       <section className="panel rounded-2xl p-5">
         <h3 className="font-display text-xl font-bold">Remote value table</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           Ad boost multiplier by level (from your current Remote{" "}
           {account.levels.remote}).
         </p>
         <div className="mt-3 overflow-x-auto">
           <table className="data-table w-full min-w-[420px] text-left text-sm">
-            <thead className="text-[#9bb5af]">
+            <thead className="text-muted">
               <tr>
                 <th className="px-2 py-1">Level</th>
                 <th className="px-2 py-1">Multiplier</th>
@@ -397,9 +397,9 @@ export function ToolsView({
             </thead>
             <tbody>
               {remoteRows.map((r) => (
-                <tr key={r.level} className="border-t border-white/8">
+                <tr key={r.level} className="border-t border-line">
                   <td className="px-2 py-1.5">{r.level}</td>
-                  <td className="px-2 py-1.5 text-[#e8452d]">×{r.effect}</td>
+                  <td className="px-2 py-1.5 text-chili">×{r.effect}</td>
                   <td className="px-2 py-1.5">{formatGems(r.cost)}</td>
                   <td className="px-2 py-1.5">{formatGems(r.toHere)}</td>
                 </tr>
@@ -441,8 +441,8 @@ export function ToolsView({
         <button type="button" className="btn-ghost" onClick={doSyncApply}>
           Apply sync code
         </button>
-        {shareMsg && <p className="text-sm text-[#3ecfb3]">{shareMsg}</p>}
-        <p className="text-xs text-[#9bb5af]">
+        {shareMsg && <p className="text-sm text-gem">{shareMsg}</p>}
+        <p className="text-xs text-muted">
           Sync codes are offline snapshots (no cloud server). Paste on another
           device to restore.
         </p>

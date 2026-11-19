@@ -44,11 +44,11 @@ export function ForgeView({
 
   return (
     <div className="space-y-5">
-      <section className="ticket rounded-2xl p-5">
-        <h2 className="font-display text-3xl font-bold text-[#14201c]">
+      <section className="page-head">
+        <h2 className="font-display text-3xl font-bold text-ink">
           Blueprint forge
         </h2>
-        <p className="mt-1 text-sm text-[#5c6f69]">
+        <p className="mt-1 text-sm text-muted">
           Track pieces you own. Green means you can forge that recipe.
         </p>
       </section>
@@ -75,7 +75,7 @@ export function ForgeView({
               key={`${bp.rarity}-${bp.slot}-${bp.result}`}
               className={cn(
                 "panel rounded-2xl p-4",
-                ready && "ring-1 ring-[#3ecfb3]/50",
+                ready && "ring-1 ring-gem/50",
               )}
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -83,13 +83,13 @@ export function ForgeView({
                   <ItemIcon src={itemIconUrl(bp.resultId)} className="h-9 w-9" />
                   {bp.result}
                 </h3>
-                <span className="text-sm capitalize text-[#f0b429]">
+                <span className="text-sm capitalize text-gold">
                   {bp.rarity}
                   {bp.slot && ` · ${SLOT_LABELS[bp.slot]}`}
                 </span>
               </div>
               {ready && (
-                <p className="mt-1 text-xs font-medium text-[#3ecfb3]">
+                <p className="mt-1 text-xs font-medium text-gem">
                   Ready to forge
                 </p>
               )}
@@ -105,13 +105,13 @@ export function ForgeView({
                       <span
                         className={cn(
                           "flex min-w-[12rem] items-center gap-1.5",
-                          ok && "text-[#3ecfb3]",
+                          ok && "text-gem",
                         )}
                       >
                         <ItemIcon src={itemIconUrl(p.itemId)} className="h-6 w-6" />
                         {p.count}× {p.key}
                       </span>
-                      <span className="text-xs text-[#9bb5af]">have</span>
+                      <span className="text-xs text-muted">have</span>
                       <input
                         type="number"
                         min={0}

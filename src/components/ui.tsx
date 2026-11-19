@@ -4,7 +4,7 @@ import { cn } from "../utils/cn";
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs tracking-wide text-[#9bb5af]">
+      <span className="mb-1.5 block text-xs text-muted">
         {label}
       </span>
       {children}
@@ -25,7 +25,7 @@ export function Stat({
 }) {
   return (
     <div className="stat-tile">
-      <div className="text-xs text-[#9bb5af]">{label}</div>
+      <div className="text-xs text-muted">{label}</div>
       <div
         className={cn(
           "mt-1 text-2xl font-semibold",
@@ -34,7 +34,7 @@ export function Stat({
       >
         {value}
       </div>
-      <div className="mt-1 text-xs text-[#9bb5af]">{hint}</div>
+      <div className="mt-1 text-xs text-muted">{hint}</div>
     </div>
   );
 }

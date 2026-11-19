@@ -42,7 +42,7 @@ export function VaultOcrHelper({
   return (
     <section className="panel rounded-2xl p-5">
       <h3 className="font-display text-xl font-bold">Vault screenshot helper</h3>
-      <p className="mt-1 text-sm text-[#9bb5af]">
+      <p className="mt-1 text-sm text-muted">
         Paste or drop a vault screenshot, then fill levels quickly. Optional: paste
         OCR / notes text to auto-detect names + numbers.
       </p>
@@ -80,7 +80,7 @@ export function VaultOcrHelper({
           onFile(e.dataTransfer.files?.[0] ?? null);
         }}
       >
-        <div className="min-h-40 rounded-xl border border-dashed border-white/20 bg-black/20 p-2">
+        <div className="min-h-40 rounded-xl border border-dashed border-line bg-sunken p-2">
           {preview ? (
             <img
               src={preview}
@@ -88,7 +88,7 @@ export function VaultOcrHelper({
               className="max-h-80 w-full object-contain"
             />
           ) : (
-            <p className="p-6 text-center text-sm text-[#9bb5af]">
+            <p className="p-6 text-center text-sm text-muted">
               Drop screenshot here
             </p>
           )}
@@ -97,9 +97,9 @@ export function VaultOcrHelper({
           {VAULT_ITEMS.map((item) => (
             <label
               key={item.id}
-              className="flex items-center gap-2 rounded-lg bg-black/20 px-2 py-1.5 text-sm"
+              className="flex items-center gap-2 rounded-lg bg-sunken px-2 py-1.5 text-sm"
             >
-              <VaultIcon id={item.id} className="h-7 w-7" />
+              <VaultIcon id={item.id} className="h-9 w-9" />
               <span className="min-w-0 flex-1 truncate">{item.shortName}</span>
               <input
                 type="number"
@@ -135,7 +135,7 @@ export function VaultOcrHelper({
           Apply levels
         </button>
       </div>
-      {msg && <p className="mt-2 text-xs text-[#9bb5af]">{msg}</p>}
+      {msg && <p className="mt-2 text-xs text-muted">{msg}</p>}
     </section>
   );
 }

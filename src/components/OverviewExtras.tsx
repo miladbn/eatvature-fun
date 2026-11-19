@@ -24,11 +24,11 @@ import { gradeLabelKey, useI18n } from "../utils/i18n";
 import { ITEM_MAP } from "../data/vault";
 
 const GRADE_STYLE: Record<ProgressGrade, string> = {
-  ahead: "border-[#3ecfb3]/40 bg-[#3ecfb3]/10 text-[#3ecfb3]",
-  onTrack: "border-[#f0b429]/40 bg-[#f0b429]/10 text-[#f0b429]",
-  behind: "border-orange-400/40 bg-orange-400/10 text-orange-300",
-  farBehind: "border-rose-400/40 bg-rose-400/10 text-rose-300",
-  fresh: "border-white/20 bg-white/5 text-[#9bb5af]",
+  ahead: "border-gem/40 bg-gem/10 text-gem",
+  onTrack: "border-gold/40 bg-gold/10 text-gold",
+  behind: "border-action/40 bg-action/10 text-action",
+  farBehind: "border-chili/40 bg-chili/10 text-chili",
+  fresh: "border-line bg-raised text-muted",
 };
 
 export function ProgressGradeCard({ account }: { account: Account }) {
@@ -40,7 +40,7 @@ export function ProgressGradeCard({ account }: { account: Account }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="font-display text-xl font-bold">{t("progressGrade")}</h3>
-          <p className="mt-1 text-sm text-[#9bb5af]">{report.summary}</p>
+          <p className="mt-1 text-sm text-muted">{report.summary}</p>
         </div>
         <span
           className={cn(
@@ -51,25 +51,25 @@ export function ProgressGradeCard({ account }: { account: Account }) {
           {t(gradeLabelKey(report.grade))} · {report.scorePct}%
         </span>
       </div>
-      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-black/40">
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-sunken">
         <div
           className="h-full rounded-full transition-[width] duration-500"
           style={{
             width: `${Math.max(2, report.scorePct)}%`,
             background:
               report.grade === "ahead"
-                ? "#3ecfb3"
+                ? "var(--gem)"
                 : report.grade === "onTrack"
-                  ? "#f0b429"
+                  ? "var(--gold)"
                   : report.grade === "behind"
-                    ? "#fb923c"
+                    ? "var(--action)"
                     : report.grade === "farBehind"
-                      ? "#fb7185"
-                      : "#9bb5af",
+                      ? "var(--chili)"
+                      : "var(--muted)",
           }}
         />
       </div>
-      <p className="mt-2 text-xs text-[#9bb5af]">
+      <p className="mt-2 text-xs text-muted">
         Met {report.met}/{report.total} handbook targets
         {report.lockedCount > 0 ? ` · ${report.lockedCount} locked cards` : ""}
       </p>
@@ -78,10 +78,10 @@ export function ProgressGradeCard({ account }: { account: Account }) {
           {report.behind.map((b) => (
             <li
               key={b.id}
-              className="flex justify-between gap-2 rounded-lg border border-white/5 bg-black/20 px-3 py-1.5"
+              className="flex justify-between gap-2 rounded-lg border border-line bg-sunken px-3 py-1.5"
             >
               <span>{b.name}</span>
-              <span className="text-rose-300">
+              <span className="text-chili">
                 {b.have}/{b.need} (−{b.gap})
               </span>
             </li>
@@ -89,7 +89,7 @@ export function ProgressGradeCard({ account }: { account: Account }) {
         </ul>
       )}
       {report.ahead.length > 0 && report.behind.length === 0 && (
-        <ul className="mt-3 space-y-1 text-sm text-[#3ecfb3]">
+        <ul className="mt-3 space-y-1 text-sm text-gem">
           {report.ahead.map((a) => (
             <li key={a.id}>
               {a.name} {a.have}/{a.need}
@@ -114,9 +114,9 @@ export function GemBudgetCard({
   return (
     <section className="panel rounded-2xl p-5">
       <h3 className="font-display text-xl font-bold">{t("gemBudget")}</h3>
-      <p className="mt-2 text-sm text-[#c5d5d0]">
+      <p className="mt-2 text-sm text-soft">
         With {formatGems(account.gems)} gems you finish{" "}
-        <span className="font-semibold text-[#f0b429]">
+        <span className="font-semibold text-gold">
           {report.stepsAffordable}/{report.totalSteps}
         </span>{" "}
         plan steps
@@ -124,7 +124,7 @@ export function GemBudgetCard({
           <>
             {" "}
             — about{" "}
-            <span className="font-semibold text-rose-300">
+            <span className="font-semibold text-chili">
               {report.citiesBehindPlan.toLocaleString()}
             </span>{" "}
             cities behind finishing the path (~{AVG_GEMS_PER_CITY}/city).
@@ -133,13 +133,13 @@ export function GemBudgetCard({
           <> — gems cover the remaining path.</>
         )}
       </p>
-      <div className="mt-4 h-2 overflow-hidden rounded-full bg-black/40">
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-sunken">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-[#3ecfb3] to-[#8fe3d2] transition-[width] duration-500"
+          className="h-full rounded-full bg-gem transition-[width] duration-500"
           style={{ width: `${report.pctCovered}%` }}
         />
       </div>
-      <p className="mt-2 text-xs text-[#9bb5af]">
+      <p className="mt-2 text-xs text-muted">
         Plan cost {formatGems(report.planCost)} · leftover after buyable steps{" "}
         {formatGems(report.leftover)}
       </p>
@@ -170,16 +170,16 @@ export function DailyChecklistCard({
           className={cn(
             "rounded-full px-2.5 py-0.5 text-xs font-semibold",
             doneCount === items.length && items.length > 0
-              ? "bg-[#3ecfb3]/15 text-[#3ecfb3]"
-              : "bg-white/5 text-[#9bb5af]",
+              ? "bg-gem/15 text-gem"
+              : "bg-raised text-muted",
           )}
         >
           {doneCount}/{items.length}
         </span>
       </div>
-      <div className="mt-3 h-1 overflow-hidden rounded-full bg-black/40">
+      <div className="mt-3 h-1 overflow-hidden rounded-full bg-sunken">
         <div
-          className="h-full rounded-full bg-[#3ecfb3] transition-[width] duration-500"
+          className="h-full rounded-full bg-gem transition-[width] duration-500"
           style={{ width: `${items.length ? (doneCount / items.length) * 100 : 0}%` }}
         />
       </div>
@@ -190,8 +190,8 @@ export function DailyChecklistCard({
               className={cn(
                 "flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-2.5 transition-colors",
                 item.done
-                  ? "border-[#3ecfb3]/20 bg-[#3ecfb3]/5"
-                  : "border-white/10 bg-black/20 hover:border-[#f0b429]/30",
+                  ? "border-gem/20 bg-gem/5"
+                  : "border-line bg-sunken hover:border-line-strong",
               )}
             >
               <input
@@ -208,7 +208,7 @@ export function DailyChecklistCard({
                 <span
                   className={cn(
                     "block text-sm font-medium",
-                    item.done && "text-[#9bb5af] line-through",
+                    item.done && "text-muted line-through",
                   )}
                 >
                   {item.label.includes(":")
@@ -218,7 +218,7 @@ export function DailyChecklistCard({
                       )
                     : item.label}
                 </span>
-                <span className="text-xs text-[#9bb5af]">{item.detail}</span>
+                <span className="text-xs text-muted">{item.detail}</span>
               </span>
             </label>
           </li>
@@ -236,7 +236,7 @@ export function GearMatchCard({ account }: { account: Account }) {
   return (
     <section className="panel rounded-2xl p-5">
       <h3 className="font-display text-xl font-bold">{t("gearMatch")}</h3>
-      <p className="mt-1 text-sm text-[#9bb5af]">
+      <p className="mt-1 text-sm text-muted">
         {report.build.label} · {PHASE_RANGES[report.build.phase]?.label ?? report.build.phase}
       </p>
       <p className="mt-2 text-sm">{report.summary}</p>
@@ -244,13 +244,13 @@ export function GearMatchCard({ account }: { account: Account }) {
         {report.rows.map((row) => (
           <li
             key={row.label}
-            className="flex items-center justify-between gap-2 rounded-lg bg-black/20 px-3 py-1.5"
+            className="flex items-center justify-between gap-2 rounded-lg bg-sunken px-3 py-1.5"
           >
-            <span className="text-[#9bb5af]">{row.label}</span>
+            <span className="text-muted">{row.label}</span>
             <span
               className={cn(
                 "flex items-center gap-1.5 text-right",
-                row.match ? "text-[#3ecfb3]" : "text-rose-300",
+                row.match ? "text-gem" : "text-chili",
               )}
             >
               {row.match ? (
@@ -285,15 +285,15 @@ export function EventCountdownCard() {
   return (
     <section className="panel rounded-2xl p-5">
       <h3 className="font-display text-xl font-bold">{t("eventNow")}</h3>
-      <p className="mt-1 text-xs text-[#9bb5af]">
+      <p className="mt-1 text-xs text-muted">
         Estimated weekly rotation (schedules vary in-game).
       </p>
-      <p className="mt-3 font-display text-2xl font-bold text-[#f0b429]">
+      <p className="mt-3 font-display text-2xl font-bold">
         {rot.current.name}
       </p>
-      <p className="text-sm text-[#c5d5d0]">{rot.current.box}</p>
+      <p className="text-sm text-soft">{rot.current.box}</p>
       <p className="mt-2 text-sm">{rot.farmTip}</p>
-      <p className="mt-3 text-xs text-[#9bb5af]">
+      <p className="mt-3 text-xs text-muted">
         Ends in ~{formatCountdown(rot.msLeft)} · next: {rot.next.name}
       </p>
     </section>
@@ -310,10 +310,10 @@ const HISTORY_METRICS: {
   /** Negative change is normal (e.g. spending gems) — don't paint it red. */
   neutralDrop?: boolean;
 }[] = [
-  { id: "city", label: "City", short: "City", color: "#f0b429" },
-  { id: "levelsOwned", label: "Vault levels", short: "Vault lv", color: "#3ecfb3" },
-  { id: "citiesCompleted", label: "Cities done", short: "Done", color: "#e8452d" },
-  { id: "gems", label: "Gems on hand", short: "Gems", color: "#8fb8ff", neutralDrop: true },
+  { id: "city", label: "City", short: "City", color: "var(--gold)" },
+  { id: "levelsOwned", label: "Vault levels", short: "Vault lv", color: "var(--gem)" },
+  { id: "citiesCompleted", label: "Cities done", short: "Done", color: "var(--action)" },
+  { id: "gems", label: "Gems on hand", short: "Gems", color: "var(--sky)", neutralDrop: true },
 ];
 
 function fmtWhen(t: number, withTime: boolean) {
@@ -359,19 +359,19 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
     return (
       <section className="panel rounded-2xl p-5">
         <h3 className="font-display text-xl font-bold">{t("history")}</h3>
-        <div className="mt-4 flex items-center gap-4 rounded-xl border border-dashed border-white/15 bg-black/20 p-4">
+        <div className="mt-4 flex items-center gap-4 rounded-xl border border-dashed border-line bg-sunken p-4">
           <svg viewBox="0 0 48 32" className="h-10 w-14 shrink-0" aria-hidden>
             <path
               d="M2 28 L14 20 L24 23 L34 12 L46 6"
               fill="none"
-              stroke="#3ecfb3"
+              stroke="var(--gem)"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeDasharray="4 4"
               opacity="0.7"
             />
-            <circle cx="2" cy="28" r="2.5" fill="#f0b429" />
+            <circle cx="2" cy="28" r="2.5" fill="var(--gold)" />
           </svg>
           <div className="min-w-0">
             <p className="text-sm font-medium">
@@ -379,7 +379,7 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
                 ? "No snapshots yet"
                 : "1 snapshot saved — one more to draw your chart"}
             </p>
-            <p className="mt-0.5 text-xs text-[#9bb5af]">
+            <p className="mt-0.5 text-xs text-muted">
               A snapshot is saved on this device whenever your city, vault levels
               or gems change.
             </p>
@@ -389,7 +389,7 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
                   key={i}
                   className={cn(
                     "h-1.5 w-8 rounded-full",
-                    i < points.length ? "bg-[#3ecfb3]" : "bg-white/10",
+                    i < points.length ? "bg-gem" : "bg-raised",
                   )}
                 />
               ))}
@@ -424,7 +424,7 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
     <section className="panel rounded-2xl p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h3 className="font-display text-xl font-bold">{t("history")}</h3>
-        <span className="text-xs text-[#9bb5af]">
+        <span className="text-xs text-muted">
           {points.length} snapshots · since {fmtWhen(first.t, false)}
         </span>
       </div>
@@ -447,16 +447,16 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
               className={cn(
                 "relative overflow-hidden rounded-xl border px-3 py-2 text-left transition",
                 on
-                  ? "bg-black/30"
-                  : "border-white/5 bg-black/15 hover:border-white/15 hover:bg-black/25",
+                  ? "bg-sunken"
+                  : "border-line bg-sunken hover:border-line hover:bg-sunken",
               )}
-              style={on ? { borderColor: `${m.color}80` } : undefined}
+              style={on ? { borderColor: `color-mix(in oklab, ${m.color} 50%, transparent)` } : undefined}
             >
               <span
                 className="absolute inset-x-0 top-0 h-0.5 transition-opacity"
                 style={{ background: m.color, opacity: on ? 1 : 0 }}
               />
-              <span className="flex items-center gap-1.5 text-xs text-[#9bb5af]">
+              <span className="flex items-center gap-1.5 text-xs text-muted">
                 <span
                   className="h-2 w-2 rounded-full"
                   style={{ background: m.color }}
@@ -470,12 +470,12 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
                 className={cn(
                   "text-xs",
                   d === 0
-                    ? "text-[#9bb5af]"
+                    ? "text-muted"
                     : d > 0
-                      ? "text-[#3ecfb3]"
+                      ? "text-gem"
                       : m.neutralDrop
-                        ? "text-[#c5d5d0]"
-                        : "text-rose-300",
+                        ? "text-soft"
+                        : "text-chili",
                 )}
               >
                 {d === 0 ? "no change" : fmtDelta(m.id, d)}
@@ -495,10 +495,10 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
 
       {changes.length > 0 && (
         <div className="mt-4">
-          <h4 className="text-sm font-semibold text-[#c5d5d0]">
+          <h4 className="text-sm font-semibold text-soft">
             Recent changes
           </h4>
-          <ul className="mt-2 divide-y divide-white/5 rounded-xl bg-black/20">
+          <ul className="mt-2 divide-y divide-white/5 rounded-xl bg-sunken">
             {changes.map(({ p, parts }) => (
               <li
                 key={p.t}
@@ -509,14 +509,14 @@ export function HistoryChartCard({ refreshKey }: { refreshKey?: number }) {
                     <span
                       key={m.id}
                       className="rounded-md px-1.5 py-0.5 text-xs font-medium"
-                      style={{ background: `${m.color}1f`, color: m.color }}
+                      style={{ background: `color-mix(in oklab, ${m.color} 12%, transparent)`, color: m.color }}
                     >
                       {m.short} {fmtDelta(m.id, d)}
                     </span>
                   ))}
                 </span>
                 <span
-                  className="text-xs text-[#9bb5af]"
+                  className="text-xs text-muted"
                   title={new Date(p.t).toLocaleString()}
                 >
                   {fmtRelative(p.t)}
@@ -659,7 +659,7 @@ function HistoryChart({
               textAnchor="end"
               dominantBaseline="middle"
               fontSize="10"
-              fill="#9bb5af"
+              fill="var(--muted)"
             >
               {tickLabel(v)}
             </text>
@@ -681,20 +681,20 @@ function HistoryChart({
               cx={xAt(i)}
               cy={yAt(p[metric])}
               r="2.5"
-              fill="#0b2422"
+              fill="var(--surface)"
               stroke={color}
               strokeWidth="1.5"
             />
           ))}
 
-        <text x={padL} y={h - 6} fontSize="10" fill="#9bb5af">
+        <text x={padL} y={h - 6} fontSize="10" fill="var(--muted)">
           {fmtWhen(t0, withTime)}
         </text>
         <text
           x={padL + innerW}
           y={h - 6}
           fontSize="10"
-          fill="#9bb5af"
+          fill="var(--muted)"
           textAnchor="end"
         >
           {fmtWhen(t1, withTime)}
@@ -710,24 +710,24 @@ function HistoryChart({
               stroke="white"
               strokeOpacity="0.25"
             />
-            <circle cx={hx} cy={hy} r="5" fill={color} stroke="#0b2422" strokeWidth="2" />
+            <circle cx={hx} cy={hy} r="5" fill={color} stroke="var(--surface)" strokeWidth="2" />
           </g>
         )}
       </svg>
 
       {hp && (
         <div
-          className="pointer-events-none absolute top-1 z-10 rounded-lg border border-white/10 bg-[var(--panel-b)] px-2.5 py-1.5 text-xs shadow-lg backdrop-blur"
+          className="pointer-events-none absolute top-1 z-10 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs shadow-lg backdrop-blur"
           style={{
             left: Math.min(Math.max(hx, 70), width - 70),
             transform: "translateX(-50%)",
           }}
         >
-          <div className="text-[#9bb5af]">{fmtWhen(hp.t, true)}</div>
+          <div className="text-muted">{fmtWhen(hp.t, true)}</div>
           <div className="font-semibold" style={{ color }}>
             {label}: {fmtValue(metric, hp[metric])}
             {prevVal !== null && hp[metric] !== prevVal && (
-              <span className="ml-1 font-normal text-[#c5d5d0]">
+              <span className="ml-1 font-normal text-soft">
                 ({fmtDelta(metric, hp[metric] - prevVal)})
               </span>
             )}
@@ -740,7 +740,7 @@ function HistoryChart({
 
 export function EmptyHint({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-[#f0b429]/25 bg-black/20 px-4 py-3 text-sm text-[#9bb5af]">
+    <div className="rounded-xl border border-dashed border-line bg-sunken px-4 py-3 text-sm text-muted">
       {children}
     </div>
   );

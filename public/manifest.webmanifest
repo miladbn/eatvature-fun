@@ -8,8 +8,8 @@
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "any",
-  "background_color": "#0b2422",
-  "theme_color": "#0b2422",
+  "background_color": "#18191b",
+  "theme_color": "#18191b",
   "categories": ["games", "utilities"],
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

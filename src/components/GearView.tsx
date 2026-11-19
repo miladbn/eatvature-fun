@@ -42,7 +42,7 @@ export function GearView({
       {emptyHint}
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Equipped Gear</h2>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           Pick what you wear. Stats come straight from the handbook's Items tab.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -52,7 +52,7 @@ export function GearView({
               <div key={key}>
                 <label
                   htmlFor={`gear-${key}`}
-                  className="mb-1 block text-xs uppercase tracking-wide text-[#9bb5af]"
+                  className="mb-1 block text-xs text-muted"
                 >
                   {label}
                 </label>
@@ -80,7 +80,7 @@ export function GearView({
                     })}
                 </select>
                 {item && (
-                  <div className="mt-2 rounded-xl border border-[#f0b429]/10 bg-black/20 p-2 text-xs">
+                  <div className="mt-2 rounded-xl border border-line bg-sunken p-2 text-xs">
                     <div className="flex items-center gap-2">
                       <ItemIcon src={gearIconUrl(item)} className="h-10 w-10" />
                       <div className="min-w-0">
@@ -90,7 +90,7 @@ export function GearView({
                         >
                           {item.name}
                         </div>
-                        <div className="text-[#9bb5af] capitalize">
+                        <div className="text-muted capitalize">
                           {item.rarity} · {item.event} · AP {formatGems(item.apMin)}–
                           {formatGems(item.apMax)}
                         </div>
@@ -107,13 +107,13 @@ export function GearView({
 
       <div className="panel rounded-3xl p-5">
         <h3 className="font-display text-xl">Equipped totals</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           "All workers" bonuses apply to every worker, your character included,
           so your character gets both columns.
         </p>
         <div className="mt-3 overflow-x-auto">
           <table className="data-table w-full min-w-[420px] text-left text-sm">
-            <thead className="text-[#9bb5af]">
+            <thead className="text-muted">
               <tr>
                 <th className="px-2 py-1">Stat</th>
                 <th className="px-2 py-1 text-right">Character only</th>
@@ -123,13 +123,13 @@ export function GearView({
             </thead>
             <tbody>
               {STAT_ORDER.map((k) => (
-                <tr key={k} className="border-t border-white/8">
+                <tr key={k} className="border-t border-line">
                   <td className="px-2 py-1.5">{STAT_LABELS[k]}</td>
                   <td className="px-2 py-1.5 text-right">{totals.self[k]}%</td>
-                  <td className="px-2 py-1.5 text-right text-[#3ecfb3]">
+                  <td className="px-2 py-1.5 text-right text-gem">
                     {totals.aw[k]}%
                   </td>
-                  <td className="px-2 py-1.5 text-right font-medium text-[#f0b429]">
+                  <td className="px-2 py-1.5 text-right font-medium text-gold">
                     {totals.self[k] + totals.aw[k]}%
                   </td>
                 </tr>
@@ -137,28 +137,28 @@ export function GearView({
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-xs text-[#9bb5af]">
+        <p className="mt-2 text-xs text-muted">
           Item AP at level 1–max: {formatGems(totals.apMin)} – {formatGems(totals.apMax)}
         </p>
       </div>
 
       <div className="panel rounded-2xl p-5">
         <h3 className="font-display text-xl font-bold">Build checker</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           Handbook priority: 100% instant food, then perfect, then double and
           divine food, then walk speed.
         </p>
         <ul className="mt-3 space-y-1 text-sm">
           <li>
             Instant (your character):{" "}
-            <span className={youInstant >= 100 ? "text-[#3ecfb3]" : "text-[#f0b429]"}>
+            <span className={youInstant >= 100 ? "text-gem" : "text-gold"}>
               {youInstant}%
             </span>{" "}
             {youInstant >= 100 ? "— capped" : `— need ${100 - youInstant}% more`}
           </li>
           <li>
             Perfect (your character):{" "}
-            <span className={youPerfect >= 100 ? "text-[#3ecfb3]" : "text-[#9bb5af]"}>
+            <span className={youPerfect >= 100 ? "text-gem" : "text-muted"}>
               {youPerfect}%
             </span>
           </li>
@@ -167,7 +167,7 @@ export function GearView({
             {totals.aw.perfectFood}% perfect · +{totals.aw.fasterWalk}% walk
           </li>
         </ul>
-        <p className="mt-3 text-xs text-[#9bb5af]">
+        <p className="mt-3 text-xs text-muted">
           City {account.city}: see the Builds tab for the recommended set in your
           range.
         </p>
@@ -186,8 +186,8 @@ export function GearView({
                 className={cn(
                   "rounded-lg border px-2 py-1 text-xs",
                   listSlot === s
-                    ? "border-[#f0b429] text-[#f0b429]"
-                    : "border-white/10 text-[#9bb5af]",
+                    ? "border-action text-gold"
+                    : "border-line text-muted",
                 )}
               >
                 {s === "all" ? "All" : SLOT_LABELS[s]}
@@ -206,7 +206,7 @@ export function GearView({
             .map((g) => (
               <div
                 key={g.id}
-                className="rounded-2xl border border-[#f0b429]/10 bg-black/20 p-3"
+                className="rounded-2xl border border-line bg-sunken p-3"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="flex min-w-0 items-center gap-2">
@@ -219,13 +219,13 @@ export function GearView({
                     </span>
                   </span>
                   <span
-                    className="text-[11px] uppercase"
+                    className="text-xs"
                     style={{ color: RARITY_COLORS[g.rarity] }}
                   >
                     {g.rarity}
                   </span>
                 </div>
-                <div className="text-xs text-[#9bb5af]">
+                <div className="text-xs text-muted">
                   {SLOT_LABELS[g.slot]} · {g.event}
                 </div>
                 <GearStatChips item={g} className="mt-1" />

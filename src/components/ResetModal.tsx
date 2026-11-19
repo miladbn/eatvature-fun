@@ -14,7 +14,7 @@ export function ResetModal({
 
   return (
     <div
-      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 p-4"
       role="presentation"
       onClick={onCancel}
     >
@@ -24,11 +24,11 @@ export function ResetModal({
         aria-labelledby="reset-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="reset-title" className="font-display text-2xl font-bold text-rose-300">
+        <h2 id="reset-title" className="font-display text-2xl font-bold">
           {t("resetTitle")}
         </h2>
-        <p className="mt-2 text-sm text-[#c5d5d0]">{t("resetBody")}</p>
-        <ul className="mt-3 list-inside list-disc text-sm text-[#9bb5af]">
+        <p className="mt-2 text-sm text-soft">{t("resetBody")}</p>
+        <ul className="mt-3 list-inside list-disc text-sm text-muted">
           <li>Vault levels & playstyle</li>
           <li>Gear, pets, arcane, inventory</li>
           <li>Club XP & notes</li>
@@ -40,7 +40,7 @@ export function ResetModal({
           </button>
           <button
             type="button"
-            className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white"
+            className="btn-primary"
             onClick={onConfirm}
           >
             {t("confirmWipe")}

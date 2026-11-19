@@ -15,11 +15,11 @@ export function MatrixView() {
 
   return (
     <div className="space-y-5">
-      <section className="ticket rounded-2xl p-5">
-        <h2 className="font-display text-3xl font-bold text-[#14201c]">
+      <section className="page-head">
+        <h2 className="font-display text-3xl font-bold text-ink">
           City matrix
         </h2>
-        <p className="mt-1 text-sm text-[#5c6f69]">
+        <p className="mt-1 text-sm text-muted">
           Pick a restaurant type to see which cities include it.
         </p>
       </section>
@@ -36,8 +36,8 @@ export function MatrixView() {
                 className={cn(
                   "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm",
                   selected === name
-                    ? "bg-[#f0b429] text-[#0b2422]"
-                    : "hover:bg-white/5",
+                    ? "bg-action text-on-action"
+                    : "hover:bg-raised",
                 )}
               >
                 <span>{name}</span>
@@ -51,7 +51,7 @@ export function MatrixView() {
 
         <section className="panel rounded-2xl p-4">
           <h3 className="font-display text-lg font-bold">{selected}</h3>
-          <p className="mt-1 text-sm text-[#9bb5af]">
+          <p className="mt-1 text-sm text-muted">
             Appears in {cities.length} cities
           </p>
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
@@ -63,8 +63,8 @@ export function MatrixView() {
                   className={cn(
                     "rounded-xl border px-2 py-2 text-xs",
                     on
-                      ? "border-[#3ecfb3]/40 bg-[#3ecfb3]/10 text-[#3ecfb3]"
-                      : "border-white/8 bg-black/15 text-[#9bb5af] opacity-45",
+                      ? "border-gem/40 bg-gem/10 text-gem"
+                      : "border-line bg-sunken text-muted opacity-45",
                   )}
                 >
                   <div className="font-medium">

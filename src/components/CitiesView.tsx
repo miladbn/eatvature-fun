@@ -49,49 +49,49 @@ export function CitiesView({
 
   return (
     <div className="space-y-6">
-      <section className="ticket rounded-2xl p-5 sm:p-6">
-        <p className="text-sm font-medium text-[#5c6f69]">City loop handbook</p>
-        <h2 className="mt-1 font-display text-3xl font-bold tracking-tight text-[#14201c]">
+      <section className="page-head">
+        <p className="text-sm font-medium text-muted">City loop handbook</p>
+        <h2 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink">
           {active.name}
         </h2>
-        <p className="mt-2 max-w-2xl text-sm text-[#5c6f69]">
+        <p className="mt-2 max-w-2xl text-sm text-muted">
           Every city pays a fixed gem total from its restaurants. Loop average is{" "}
           {AVG_GEMS_PER_CITY} gems · full 60-city loop is {formatGems(LOOP_GEMS)}.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl bg-white/70 p-3">
-            <div className="text-xs text-[#5c6f69]">Cities to max your vault</div>
-            <div className="mt-1 font-display text-2xl font-bold text-[#e8452d]">
+          <div className="stat-tile">
+            <div className="text-xs text-muted">Cities to max your vault</div>
+            <div className="mt-1 font-display text-2xl font-bold text-chili">
               {citiesToFull.toLocaleString()}
             </div>
-            <div className="mt-0.5 text-xs text-[#5c6f69]">
+            <div className="mt-0.5 text-xs text-muted">
               {formatGems(gemsToMaxVault)} gems left @ avg
             </div>
           </div>
-          <div className="rounded-xl bg-white/70 p-3">
-            <div className="text-xs text-[#5c6f69]">At your city rate</div>
+          <div className="stat-tile">
+            <div className="text-xs text-muted">At your city rate</div>
             <div className="mt-1 font-display text-2xl font-bold">
               {citiesAtYours.toLocaleString()}
             </div>
-            <div className="mt-0.5 text-xs text-[#5c6f69]">
+            <div className="mt-0.5 text-xs text-muted">
               {yourGems} gems in current city
             </div>
           </div>
-          <div className="rounded-xl bg-white/70 p-3">
-            <div className="text-xs text-[#5c6f69]">Priority cards only</div>
+          <div className="stat-tile">
+            <div className="text-xs text-muted">Priority cards only</div>
             <div className="mt-1 font-display text-2xl font-bold">
               {citiesPriority.toLocaleString()}
             </div>
-            <div className="mt-0.5 text-xs text-[#5c6f69]">
+            <div className="mt-0.5 text-xs text-muted">
               {formatGems(gemsToPriority)} gems
             </div>
           </div>
-          <div className="rounded-xl bg-white/70 p-3">
-            <div className="text-xs text-[#5c6f69]">Loops still needed</div>
+          <div className="stat-tile">
+            <div className="text-xs text-muted">Loops still needed</div>
             <div className="mt-1 font-display text-2xl font-bold">
               {loopsLeft.toFixed(1)}
             </div>
-            <div className="mt-0.5 text-xs text-[#5c6f69]">
+            <div className="mt-0.5 text-xs text-muted">
               This city pays {active.gems}
             </div>
           </div>
@@ -100,19 +100,19 @@ export function CitiesView({
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="stat-tile">
-          <div className="text-xs text-[#9bb5af]">Selected city gems</div>
+          <div className="text-xs text-muted">Selected city gems</div>
           <div className="mt-1 font-display text-2xl font-bold gold-text">
             {active.gems}
           </div>
         </div>
         <div className="stat-tile">
-          <div className="text-xs text-[#9bb5af]">Loop gem range</div>
+          <div className="text-xs text-muted">Loop gem range</div>
           <div className="mt-1 font-display text-2xl font-bold">
             {MIN_CITY_GEMS}–{MAX_CITY_GEMS}
           </div>
         </div>
         <div className="stat-tile">
-          <div className="text-xs text-[#9bb5af]">From-zero vault loops</div>
+          <div className="text-xs text-muted">From-zero vault loops</div>
           <div className="mt-1 font-display text-2xl font-bold">
             {(TOTAL_VAULT_GEMS / LOOP_GEMS).toFixed(1)}
           </div>
@@ -139,8 +139,8 @@ export function CitiesView({
                 className={cn(
                   "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition",
                   selected === c.id
-                    ? "bg-[#f0b429] text-[#0b2422]"
-                    : "hover:bg-white/5",
+                    ? "bg-action text-on-action"
+                    : "hover:bg-raised",
                 )}
               >
                 <span>
@@ -155,7 +155,7 @@ export function CitiesView({
 
         <section className="panel rounded-2xl p-4 sm:p-5">
           <h3 className="font-display text-xl font-bold">Restaurants</h3>
-          <p className="mt-1 text-sm text-[#9bb5af]">
+          <p className="mt-1 text-sm text-muted">
             {restaurants
               ? `Gem payouts inside ${restaurants.cityName}.`
               : "Detailed restaurant list isn’t in the handbook for this city number — gem total still matches the city table."}
@@ -165,24 +165,24 @@ export function CitiesView({
               {restaurants.restaurants.map((r) => (
                 <div
                   key={r.name}
-                  className="flex items-center justify-between rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-sm"
+                  className="flex items-center justify-between rounded-xl border border-line bg-sunken px-3 py-2 text-sm"
                 >
                   <span>{r.name}</span>
                   <span className="gem-text font-medium">{r.gems} gems</span>
                 </div>
               ))}
-              <div className="flex items-center justify-between border-t border-white/10 pt-3 text-sm font-semibold">
+              <div className="flex items-center justify-between border-t border-line pt-3 text-sm font-semibold">
                 <span>City total</span>
                 <span className="gold-text">{restaurants.totalGems} gems</span>
               </div>
-              <p className="pt-2 text-xs text-[#9bb5af]">
+              <p className="pt-2 text-xs text-muted">
                 At this city’s {active.gems} gems, your remaining vault needs about{" "}
                 {citiesNeededForGems(gemsToMaxVault, active.gems).toLocaleString()}{" "}
                 clears of {active.name}.
               </p>
             </div>
           ) : (
-            <div className="mt-4 rounded-xl border border-dashed border-white/15 p-4 text-sm text-[#9bb5af]">
+            <div className="mt-4 rounded-xl border border-dashed border-line p-4 text-sm text-muted">
               No restaurant rows for this city index. Lowest payouts: Toronto &
               Pittsburgh (154). Highest: Lyon, Budapest, Madrid, Zagreb (208).
             </div>

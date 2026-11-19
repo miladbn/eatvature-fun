@@ -35,7 +35,7 @@ export function ClubView({
     <div className="space-y-6">
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Club Tracker</h2>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           {formatGems(CLUB_MAX_XP)} club XP unlocks every reward. Split across 10
           members that is {formatGems(CLUB_EQUAL_SHARE_XP)} XP each.
         </p>
@@ -60,18 +60,18 @@ export function ClubView({
             />
           </Field>
           <Field label="Next club reward">
-            <div className="rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 text-sm text-[#f0b429]">
+            <div className="rounded-xl border border-line bg-sunken px-3 py-2 text-sm text-gold">
               {next ? `Lv ${next.level}: ${next.reward}` : "All rewards unlocked"}
             </div>
           </Field>
         </div>
-        <div className="mt-4 h-3 overflow-hidden rounded-lg bg-black/40">
+        <div className="mt-4 h-3 overflow-hidden rounded-lg bg-sunken">
           <div
-            className="h-full rounded-lg bg-gradient-to-r from-[#f0b429] to-[#3ecfb3]"
+            className="h-full rounded-lg bg-action"
             style={{ width: `${share}%` }}
           />
         </div>
-        <p className="mt-2 text-xs text-[#9bb5af]">
+        <p className="mt-2 text-xs text-muted">
           Your contribution: {formatGems(account.clubXp)} /{" "}
           {formatGems(CLUB_EQUAL_SHARE_XP)} XP ({share.toFixed(1)}%)
         </p>
@@ -98,7 +98,7 @@ export function ClubView({
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="panel rounded-3xl p-5">
           <h3 className="font-display text-xl">Club information</h3>
-          <ul className="mt-2 space-y-1 text-sm text-[#c5d5d0]">
+          <ul className="mt-2 space-y-1 text-sm text-soft">
             {CLUB_INFO.map((i) => (
               <li key={i}>• {i}</li>
             ))}
@@ -108,7 +108,7 @@ export function ClubView({
             {CLUB_TOTAL_REWARDS.map((r) => (
               <span
                 key={r}
-                className="rounded-lg border border-[#f0b429]/20 bg-black/20 px-2 py-1 text-xs text-[#f0b429]"
+                className="rounded-lg border border-line bg-sunken px-2 py-1 text-xs text-gold"
               >
                 {r}
               </span>
@@ -118,7 +118,7 @@ export function ClubView({
         <div className="panel rounded-3xl p-5">
           <h3 className="font-display text-xl">Salvage for club XP</h3>
           <table className="data-table mt-3 w-full text-left text-sm">
-            <thead className="text-[#9bb5af]">
+            <thead className="text-muted">
               <tr>
                 <th className="px-2 py-1">Box</th>
                 <th className="px-2 py-1 text-right">XP (incl. eggs)</th>
@@ -127,16 +127,16 @@ export function ClubView({
             </thead>
             <tbody>
               {CLUB_SALVAGE.map((s) => (
-                <tr key={s.type} className="border-t border-white/8">
+                <tr key={s.type} className="border-t border-line">
                   <td className="px-2 py-1.5">{s.type}</td>
-                  <td className="px-2 py-1.5 text-right text-[#f0b429]">{s.xp}</td>
-                  <td className="px-2 py-1.5 text-right text-[#9bb5af]">{s.cost}</td>
+                  <td className="px-2 py-1.5 text-right text-gold">{s.xp}</td>
+                  <td className="px-2 py-1.5 text-right text-muted">{s.cost}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           <h4 className="mt-4 text-sm font-semibold">XP needed per player</h4>
-          <ul className="mt-1 space-y-0.5 text-xs text-[#c5d5d0]">
+          <ul className="mt-1 space-y-0.5 text-xs text-soft">
             {CLUB_XP_PER_PLAYER.map((p) => (
               <li key={p.levels} className="flex justify-between">
                 <span>{p.levels}</span>
@@ -153,12 +153,12 @@ export function ClubView({
           {SALVAGE_XP.map((item) => (
             <div
               key={item.name}
-              className="flex items-center justify-between rounded-xl border border-[#f0b429]/10 bg-black/20 px-3 py-2"
+              className="flex items-center justify-between rounded-xl border border-line bg-sunken px-3 py-2"
             >
               <span className="text-sm" style={{ color: RARITY_COLORS[item.rarity] }}>
                 {item.name}
               </span>
-              <span className="text-sm font-medium text-[#f0b429]">{item.xp} XP</span>
+              <span className="text-sm font-medium text-gold">{item.xp} XP</span>
             </div>
           ))}
         </div>
@@ -168,7 +168,7 @@ export function ClubView({
         <h3 className="font-display text-xl">All club levels</h3>
         <div className="mt-3 max-h-[32rem] overflow-auto">
           <table className="data-table w-full min-w-[420px] text-left text-sm">
-            <thead className="sticky top-0 bg-[#0b2422] text-[#9bb5af]">
+            <thead className="sticky top-0 bg-ground text-muted">
               <tr>
                 <th className="px-2 py-1">Level</th>
                 <th className="px-2 py-1">Reward</th>
@@ -181,8 +181,8 @@ export function ClubView({
                 <tr
                   key={cl.level}
                   className={cn(
-                    "border-t border-white/8",
-                    level >= cl.level && "bg-[#3ecfb3]/5 text-[#3ecfb3]",
+                    "border-t border-line",
+                    level >= cl.level && "bg-gem/5 text-gem",
                   )}
                 >
                   <td className="px-2 py-1.5">{cl.level}</td>
@@ -190,7 +190,7 @@ export function ClubView({
                   <td className="px-2 py-1.5 text-right">
                     {cl.xpNeeded ? formatGems(cl.xpNeeded) : "—"}
                   </td>
-                  <td className="px-2 py-1.5 text-right text-[#f0b429]">
+                  <td className="px-2 py-1.5 text-right text-gold">
                     {formatGems(cl.totalXp)}
                   </td>
                 </tr>

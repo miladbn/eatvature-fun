@@ -384,11 +384,11 @@ export default function App() {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 text-[#f0b429]">
-        <div className="brand-mark animate-pulse" aria-hidden="true">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+        <div className="brand-mark" aria-hidden="true">
           EV
         </div>
-        <p className="text-sm text-[#9bb5af]">Opening the vault…</p>
+        <p className="text-sm text-muted">Opening the vault…</p>
       </div>
     );
   }
@@ -416,7 +416,10 @@ export default function App() {
   ).length;
   
   return (
-    <div className="relative min-h-screen overflow-x-hidden text-[var(--ink)]">
+    <div className="relative min-h-screen overflow-x-hidden text-ink">
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
       <Analytics />
       <CommandPalette
         tabs={localizedTabs}
@@ -430,32 +433,21 @@ export default function App() {
         onCancel={() => setConfirmReset(false)}
         onConfirm={resetAll}
       />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] kitchen-grid opacity-40 [mask-image:linear-gradient(180deg,black,transparent)]" />
-      <div
-        className="hero-bg pointer-events-none absolute inset-x-0 top-0 h-[380px] opacity-25"
-        style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgba(11,36,34,0.2), #0b2422), url('/images/hero-vault.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center 28%",
-        }}
-      />
-
       <header className="app-header sticky top-0 z-30">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           <button
             type="button"
             onClick={() => setTab("overview")}
-            className="flex min-w-0 items-center gap-3 text-left"
+            className="flex min-h-11 min-w-0 items-center gap-3 text-left"
           >
             <div className="brand-mark shrink-0" aria-hidden="true">
               EV
             </div>
             <div className="min-w-0">
-              <p className="truncate font-display text-lg font-extrabold leading-tight tracking-tight text-[#f0b429] sm:text-xl">
+              <p className="truncate font-display text-[17px] font-semibold leading-tight">
                 Eatventure Handbook
               </p>
-              <p className="hidden text-xs text-[#9bb5af] sm:block">
+              <p className="hidden text-xs text-muted sm:block">
                 v{HANDBOOK_META.handbookVersion} · patch {HANDBOOK_META.gamePatch}
               </p>
             </div>
@@ -507,23 +499,26 @@ export default function App() {
         </div>
       </div>
 
-      <main className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pb-24 pt-4 sm:px-6 sm:pt-6 lg:grid-cols-[220px_1fr]">
+      <main
+        id="main"
+        className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pb-24 pt-4 sm:px-6 sm:pt-8 lg:grid-cols-[232px_1fr] lg:gap-10"
+      >
         <nav
-          className="nav-rail min-w-0 lg:sticky lg:top-[84px] lg:max-h-[calc(100vh-100px)] lg:self-start lg:overflow-y-auto"
+          className="nav-rail min-w-0 lg:sticky lg:top-[96px] lg:max-h-[calc(100vh-112px)] lg:self-start lg:overflow-y-auto"
           aria-label={t("sections")}
         >
           <button
             type="button"
             onClick={() => setTab("cities")}
-            className="city-card mb-3 hidden lg:block"
+            className="city-card mb-4 hidden lg:block"
           >
-            <span className="block text-xs font-medium text-[#9bb5af]">
+            <span className="block text-xs font-medium text-muted">
               Current city
             </span>
-            <span className="mt-0.5 block font-display text-2xl font-bold leading-none text-[#f0b429]">
+            <span className="mt-1 block font-display text-3xl font-semibold leading-none">
               {account.city || 1}
             </span>
-            <span className="mt-1 block truncate text-xs text-[#c5d5d0]">
+            <span className="mt-1 block truncate text-xs text-soft">
               {cityMeta.name}
               {account.name ? ` · ${account.name}` : ""}
             </span>
@@ -726,28 +721,42 @@ function Onboarding({
   onSkip: () => void;
 }) {
   return (
-    <div className="relative min-h-screen bg-[#0b2422] text-[#f2f5f3]">
+    <div className="min-h-screen bg-ground text-ink">
       <Analytics />
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgba(9,7,4,0.25), rgba(9,7,4,0.78) 55%, #0b2422), url('/images/hero-vault.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
-      <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-4 py-10">
-        <div className="panel shine rounded-[32px] p-6 sm:p-10">
-          <p className="text-xs tracking-wide text-[#f0b429]/80">
-            Step {step + 1} of 4
-          </p>
+      <div className="mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-10 lg:py-10">
+        <div className="relative overflow-hidden rounded-2xl border border-line lg:order-2 lg:h-[calc(100vh-80px)] lg:max-h-[860px]">
+          <img
+            src="/images/hero-vault.jpg"
+            alt="An open vault door with stacks of gold coins and glowing gems"
+            className="aspect-[16/9] h-full w-full object-cover object-[30%_50%] lg:aspect-auto"
+          />
+        </div>
+        <div className="panel rounded-2xl p-6 sm:p-10 lg:order-1">
+          <div className="flex items-center gap-3">
+            <div className="brand-mark shrink-0" aria-hidden="true">
+              EV
+            </div>
+            <p className="text-sm font-medium text-muted">
+              Step {step + 1} of 4
+            </p>
+            <div className="ml-auto flex gap-1.5" aria-hidden="true">
+              {[0, 1, 2, 3].map((i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    "h-1 w-6 rounded-full",
+                    i <= step ? "bg-action" : "bg-raised",
+                  )}
+                />
+              ))}
+            </div>
+          </div>
           {step === 0 && (
             <div className="rise">
-              <h1 className="mt-3 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
+              <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
                 Crack the vault.
               </h1>
-              <p className="mt-4 max-w-lg text-[#9bb5af]">
+              <p className="mt-4 max-w-lg text-muted">
                 Track your Eatventure account from the Spectre handbook — vault,
                 cities, gear, pets, club, and arcane. Saved on this device.
               </p>
@@ -822,12 +831,12 @@ function Onboarding({
                   />
                 </Field>
               </div>
-              <label className="flex items-center gap-3 rounded-2xl border border-[#f0b429]/15 bg-black/20 px-4 py-3 text-sm">
+              <label className="flex items-center gap-3 rounded-2xl border border-line bg-sunken px-4 py-3 text-sm">
                 <input
                   type="checkbox"
                   checked={account.hasPanda}
                   onChange={(e) => update("hasPanda", e.target.checked)}
-                  className="accent-[#f0b429]"
+                  className="accent-action"
                 />
                 I own the Legendary Panda (skip Register upgrades)
               </label>
@@ -841,14 +850,14 @@ function Onboarding({
                       className={cn(
                         "rounded-2xl border px-3 py-3 text-left",
                         account.playstyle === id
-                          ? "border-[#f0b429] bg-[#f0b429]/10"
-                          : "border-[#f0b429]/15 bg-black/20",
+                          ? "border-action bg-action/10"
+                          : "border-line bg-sunken",
                       )}
                     >
                       <div className="text-sm font-medium">
                         {PLAYSTYLE_META[id].name}
                       </div>
-                      <div className="mt-1 text-xs text-[#9bb5af]">
+                      <div className="mt-1 text-xs text-muted">
                         {PLAYSTYLE_META[id].tagline}
                       </div>
                     </button>
@@ -859,14 +868,14 @@ function Onboarding({
                 <button
                   type="button"
                   onClick={() => setStep(0)}
-                  className="text-sm text-[#9bb5af]"
+                  className="min-h-11 px-1 text-sm text-muted hover:text-ink"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="rounded-lg bg-[#f0b429] px-5 py-2.5 text-sm font-semibold text-[#0b2422]"
+                  className="btn-primary"
                 >
                   Set vault levels
                 </button>
@@ -876,7 +885,7 @@ function Onboarding({
           {step === 2 && (
             <div className="rise">
               <h2 className="mt-3 font-display text-3xl">Current vault</h2>
-              <p className="mt-2 text-sm text-[#9bb5af]">
+              <p className="mt-2 text-sm text-muted">
                 0 means locked. Unlocking a later card will auto-unlock the ones
                 before it.
               </p>
@@ -884,7 +893,7 @@ function Onboarding({
                 <button
                   type="button"
                   onClick={() => update("levels", { ...EMPTY_LEVELS })}
-                  className="rounded-lg border border-[#f0b429]/20 px-3 py-1.5 text-xs"
+                  className="btn-secondary"
                 >
                   All locked
                 </button>
@@ -895,7 +904,7 @@ function Onboarding({
                     VAULT_ITEMS.forEach((i) => (l[i.id] = 1));
                     update("levels", l);
                   }}
-                  className="rounded-lg border border-[#f0b429]/20 px-3 py-1.5 text-xs"
+                  className="btn-secondary"
                 >
                   All unlocked at 1
                 </button>
@@ -915,14 +924,14 @@ function Onboarding({
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-sm text-[#9bb5af]"
+                  className="min-h-11 px-1 text-sm text-muted hover:text-ink"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(3)}
-                  className="rounded-lg bg-[#f0b429] px-5 py-2.5 text-sm font-semibold text-[#0b2422]"
+                  className="btn-primary"
                 >
                   Quick check
                 </button>
@@ -932,7 +941,7 @@ function Onboarding({
           {step === 3 && (
             <div className="rise">
               <h2 className="mt-3 font-display text-3xl">Quick check</h2>
-              <p className="mt-2 text-sm text-[#9bb5af]">
+              <p className="mt-2 text-sm text-muted">
                 For city {account.city || 1}, here is how your vault compares to
                 Spectre handbook targets.
               </p>
@@ -943,14 +952,14 @@ function Onboarding({
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="text-sm text-[#9bb5af]"
+                  className="min-h-11 px-1 text-sm text-muted hover:text-ink"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={onDone}
-                  className="rounded-lg bg-[#f0b429] px-5 py-2.5 text-sm font-semibold text-[#0b2422]"
+                  className="btn-primary"
                 >
                   Build my plan
                 </button>
@@ -966,16 +975,16 @@ function Onboarding({
 function OnboardingProgressCheck({ account }: { account: Account }) {
   const report = evaluateCityProgress(account);
   return (
-    <div className="rounded-2xl border border-[#f0b429]/25 bg-black/30 p-4">
-      <p className="font-display text-2xl font-bold text-[#f0b429]">
+    <div className="rounded-2xl border border-line bg-sunken p-4">
+      <p className="font-display text-2xl font-bold text-ink">
         {report.label}
       </p>
-      <p className="mt-2 text-sm text-[#c5d5d0]">{report.summary}</p>
-      <p className="mt-2 text-xs text-[#9bb5af]">
+      <p className="mt-2 text-sm text-soft">{report.summary}</p>
+      <p className="mt-2 text-xs text-muted">
         Score {report.scorePct}% · {report.met}/{report.total} targets met
       </p>
       {report.behind.length > 0 && (
-        <ul className="mt-3 space-y-1 text-sm text-rose-300">
+        <ul className="mt-3 space-y-1 text-sm text-chili">
           {report.behind.slice(0, 4).map((b) => (
             <li key={b.id}>
               {b.name}: {b.have}/{b.need}
@@ -1060,7 +1069,7 @@ function Overview({
           {t("emptyVault")}{" "}
           <button
             type="button"
-            className="text-[#f0b429] underline"
+            className="text-gold underline"
             onClick={() => onOpenTab("vault")}
           >
             {t("vault")}
@@ -1074,7 +1083,7 @@ function Overview({
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="ticket-eyebrow">Next kitchen ticket</p>
-                <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-[#14201c]">
+                <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-ink">
                   {next
                     ? `${next.kind === "unlock" ? "Unlock" : "Upgrade"} ${ITEM_MAP[next.itemId].name}`
                     : "Vault is finished."}
@@ -1082,10 +1091,10 @@ function Overview({
               </div>
               {next && (
                 <div className="ticket-price">
-                  <span className="font-display text-3xl font-extrabold text-[#b3301a]">
+                  <span className="font-display text-3xl font-semibold text-chili">
                     {formatGems(next.cost)}
                   </span>
-                  <span className="text-xs text-[#5c6f69]">gems</span>
+                  <span className="text-xs text-muted">gems</span>
                 </div>
               )}
             </div>
@@ -1098,13 +1107,13 @@ function Overview({
                   <VaultIcon id={next.itemId} className="h-12 w-12" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-[#2a3d38]">
+                  <p className="text-sm font-medium text-soft">
                     {next.kind === "unlock"
                       ? `Open ${ITEM_MAP[next.itemId].name} at level 1`
                       : `Level ${next.from} → ${next.to}, ${formatEffect(next.itemId, next.to)}`}
                   </p>
-                  <p className="mt-1 text-sm text-[#5c6f69]">{next.reason}</p>
-                  <p className="mt-1 text-xs font-medium text-[#b3301a]">
+                  <p className="mt-1 text-sm text-muted">{next.reason}</p>
+                  <p className="mt-1 text-xs font-medium text-chili">
                     {next.phaseName}: {ITEM_MAP[next.itemId].effectLabel}
                   </p>
                 </div>
@@ -1130,40 +1139,40 @@ function Overview({
         </article>
         <div className="grid grid-cols-2 gap-3 content-start">
           <div className="stat-tile stat-tile--hero">
-            <div className="text-xs font-medium text-[#9bb5af]">
+            <div className="text-xs font-medium text-muted">
               Cities to max vault
             </div>
-            <div className="mt-1 font-display text-3xl font-extrabold text-[#e8452d]">
+            <div className="mt-1 font-display text-3xl font-semibold text-chili">
               {citiesToFull.toLocaleString()}
             </div>
-            <p className="mt-1 text-xs text-[#9bb5af]">
+            <p className="mt-1 text-xs text-muted">
               ~{AVG_GEMS_PER_CITY} gems/city · {formatGems(maxLeft)} gems left
             </p>
           </div>
           <div className="stat-tile">
-            <div className="text-xs text-[#9bb5af]">At your city rate</div>
+            <div className="text-xs text-muted">At your city rate</div>
             <div className="mt-1 font-display text-2xl font-bold gold-text">
               {citiesAtCurrent.toLocaleString()}
             </div>
-            <p className="mt-1 text-xs text-[#9bb5af]">
+            <p className="mt-1 text-xs text-muted">
               {cityMeta.name} pays {cityMeta.gems} gems
             </p>
           </div>
           <div className="stat-tile">
-            <div className="text-xs text-[#9bb5af]">Priority path only</div>
+            <div className="text-xs text-muted">Priority path only</div>
             <div className="mt-1 font-display text-2xl font-bold gem-text">
               {citiesToPriority.toLocaleString()}
             </div>
-            <p className="mt-1 text-xs text-[#9bb5af]">
+            <p className="mt-1 text-xs text-muted">
               Upgrade-when-possible cards · {formatGems(priorityLeft)} gems
             </p>
           </div>
           <div className="stat-tile">
-            <div className="text-xs text-[#9bb5af]">60-city loops left</div>
+            <div className="text-xs text-muted">60-city loops left</div>
             <div className="mt-1 font-display text-2xl font-bold">
               {loopsToFull.toFixed(1)}
             </div>
-            <p className="mt-1 text-xs text-[#9bb5af]">
+            <p className="mt-1 text-xs text-muted">
               {formatGems(LOOP_GEMS)} gems per full loop
             </p>
           </div>
@@ -1181,7 +1190,7 @@ function Overview({
 
         <div className="panel rounded-2xl p-5">
           <h3 className="font-display text-xl font-bold">What to focus on</h3>
-          <p className="mt-1 text-sm text-[#9bb5af]">
+          <p className="mt-1 text-sm text-muted">
             Based on your vault levels, city {account.city || 1}, and{" "}
             {PLAYSTYLE_META[account.playstyle].name}.
           </p>
@@ -1190,24 +1199,20 @@ function Overview({
               <div
                 key={tip.title}
                 className={cn(
-                  "rounded-xl border px-3 py-3",
-                  tip.tone === "now" &&
-                    "border-[#e8452d]/40 bg-[#e8452d]/10",
-                  tip.tone === "soon" &&
-                    "border-[#f0b429]/30 bg-[#f0b429]/8",
-                  tip.tone === "later" && "border-white/10 bg-black/20",
-                  tip.tone === "done" &&
-                    "border-[#3ecfb3]/30 bg-[#3ecfb3]/8",
+                  "rounded-xl border px-3.5 py-3",
+                  tip.tone === "now"
+                    ? "border-action/50 bg-sunken"
+                    : "border-line bg-sunken",
                 )}
               >
                 <div className="flex items-center gap-2">
                   <span
                     className={cn(
-                      "rounded px-1.5 py-0.5 text-[11px] font-semibold",
-                      tip.tone === "now" && "bg-[#e8452d] text-white",
-                      tip.tone === "soon" && "bg-[#f0b429] text-[#0b2422]",
-                      tip.tone === "later" && "bg-white/10 text-[#9bb5af]",
-                      tip.tone === "done" && "bg-[#3ecfb3] text-[#0b2422]",
+                      "rounded-md px-1.5 py-0.5 text-xs font-semibold",
+                      tip.tone === "now" && "bg-action text-on-action",
+                      tip.tone === "soon" && "bg-gold/15 text-gold",
+                      tip.tone === "later" && "bg-raised text-muted",
+                      tip.tone === "done" && "bg-gem/15 text-gem",
                     )}
                   >
                     {tip.tone === "now"
@@ -1220,7 +1225,7 @@ function Overview({
                   </span>
                   <span className="font-medium">{tip.title}</span>
                 </div>
-                <p className="mt-1 text-xs text-[#9bb5af]">{tip.detail}</p>
+                <p className="mt-1 text-xs text-muted">{tip.detail}</p>
               </div>
             ))}
           </div>
@@ -1229,13 +1234,13 @@ function Overview({
         <div className="panel rounded-2xl p-5">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="font-display text-xl font-bold">Coming up</h3>
-            <span className="text-xs text-[#9bb5af]">
+            <span className="text-xs text-muted">
               {plan.length} steps left
             </span>
           </div>
           <div className="space-y-2">
             {nextFive.length === 0 && (
-              <p className="text-sm text-[#9bb5af]">
+              <p className="text-sm text-muted">
                 Nothing left on this path.
               </p>
             )}
@@ -1259,7 +1264,7 @@ function Overview({
         <GearMatchCard account={account} />
         <div className="panel rounded-2xl p-5">
           <h3 className="font-display text-xl font-bold">Your multipliers</h3>
-          <p className="mt-1 text-sm text-[#9bb5af]">
+          <p className="mt-1 text-sm text-muted">
             Live vault effects at your current levels.
           </p>
           <div className="mt-4 space-y-3">
@@ -1274,13 +1279,13 @@ function Overview({
                     {row.current}
                   </span>
                 </div>
-                <div className="mt-1 flex items-center justify-between text-xs text-[#9bb5af]">
+                <div className="mt-1 flex items-center justify-between text-xs text-muted">
                   <span>
                     Lv {row.level}/{row.maxLevel} · max {row.max}
                   </span>
                   <PriorityBadge priority={row.priority} />
                 </div>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-black/40">
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-sunken">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -1296,17 +1301,17 @@ function Overview({
 
         <div className="panel rounded-2xl p-5">
           <h3 className="font-display text-xl font-bold">Account snapshot</h3>
-          <p className="mt-1 text-sm text-[#9bb5af]">
+          <p className="mt-1 text-sm text-muted">
             {PLAYSTYLE_META[account.playstyle].name} · {cityMeta.name} (city{" "}
             {account.city || 1}) · {cityMeta.gems} gems here
           </p>
-          <div className="mt-4 rounded-xl border border-[#f0b429]/20 bg-black/20 p-4">
-            <p className="text-xs tracking-wide text-[#f0b429]">
+          <div className="mt-4 rounded-xl border border-line bg-sunken p-4">
+            <p className="text-xs font-medium text-muted">
               Handbook phase
             </p>
             <p className="mt-1 font-display text-2xl font-bold">{phase?.name}</p>
-            <p className="mt-1 text-sm text-[#9bb5af]">{phase?.blurb}</p>
-            <p className="mt-2 text-xs text-[#f0b429]/80">{phase?.cityRange}</p>
+            <p className="mt-1 text-sm text-muted">{phase?.blurb}</p>
+            <p className="mt-2 text-xs text-muted">{phase?.cityRange}</p>
           </div>
           <dl className="mt-4 space-y-2 text-sm">
             <Row k="Gems invested" v={formatGems(invested)} />
@@ -1334,21 +1339,21 @@ function Overview({
             />
           </dl>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-[#f0b429]/15">
+        <div className="overflow-hidden rounded-2xl border border-line">
           <img
             src="/images/gold-coins.png"
             alt=""
             className="h-40 w-full object-cover opacity-90"
           />
-          <div className="bg-[#102a27] p-4 text-xs text-[#9bb5af]">
+          <div className="bg-surface p-4 text-xs text-muted">
             Full vault from zero is{" "}
-            <span className="text-[#f0b429]">
+            <span className="text-gold">
               {formatGems(TOTAL_VAULT_GEMS)}
             </span>{" "}
             gems (~
             {Math.ceil(TOTAL_VAULT_GEMS / AVG_GEMS_PER_CITY).toLocaleString()}{" "}
             cities). You still need about{" "}
-            <span className="text-[#3ecfb3]">
+            <span className="text-gem">
               {citiesToFull.toLocaleString()} cities
             </span>{" "}
             or {loopsToFull.toFixed(1)} loops from where you are.
@@ -1439,7 +1444,7 @@ function AccountEditor({
             type="checkbox"
             checked={account.hasPanda}
             onChange={(e) => update("hasPanda", e.target.checked)}
-            className="accent-[#f0b429]"
+            className="accent-action"
           />{" "}
           Legendary Panda owned
         </label>
@@ -1448,7 +1453,7 @@ function AccountEditor({
             type="checkbox"
             checked={spendGems}
             onChange={(e) => setSpendGems(e.target.checked)}
-            className="accent-[#3ecfb3]"
+            className="accent-gem"
           />{" "}
           Subtract gems when I complete a step
         </label>
@@ -1465,14 +1470,14 @@ function AccountEditor({
             ))}
           </select>
         </Field>
-        <p className="text-xs text-[#9bb5af]">
+        <p className="text-xs text-muted">
           {PLAYSTYLE_META[account.playstyle].tagline}
         </p>
         <div className="flex flex-wrap gap-2 pt-2">
           <button
             type="button"
             onClick={() => update("levels", { ...EMPTY_LEVELS })}
-            className="rounded-lg border border-[#f0b429]/20 px-3 py-1.5 text-xs"
+            className="btn-secondary"
           >
             Lock all
           </button>
@@ -1483,14 +1488,14 @@ function AccountEditor({
               VAULT_ITEMS.forEach((i) => (l[i.id] = 1));
               update("levels", l);
             }}
-            className="rounded-lg border border-[#f0b429]/20 px-3 py-1.5 text-xs"
+            className="btn-secondary"
           >
             Unlock all
           </button>
           <button
             type="button"
             onClick={() => setConfirmReset(true)}
-            className="rounded-lg border border-rose-400/30 px-3 py-1.5 text-xs text-rose-300"
+            className="rounded-lg border border-chili/40 px-3 py-1.5 text-xs text-chili"
           >
             Reset saved data
           </button>
@@ -1511,7 +1516,7 @@ function AccountEditor({
                   <h3 className="truncate font-medium">{item.name}</h3>
                   <PriorityBadge priority={item.priority} />
                 </div>
-                <p className="text-xs text-[#9bb5af]">{item.effectLabel}</p>
+                <p className="text-xs text-muted">{item.effectLabel}</p>
               </div>
             </div>
             <LevelRow
@@ -1520,7 +1525,7 @@ function AccountEditor({
               levels={account.levels}
               onChange={(n) => setLevel(item.id, n)}
             />
-            <div className="mt-2 flex justify-between text-xs text-[#9bb5af]">
+            <div className="mt-2 flex justify-between text-xs text-muted">
               <span>Now {formatEffect(item.id, account.levels[item.id])}</span>
               <span>
                 {account.levels[item.id] >= item.maxLevel
@@ -1528,7 +1533,7 @@ function AccountEditor({
                   : `${formatGems(upgradeCost(item.id, account.levels[item.id] + 1))} next · ${formatGems(costToMax(item.id, account.levels[item.id]))} to max`}
               </span>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-black/40">
+            <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-sunken">
               <div
                 className="h-full rounded-lg"
                 style={{
@@ -1576,7 +1581,7 @@ function PlanView({
           <h2 className="font-display text-2xl">
             {totals.count} steps · {formatGems(totals.cost)} gems
           </h2>
-          <p className="text-sm text-[#9bb5af]">
+          <p className="text-sm text-muted">
             With {formatGems(account.gems)} gems you can finish the next{" "}
             {budget.count} steps ({formatGems(budget.spent)} spent,{" "}
             {formatGems(Math.max(0, budget.leftover))} left).
@@ -1588,7 +1593,7 @@ function PlanView({
               type="checkbox"
               checked={spendGems}
               onChange={(e) => setSpendGems(e.target.checked)}
-              className="accent-[#3ecfb3]"
+              className="accent-gem"
             />{" "}
             Spend gems on complete
           </label>
@@ -1596,7 +1601,7 @@ function PlanView({
             type="button"
             onClick={onBurst}
             disabled={plan.length === 0}
-            className="rounded-lg bg-[#3ecfb3] px-4 py-2 text-sm font-semibold text-[#0a2a27] disabled:opacity-40"
+            className="btn-primary"
           >
             Complete next affordable
           </button>
@@ -1612,14 +1617,14 @@ function PlanView({
                 <div className="flex items-center gap-2">
                   <h3 className="font-display text-2xl">{group.phaseName}</h3>
                   {active && (
-                    <span className="rounded-lg bg-[#f0b429] px-2 py-0.5 text-[11px] font-semibold tracking-wide text-[#0b2422] uppercase">
+                    <span className="rounded-lg bg-action px-2 py-0.5 text-xs font-semibold text-on-action">
                       your city
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-[#9bb5af]">{meta?.blurb}</p>
+                <p className="text-sm text-muted">{meta?.blurb}</p>
               </div>
-              <p className="text-sm text-[#f0b429]">
+              <p className="text-sm text-muted">
                 {group.steps.length} steps ·{" "}
                 {formatGems(group.steps.reduce((s, x) => s + x.cost, 0))} gems
               </p>
@@ -1646,7 +1651,7 @@ function PlanView({
       {plan.length === 0 && (
         <div className="panel rounded-3xl p-10 text-center">
           <p className="font-display text-3xl">The vault is complete.</p>
-          <p className="mt-2 text-[#9bb5af]">
+          <p className="mt-2 text-muted">
             Every card on this structure is already maxed.
           </p>
         </div>
@@ -1697,7 +1702,7 @@ function TotalsView({
       <div className="panel overflow-hidden rounded-3xl">
         <div className="overflow-x-auto">
           <table className="data-table w-full min-w-[720px] text-left text-sm">
-            <thead className="bg-black/30 text-xs tracking-wide text-[#f0b429]">
+            <thead className="bg-sunken text-xs">
               <tr>
                 <th className="px-4 py-3">Item</th>
                 <th className="px-4 py-3">Priority</th>
@@ -1711,13 +1716,13 @@ function TotalsView({
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.item.id} className="border-t border-[#f0b429]/10">
+                <tr key={row.item.id} className="border-t border-line">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <VaultIcon id={row.item.id} className="h-8 w-8" />
                       <div>
                         <div>{row.item.name}</div>
-                        <div className="text-xs text-[#9bb5af]">
+                        <div className="text-xs text-muted">
                           Unlock{" "}
                           {row.item.unlockCost === 0
                             ? "Free"
@@ -1751,7 +1756,7 @@ function TotalsView({
           </table>
         </div>
       </div>
-      <p className="text-xs text-[#9bb5af]">
+      <p className="text-xs text-muted">
         Source: Spectre Eatventure Handbook. Level costs match the public vault
         sheet. City estimates use ~{AVG_GEMS_PER_CITY} gems per city (
         {formatGems(LOOP_GEMS)} per 60-city loop) and ignore event / investor
@@ -1782,7 +1787,7 @@ function ArcaneView({
     <div className="space-y-6">
       <div className="panel rounded-3xl p-5">
         <h2 className="font-display text-2xl">Arcane Vault</h2>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           Potion Shop event vault. Scrolls carry over between events. Earn up to
           150 per event (with pass).
         </p>
@@ -1797,7 +1802,7 @@ function ArcaneView({
             />
           </Field>
           <Field label="Scrolls used">
-            <div className="rounded-xl border border-[#f0b429]/20 bg-black/30 px-3 py-2 text-[#f0b429]">
+            <div className="rounded-xl border border-line bg-sunken px-3 py-2 text-scroll">
               {formatGems(totalScrollsUsed)} /{" "}
               {formatGems(TOTAL_SCROLLS_TO_MAX)}
             </div>
@@ -1832,12 +1837,12 @@ function ArcaneView({
                 <ItemIcon src={arcaneIconUrl(item.id)} className="h-10 w-10" />
                 {item.name}
               </h3>
-              <p className="text-xs text-[#9bb5af]">{item.description}</p>
+              <p className="text-xs text-muted">{item.description}</p>
               <div className="mt-2 flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setArcaneLevel(item.id, level - 1)}
-                  className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
+                  className="h-9 w-9 rounded border border-line text-sm"
                 >
                   −
                 </button>
@@ -1849,20 +1854,20 @@ function ArcaneView({
                   onChange={(e) =>
                     setArcaneLevel(item.id, Number(e.target.value))
                   }
-                  className="h-7 w-14 rounded border border-[#f0b429]/20 bg-black/30 text-center text-sm outline-none"
+                  className="h-9 w-14 rounded border border-line bg-sunken text-center text-sm outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setArcaneLevel(item.id, level + 1)}
-                  className="h-7 w-7 rounded border border-[#f0b429]/20 text-sm"
+                  className="h-9 w-9 rounded border border-line text-sm"
                 >
                   +
                 </button>
-                <span className="text-xs text-[#9bb5af]">
+                <span className="text-xs text-muted">
                   / {item.maxLevel}
                 </span>
               </div>
-              <div className="mt-2 flex justify-between text-xs text-[#9bb5af]">
+              <div className="mt-2 flex justify-between text-xs text-muted">
                 <span>
                   {item.effectLabel}: {item.effects[level] ?? "—"}
                 </span>
@@ -1872,9 +1877,9 @@ function ArcaneView({
                     : `${formatGems(nextCost)} scrolls next`}
                 </span>
               </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-black/40">
+              <div className="mt-2 h-1.5 overflow-hidden rounded-lg bg-sunken">
                 <div
-                  className="h-full rounded-lg bg-[#a78bfa]"
+                  className="h-full rounded-lg bg-scroll"
                   style={{ width: `${(level / item.maxLevel) * 100}%` }}
                 />
               </div>
@@ -1911,11 +1916,11 @@ function StepRow({
   return (
     <div
       className={cn(
-        "step-row flex items-center gap-3 rounded-2xl border border-[#f0b429]/10 bg-black/20 px-3 py-2.5",
+        "step-row flex items-center gap-3 rounded-2xl border border-line bg-sunken px-3 py-2.5",
         dim && "opacity-45",
       )}
     >
-      <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/5 text-xs font-semibold text-[#9bb5af]">
+      <div className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-raised text-xs font-semibold text-muted">
         {index}
       </div>
       <div
@@ -1929,7 +1934,7 @@ function StepRow({
           {step.kind === "unlock" ? "Unlock" : `Lv ${step.from} → ${step.to}`}{" "}
           {item.name}
         </div>
-        <div className="truncate text-xs text-[#9bb5af]">
+        <div className="truncate text-xs text-muted">
           {item.effectKind === "cash"
             ? formatCash(effectAt(item.id, step.to) ?? 0)
             : formatEffect(item.id, step.to)}
@@ -1937,11 +1942,11 @@ function StepRow({
         </div>
       </div>
       <div className="text-right">
-        <div className="text-sm font-medium text-[#3ecfb3]">
+        <div className="text-sm font-medium text-gem">
           {formatGems(step.cost)}
         </div>
         {running != null && (
-          <div className="text-[11px] text-[#9bb5af]">
+          <div className="text-xs text-muted">
             {formatGems(running)} total
           </div>
         )}
@@ -1997,9 +2002,9 @@ function LevelRow({
       >
         +
       </button>
-      <span className="text-xs text-[#9bb5af]">/ {item.maxLevel}</span>
+      <span className="text-xs text-muted">/ {item.maxLevel}</span>
       {level === 0 && !canUnlock(id, levels) && (
-        <span className="text-[11px] text-[#9bb5af]">needs previous card</span>
+        <span className="text-xs text-muted">needs previous card</span>
       )}
     </div>
   );
@@ -2008,7 +2013,7 @@ function LevelRow({
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <dt className="text-[#9bb5af]">{k}</dt>
+      <dt className="text-muted">{k}</dt>
       <dd>{v}</dd>
     </div>
   );
@@ -2020,14 +2025,14 @@ function PriorityBadge({
   priority: "upgrade" | "asNeeded" | "avoid";
 }) {
   const map = {
-    upgrade: { label: "Upgrade", cls: "bg-emerald-500/15 text-emerald-300" },
-    asNeeded: { label: "As needed", cls: "bg-amber-500/15 text-amber-300" },
-    avoid: { label: "Avoid", cls: "bg-rose-500/15 text-rose-300" },
+    upgrade: { label: "Upgrade", cls: "bg-gem/12 text-gem" },
+    asNeeded: { label: "As needed", cls: "bg-gold/12 text-gold" },
+    avoid: { label: "Avoid", cls: "bg-chili/12 text-chili" },
   } as const;
   const m = map[priority];
   return (
     <span
-      className={cn("rounded-lg px-2 py-0.5 text-[11px] font-medium", m.cls)}
+      className={cn("rounded-lg px-2 py-0.5 text-xs font-medium", m.cls)}
     >
       {m.label}
     </span>
@@ -2044,27 +2049,20 @@ function GemChip({
   gem?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "flex items-center gap-2 rounded-lg border px-3 py-1.5",
-        gem
-          ? "border-[#3ecfb3]/25 bg-[#0a2a27]/70"
-          : "border-[#a78bfa]/25 bg-[#1a0f2e]/70",
-      )}
-    >
+    <div className="flex h-11 items-center gap-2 rounded-lg border border-line-strong px-3">
+      <span
+        aria-hidden="true"
+        className={cn("h-2 w-2 rounded-full", gem ? "bg-gem" : "bg-scroll")}
+      />
       <span
         className={cn(
-          "text-sm font-medium",
-          gem ? "text-[#3ecfb3]" : "text-[#a78bfa]",
+          "text-sm font-semibold tabular-nums",
+          gem ? "text-gem" : "text-scroll",
         )}
       >
         {formatGems(value)}
       </span>
-      <span
-        className={cn("text-xs", gem ? "text-[#8fd9cc]" : "text-[#c4b5fd]")}
-      >
-        {label}
-      </span>
+      <span className="text-xs text-muted">{label}</span>
     </div>
   );
 }

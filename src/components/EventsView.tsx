@@ -31,26 +31,26 @@ export function EventsView() {
 
   return (
     <div className="space-y-5">
-      <section className="ticket rounded-2xl p-5">
-        <h2 className="font-display text-3xl font-bold text-[#14201c]">
+      <section className="page-head">
+        <h2 className="font-display text-3xl font-bold text-ink">
           Events
         </h2>
-        <p className="mt-1 text-sm text-[#5c6f69]">
+        <p className="mt-1 text-sm text-muted">
           What to farm and which boxes drop key gear.
         </p>
       </section>
 
       <section className="panel rounded-2xl p-5">
-        <p className="text-xs text-[#9bb5af]">Estimated focus this week</p>
-        <h3 className="mt-1 font-display text-2xl font-bold text-[#f0b429]">
+        <p className="text-xs text-muted">Estimated focus this week</p>
+        <h3 className="mt-1 font-display text-2xl font-bold">
           {rot.current.name}
         </h3>
-        <p className="text-sm text-[#c5d5d0]">{rot.current.box}</p>
+        <p className="text-sm text-soft">{rot.current.box}</p>
         <p className="mt-2 text-sm">{rot.farmTip}</p>
-        <p className="mt-2 text-xs text-[#9bb5af]">
+        <p className="mt-2 text-xs text-muted">
           ~{formatCountdown(rot.msLeft)} left · next: {rot.next.name}
         </p>
-        <p className="mt-1 text-[11px] text-[#9bb5af]">
+        <p className="mt-1 text-xs text-muted">
           Rotation is an estimate — live schedules vary.
         </p>
       </section>
@@ -61,17 +61,17 @@ export function EventsView() {
             key={ev.id}
             className={cn(
               "panel rounded-2xl p-4",
-              ev.id === rot.current.id && "ring-1 ring-[#f0b429]",
+              ev.id === rot.current.id && "ring-1 ring-action",
             )}
           >
             <h3 className="font-display text-xl font-bold">{ev.name}</h3>
-            <p className="text-xs text-[#f0b429]">{ev.box}</p>
-            <ul className="mt-2 space-y-1 text-sm text-[#c5d5d0]">
+            <p className="text-xs text-muted">{ev.box}</p>
+            <ul className="mt-2 space-y-1 text-sm text-soft">
               {ev.highlights.map((h) => (
                 <li key={h}>· {h}</li>
               ))}
             </ul>
-            <p className="mt-2 text-xs text-[#9bb5af]">{ev.tip}</p>
+            <p className="mt-2 text-xs text-muted">{ev.tip}</p>
           </article>
         ))}
       </div>
@@ -123,9 +123,9 @@ export function MoreView({
 
   return (
     <div className="space-y-6">
-      <section className="ticket rounded-2xl p-5">
-        <h2 className="font-display text-3xl font-bold text-[#14201c]">{t("more")}</h2>
-        <p className="mt-1 text-sm text-[#5c6f69]">
+      <section className="page-head">
+        <h2 className="font-display text-3xl font-bold text-ink">{t("more")}</h2>
+        <p className="mt-1 text-sm text-muted">
           Theme, language, profiles, milestones, notes, and handbook links.
         </p>
       </section>
@@ -135,14 +135,14 @@ export function MoreView({
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
-            className={cn("btn-secondary", lang === "en" && "ring-1 ring-[#f0b429]")}
+            className={cn("btn-secondary", lang === "en" && "ring-1 ring-action")}
             onClick={() => setLang("en")}
           >
             English
           </button>
           <button
             type="button"
-            className={cn("btn-secondary", lang === "fa" && "ring-1 ring-[#f0b429]")}
+            className={cn("btn-secondary", lang === "fa" && "ring-1 ring-action")}
             onClick={() => setLang("fa")}
           >
             فارسی
@@ -155,7 +155,7 @@ export function MoreView({
         <button type="button" className="btn-secondary mt-3" onClick={toggleTheme}>
           Switch to {theme === "dark" ? "light" : "dark"} theme
         </button>
-        <p className="mt-2 text-xs text-[#9bb5af]">
+        <p className="mt-2 text-xs text-muted">
           Install tip: on mobile browsers use Add to Home Screen for a PWA-like
           shortcut. This build is a single-file app.
         </p>
@@ -167,23 +167,23 @@ export function MoreView({
 
       <section className="panel rounded-2xl p-5">
         <h3 className="font-display text-xl font-bold">Profiles</h3>
-        <p className="mt-1 text-sm text-[#9bb5af]">
+        <p className="mt-1 text-sm text-muted">
           Active: {getActiveProfileId()}
         </p>
         <div className="mt-3 space-y-2">
           {profiles.map((p) => (
             <div
               key={p.id}
-              className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm"
+              className="flex items-center justify-between gap-2 rounded-xl border border-line bg-sunken px-3 py-2 text-sm"
             >
               <button type="button" onClick={() => switchTo(p.id)}>
                 {p.name}{" "}
-                <span className="text-[#9bb5af]">({p.id})</span>
+                <span className="text-muted">({p.id})</span>
               </button>
               {p.id !== "main" && (
                 <button
                   type="button"
-                  className="text-xs text-rose-300"
+                  className="text-xs text-chili"
                   onClick={() => {
                     deleteProfile(p.id);
                     refreshProfiles();
@@ -219,8 +219,8 @@ export function MoreView({
               className={cn(
                 "rounded-xl border px-3 py-2 text-sm",
                 milestones[m.id]
-                  ? "border-[#3ecfb3]/35 bg-[#3ecfb3]/10"
-                  : "border-white/10 bg-black/20 text-[#9bb5af]",
+                  ? "border-gem/35 bg-gem/10"
+                  : "border-line bg-sunken text-muted",
               )}
             >
               {milestones[m.id] ? "✓" : "○"} {m.label}
@@ -243,19 +243,19 @@ export function MoreView({
         <h3 className="font-display text-xl font-bold">Handbook & links</h3>
         <dl className="mt-3 space-y-2 text-sm">
           <div className="flex justify-between gap-3">
-            <dt className="text-[#9bb5af]">Game patch</dt>
+            <dt className="text-muted">Game patch</dt>
             <dd>{HANDBOOK_META.gamePatch}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-[#9bb5af]">Handbook</dt>
+            <dt className="text-muted">Handbook</dt>
             <dd>{HANDBOOK_META.handbookVersion}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-[#9bb5af]">Updated</dt>
+            <dt className="text-muted">Updated</dt>
             <dd>{HANDBOOK_META.lastUpdate}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-[#9bb5af]">Author</dt>
+            <dt className="text-muted">Author</dt>
             <dd>{HANDBOOK_META.author}</dd>
           </div>
         </dl>
@@ -293,7 +293,7 @@ export function MoreView({
             GitHub
           </a>
         </div>
-        <p className="mt-3 text-xs text-[#9bb5af]">
+        <p className="mt-3 text-xs text-muted">
           {HANDBOOK_META.calculatorNote}
         </p>
       </section>

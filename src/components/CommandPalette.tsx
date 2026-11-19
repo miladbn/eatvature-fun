@@ -42,7 +42,7 @@ export function CommandPalette({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-start justify-center bg-black/60 p-4 pt-[12vh] backdrop-blur-sm"
+      className="fixed inset-0 z-[80] flex items-start justify-center bg-black/60 p-4 pt-[12vh]"
       onClick={onClose}
       role="presentation"
     >
@@ -64,7 +64,7 @@ export function CommandPalette({
             }
           }}
           placeholder={`${t("search")} (Ctrl+K)`}
-          className="field w-full rounded-none border-0 border-b border-white/10 bg-transparent px-4 py-3"
+          className="field w-full rounded-none border-0 border-b border-line bg-transparent px-4 py-3"
         />
         <ul className="max-h-72 overflow-y-auto p-2">
           {filtered.map((tab, i) => (
@@ -72,7 +72,7 @@ export function CommandPalette({
               <button
                 type="button"
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm hover:bg-white/10",
+                  "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm hover:bg-raised",
                   i === 0 && q.trim() && "bg-white/[0.06]",
                 )}
                 onClick={() => {
@@ -80,16 +80,16 @@ export function CommandPalette({
                   onClose();
                 }}
               >
-                <NavIcon id={tab.id} className="h-4 w-4 text-[#9bb5af]" />
+                <NavIcon id={tab.id} className="h-4 w-4 text-muted" />
                 <span className="flex-1">{tab.label}</span>
-                <span className="text-xs text-[#9bb5af]">
+                <span className="text-xs text-muted">
                   {tab.group}
                 </span>
               </button>
             </li>
           ))}
           {filtered.length === 0 && (
-            <li className="px-3 py-4 text-sm text-[#9bb5af]">No matches</li>
+            <li className="px-3 py-4 text-sm text-muted">No matches</li>
           )}
         </ul>
       </div>
