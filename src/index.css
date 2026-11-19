@@ -7,7 +7,49 @@
    The interface is neutral; colour comes from the game itself
    (gold coins, gems, scrolls, the item art) and one action colour. */
 
-@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap");
+/* Fonts ship with the app (public/fonts, OFL) so they work offline. */
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("/fonts/sora-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("/fonts/sora-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Figtree";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 900;
+  src: url("/fonts/figtree-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Figtree";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 900;
+  src: url("/fonts/figtree-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* Persian: Vazirmatn covers the Arabic script that Sora and Figtree lack. */
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/vazirmatn-arabic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+
 @import "tailwindcss";
 
 /* Semantic colours as Tailwind utilities (text-muted, bg-sunken, border-line,
@@ -32,8 +74,8 @@
 }
 
 @theme {
-  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
   --font-weight-bold: 600;
 
   /* One radius family: controls 8, wells 12, panels and cards 16. */
@@ -112,6 +154,34 @@ html[data-theme="light"] {
   color-scheme: light;
 }
 
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) {
+    --bg: #f4f4f2;
+    --surface: #ffffff;
+    --sunken: #f0f0ed;
+    --raised: #e8e8e4;
+    --ink: #18191b;
+    --soft: #3a3c40;
+    --muted: #63656b;
+    --line: rgba(24, 25, 27, 0.09);
+    --line-strong: rgba(24, 25, 27, 0.17);
+
+    --action: #d63a12;
+    --on-action: #ffffff;
+
+    --gold: #8a5f00;
+    --gem: #0d7a65;
+    --scroll: #b3325e;
+    --chili: #c9361a;
+    --sky: #2f62c9;
+
+    --paper: #f6f1e7;
+    --paper-stub: #ece5d6;
+
+    color-scheme: light;
+  }
+}
+
 /* ─── Base ─── */
 html,
 body,
@@ -128,7 +198,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Figtree", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -243,7 +313,7 @@ main {
 
 @layer components {
   .font-display {
-    font-family: "Sora", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Sora", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
     letter-spacing: -0.025em;
   }
 
@@ -423,6 +493,7 @@ main {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239c9ea3' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.6rem center;
+    padding-inline-end: 2rem;
     background-size: 14px;
   }
 
@@ -628,7 +699,7 @@ main {
     place-items: center;
     background: var(--action);
     color: var(--on-action);
-    font-family: "Sora", sans-serif;
+    font-family: "Sora", "Vazirmatn", sans-serif;
     font-weight: 700;
     font-size: 0.875rem;
     letter-spacing: -0.03em;
@@ -644,7 +715,7 @@ main {
   /* A linked card lifts 2px and its border darkens a step. */
   .city-card {
     width: 100%;
-    text-align: left;
+    text-align: start;
     border-radius: 12px;
     border: 1px solid var(--line);
     background: var(--surface);
@@ -683,7 +754,7 @@ main {
     min-height: 40px;
     border-radius: 8px;
     padding: 0.5rem 0.75rem;
-    text-align: left;
+    text-align: start;
     font-size: 0.9375rem;
     font-weight: 500;
     border: 1px solid transparent;
@@ -723,7 +794,7 @@ main {
     .nav-item.active::before {
       content: "";
       position: absolute;
-      left: -1px;
+      inset-inline-start: -1px;
       top: 25%;
       bottom: 25%;
       width: 2px;
@@ -880,6 +951,12 @@ html[data-theme="light"] select.field {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2363656b' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) select.field {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2363656b' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  }
+}
+
 /* Text people read is 16px; the page heading's lead line follows it. */
 .page-head > h2 + p,
 .page-head > p + h2 + p {
@@ -891,7 +968,7 @@ html[data-theme="light"] select.field {
 .skip-link {
   position: fixed;
   top: 10px;
-  left: 16px;
+  inset-inline-start: 16px;
   z-index: 60;
   padding: 0.6rem 1rem;
   border-radius: 8px;
@@ -903,4 +980,8 @@ html[data-theme="light"] select.field {
 
 .skip-link:focus-visible {
   transform: none;
+}
+
+[dir="rtl"] select.field {
+  background-position: left 0.6rem center;
 }
