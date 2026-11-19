@@ -34,6 +34,7 @@
 @theme {
   --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-weight-bold: 600;
 
   /* One radius family: controls 8, wells 12, panels and cards 16. */
   --radius-md: 6px;
@@ -715,6 +716,10 @@ main {
 
   /* Current page: a 2px bar. */
   @media (min-width: 1024px) {
+    .nav-item {
+      width: 100%;
+    }
+
     .nav-item.active::before {
       content: "";
       position: absolute;

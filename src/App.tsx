@@ -1142,7 +1142,7 @@ function Overview({
             <div className="text-xs font-medium text-muted">
               Cities to max vault
             </div>
-            <div className="mt-1 font-display text-3xl font-semibold text-chili">
+            <div className="mt-1 font-display text-3xl font-semibold">
               {citiesToFull.toLocaleString()}
             </div>
             <p className="mt-1 text-xs text-muted">
@@ -1151,7 +1151,7 @@ function Overview({
           </div>
           <div className="stat-tile">
             <div className="text-xs text-muted">At your city rate</div>
-            <div className="mt-1 font-display text-2xl font-bold gold-text">
+            <div className="mt-1 font-display text-2xl font-bold">
               {citiesAtCurrent.toLocaleString()}
             </div>
             <p className="mt-1 text-xs text-muted">
@@ -1160,7 +1160,7 @@ function Overview({
           </div>
           <div className="stat-tile">
             <div className="text-xs text-muted">Priority path only</div>
-            <div className="mt-1 font-display text-2xl font-bold gem-text">
+            <div className="mt-1 font-display text-2xl font-bold">
               {citiesToPriority.toLocaleString()}
             </div>
             <p className="mt-1 text-xs text-muted">
@@ -1198,12 +1198,7 @@ function Overview({
             {focusTips.map((tip) => (
               <div
                 key={tip.title}
-                className={cn(
-                  "rounded-xl border px-3.5 py-3",
-                  tip.tone === "now"
-                    ? "border-action/50 bg-sunken"
-                    : "border-line bg-sunken",
-                )}
+                className="rounded-xl border border-line bg-sunken px-3.5 py-3"
               >
                 <div className="flex items-center gap-2">
                   <span

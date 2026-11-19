@@ -61,7 +61,7 @@ export function CitiesView({
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="stat-tile">
             <div className="text-xs text-muted">Cities to max your vault</div>
-            <div className="mt-1 font-display text-2xl font-bold text-chili">
+            <div className="mt-1 font-display text-2xl font-bold">
               {citiesToFull.toLocaleString()}
             </div>
             <div className="mt-0.5 text-xs text-muted">
@@ -101,7 +101,7 @@ export function CitiesView({
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="stat-tile">
           <div className="text-xs text-muted">Selected city gems</div>
-          <div className="mt-1 font-display text-2xl font-bold gold-text">
+          <div className="mt-1 font-display text-2xl font-bold gem-text">
             {active.gems}
           </div>
         </div>
@@ -173,7 +173,7 @@ export function CitiesView({
               ))}
               <div className="flex items-center justify-between border-t border-line pt-3 text-sm font-semibold">
                 <span>City total</span>
-                <span className="gold-text">{restaurants.totalGems} gems</span>
+                <span className="gem-text">{restaurants.totalGems} gems</span>
               </div>
               <p className="pt-2 text-xs text-muted">
                 At this city’s {active.gems} gems, your remaining vault needs about{" "}
